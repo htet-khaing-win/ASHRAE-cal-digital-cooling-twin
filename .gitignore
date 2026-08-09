@@ -1,0 +1,49 @@
+# data — never commit, even accidentally
+# (anchored to repo root: an unanchored "data/" also matches
+# src/cooling_twin/data/, silently excluding the data-layer package)
+/data/
+!/data/README.md
+
+# instructor/course context files — teaching scaffolding, not shipped
+# project docs. README.md is the only .md meant for a real audience.
+01_LEARNING_PATH.md
+02_CURRICULUM.md
+03_DOMAIN_REFERENCE.md
+04_DATA_CONTRACT.md
+05_ENGINEERING_STANDARDS.md
+06_ASSESSMENT.md
+07_PROGRESS.md
+ADVANCED-UPGRADES.md
+CLAUDE.md
+
+# exploratory notebooks — exploration only, no project logic lives here
+# (05_ENGINEERING_STANDARDS.md notebook discipline); real implementations
+# live in src/, and notebook cell outputs duplicate reports/figures/*.png
+# as much larger embedded base64 blobs, so they add repo bloat with no
+# reproducibility benefit `make all` doesn't already provide.
+notebooks/
+
+# python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+
+# environments
+.venv/
+env/
+
+# jupyter
+.ipynb_checkpoints/
+
+# os
+.DS_Store
+Thumbs.db
+
+# secrets — belt and suspenders, no secrets expected in this project
+.env
+.env.local

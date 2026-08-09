@@ -1,0 +1,35 @@
+# config/cleaning.yaml
+# Thresholds for C1-C9 data cleaning rules (04_DATA_CONTRACT.md SS4).
+# Every numeric threshold used by src/cooling_twin/data/quality.py lives
+# here -- never hardcoded in the module itself.
+
+c2_spike:
+  # C2: value > (p{percentile} of this series) * multiplier -> flagged as a spike
+  percentile: 99.9
+  multiplier: 3.0
+
+c7_physical_bounds:
+  rh_pct_min: 0.0
+  rh_pct_max: 100.0
+
+# Rules C3-C6, C8, C9 are configured at L3.3-L3.5 when their
+# detectors are implemented.
+c3_stuck_sensor:
+  # C3: identical value for >= this many consecutive hours -> flagged as stuck
+  min_run_hours: 6
+
+c4_meter_offline:
+  # C4: value == 0 for >= this many consecutive hours -> flagged as offline
+  min_zero_run_hours: 24
+
+gap_handling:
+  max_interpolate_hours: 3   # C5/C6 threshold -- thermal-mass justification, 04_DATA_CONTRACT.md §4
+
+change_point_detection:
+  penalty: 30.0        # PELT L2 penalty on daily means -- tuned via elbow plot (see Run it)
+  min_segment_days: 60 # a "regime" shorter than 2 months is implausible for
+                        # meter replacement / retrofit / tenant change
+
+reporting:
+  max_removed_pct: 15.0   # 06_ASSESSMENT.md M3 gate: total removed > 15% -> reconsider building
+  month_min_valid_pct: 50.0  # C9

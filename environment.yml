@@ -1,0 +1,21 @@
+name: cooling-twin
+
+channels:
+  - conda-forge
+
+dependencies:
+  - python=3.11
+  - numpy
+  - scipy
+  - pandas
+  - matplotlib
+  - pip
+  - pip:
+      - psychrolib
+      - -e .
+      - pytest
+      - pytest-cov
+      - mypy
+      - types-PyYAML
+      - ruff
+      - SALib
