@@ -44,3 +44,10 @@ warn_return_any = true
 [[tool.mypy.overrides]]
 module = ["pandas.*", "scipy.*", "psychrolib.*", "ruptures.*"]
 ignore_missing_imports = true
+
+[tool.coverage.report]
+# `if __name__ == "__main__":` demo/validation blocks (rc.py, load.py, ...)
+# are exploration-facing, not library logic under test -- counting them
+# against the 80%/85% coverage targets just pressures H to either delete
+# useful standalone demos or pad them with pointless tests.
+exclude_lines = ["if __name__ == .__main__.:"]
