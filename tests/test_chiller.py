@@ -156,3 +156,41 @@ def test_eir_fplr_curve_stays_within_inv1_cop_bounds() -> None:
     cop = cop_ref / eir_fplr
     assert (cop > 0).all()
     assert (cop < 10).all()
+
+
+def test_chiller_power_rejects_load_above_inv4_limit() -> None:
+    """INV-4: Q_load <= 1.1 * q_ref_kw, a separate absolute check from
+    INV-6's curve-relative PLR bound. Uses a CAPFT curve reporting MORE
+    than nameplate capacity (cap_f=1.15) so PLR stays comfortably under
+    1.05 (not tripping INV-6) while Q_load still exceeds 110% of the
+    1000 kW nameplate rating.
+    """
+    boosted_cap_ft = (1.15, 0.0, 0.0, 0.0, 0.0, 0.0)  # constant 1.15 everywhere
+    curves = ChillerCurves(
+        cap_ft=boosted_cap_ft,
+        eir_ft=_FLAT,
+        eir_fplr=_FLAT_PLR,
+        q_ref_kw=1000.0,
+        cop_ref=5.0,
+    )
+    # q_avail=1150kW, so PLR=1150/1150=1.0 (<=1.05, INV-6 satisfied),
+    # but Q_load=1150kW > 1.1*1000kW=1100kW (INV-4 violated).
+    with pytest.raises(ValueError, match="INV-4"):
+        chiller_power(1150.0, t_chw_supply_c=6.7, t_cond_water_c=29.4, curves=curves)
+
+
+def test_chiller_power_accepts_load_at_inv4_boundary() -> None:
+    """INV-4's bound is inclusive (Q_load <= 1.1*q_ref_kw) -- exactly
+    at the boundary must NOT raise.
+    """
+    boosted_cap_ft = (1.15, 0.0, 0.0, 0.0, 0.0, 0.0)
+    curves = ChillerCurves(
+        cap_ft=boosted_cap_ft,
+        eir_ft=_FLAT,
+        eir_fplr=_FLAT_PLR,
+        q_ref_kw=1000.0,
+        cop_ref=5.0,
+    )
+    # Q_load=1100kW is exactly 1.1*1000kW; PLR=1100/1150=0.9565 (<=1.05).
+    power_kw = chiller_power(1100.0, t_chw_supply_c=6.7, t_cond_water_c=29.4, curves=curves)
+    assert power_kw == pytest.approx(1100.0 / 5.0)

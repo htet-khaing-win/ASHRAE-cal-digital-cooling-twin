@@ -21,6 +21,7 @@ logger = logging.getLogger(__name__)
 _MIN_COP = 0.0
 _MAX_COP = 10.0  # INV-1 (03_DOMAIN_REFERENCE.md SS2)
 _MAX_PLR = 1.05  # INV-6 (03_DOMAIN_REFERENCE.md SS2): 0 <= PLR <= 1.05
+_MAX_LOAD_VS_RATED_FACTOR = 1.1  # INV-4: Q_cooling <= chiller_rated_capacity * 1.1
 
 CurveCoeffs6 = tuple[float, float, float, float, float, float]
 CurveCoeffs3 = tuple[float, float, float]
@@ -139,10 +140,13 @@ def chiller_power(
         ValueError: If `q_load_kw` is negative, if `CAPFT` evaluates to
             zero or negative available capacity at the given
             temperatures (the curve is being asked to extrapolate
-            somewhere it was never fit to represent), or if the
-            resulting part-load ratio violates INV-6 (`PLR > 1.05` --
-            the load exceeds what this chiller can deliver even with
-            the standard 5% overload margin).
+            somewhere it was never fit to represent), if the resulting
+            part-load ratio violates INV-6 (`PLR > 1.05`), or if
+            `q_load_kw` violates INV-4 (exceeds 110% of the chiller's
+            nameplate `q_ref_kw` -- a separate, absolute check from
+            INV-6's curve-relative one: a CAPFT curve that extrapolates
+            too optimistically could otherwise let `Q_avail` balloon
+            well past the nameplate rating and pass PLR<=1.05 anyway).
     """
     if q_load_kw < 0:
         raise ValueError(f"q_load_kw must be >= 0, got {q_load_kw}")
@@ -168,6 +172,16 @@ def chiller_power(
     logger.debug(
         "PLR=%.3f (Q_load=%.1f kW, Q_avail=%.1f kW)", plr, q_load_kw, q_avail_kw
     )
+
+    max_load_kw = curves.q_ref_kw * _MAX_LOAD_VS_RATED_FACTOR
+    if q_load_kw > max_load_kw:
+        raise ValueError(
+            f"INV-4 violated: Q_load={q_load_kw:.1f} kW exceeds "
+            f"{_MAX_LOAD_VS_RATED_FACTOR * 100:.0f}% of the nameplate rated "
+            f"capacity ({curves.q_ref_kw:.1f} kW) -- distinct from INV-6's "
+            "PLR check, this catches an absolute overload even when CAPFT "
+            "reports enough temperature-corrected capacity to pass PLR<=1.05."
+        )
 
     eir_f_t = biquadratic(t_chw_supply_c, t_cond_water_c, curves.eir_ft)
     p0, p1, p2 = curves.eir_fplr
