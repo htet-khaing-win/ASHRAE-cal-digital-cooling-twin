@@ -12,6 +12,8 @@ dependencies:
   - pip
   - pip:
       - psychrolib
+      - ruptures
+      - pyyaml
       - -e .
       - pytest
       - pytest-cov
