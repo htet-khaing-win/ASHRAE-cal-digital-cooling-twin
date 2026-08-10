@@ -42,7 +42,7 @@ warn_return_any = true
 # WE wrote while not blocking CI on third-party typing that is out of
 # this project's control.
 [[tool.mypy.overrides]]
-module = ["pandas.*", "scipy.*", "psychrolib.*", "ruptures.*"]
+module = ["pandas.*", "scipy.*", "psychrolib.*", "ruptures.*", "SALib.*"]
 ignore_missing_imports = true
 
 [tool.coverage.report]
