@@ -21,7 +21,13 @@ from __future__ import annotations
 import numpy as np
 import pytest
 
-from cooling_twin.calibration.metrics import cvrmse, nmbe
+from cooling_twin.calibration.metrics import (
+    DataInterval,
+    G14Verdict,
+    ashrae_g14_pass,
+    cvrmse,
+    nmbe,
+)
 
 # Worked by hand throughout this file:
 #   measured  y     = [100, 200, 300, 400]        ybar = 250
@@ -165,3 +171,169 @@ def test_rejects_no_remaining_degrees_of_freedom() -> None:
 def test_rejects_zero_measured_mean() -> None:
     with pytest.raises(ValueError, match="mean of measured is zero"):
         nmbe([0.0, 0.0, 0.0], [1.0, 2.0, 3.0], n_params=0)
+
+
+# --------------------------------------------------------------------
+# L6.3 -- the ASHRAE G14 acceptance gate
+# --------------------------------------------------------------------
+
+
+def _verdict(nmbe_pct: float, cvrmse_pct: float, interval: DataInterval) -> G14Verdict:
+    """Build a verdict directly, to test the pass/fail logic in isolation.
+
+    Constructing the dataclass rather than reverse-engineering data that
+    happens to score these values keeps the threshold logic under test
+    separate from the metric arithmetic already covered above -- a
+    failure here then means the gate is wrong, not that the metrics are.
+    """
+    nmbe_limit, cvrmse_limit = {
+        DataInterval.HOURLY: (10.0, 30.0),
+        DataInterval.MONTHLY: (5.0, 15.0),
+    }[interval]
+    return G14Verdict(
+        interval=interval,
+        nmbe_pct=nmbe_pct,
+        cvrmse_pct=cvrmse_pct,
+        nmbe_limit_pct=nmbe_limit,
+        cvrmse_limit_pct=cvrmse_limit,
+        n_params=8,
+        n_points=8760,
+    )
+
+
+def test_hourly_thresholds_match_the_standard() -> None:
+    """03_DOMAIN_REFERENCE.md SS4: hourly is NMBE +/-10%, CV(RMSE) 30%."""
+    verdict = ashrae_g14_pass(MEASURED, PREDICTED, n_params=0)
+
+    assert verdict.interval is DataInterval.HOURLY
+    assert verdict.nmbe_limit_pct == 10.0
+    assert verdict.cvrmse_limit_pct == 30.0
+
+
+def test_monthly_thresholds_match_the_standard() -> None:
+    """03_DOMAIN_REFERENCE.md SS4: monthly is NMBE +/-5%, CV(RMSE) 15%."""
+    verdict = ashrae_g14_pass(
+        MEASURED, PREDICTED, n_params=0, interval=DataInterval.MONTHLY
+    )
+
+    assert verdict.nmbe_limit_pct == 5.0
+    assert verdict.cvrmse_limit_pct == 15.0
+
+
+def test_hourly_is_the_default_interval() -> None:
+    """This project's declared target (03_DOMAIN_REFERENCE.md SS4)."""
+    assert ashrae_g14_pass(MEASURED, PREDICTED, n_params=0).interval is (
+        DataInterval.HOURLY
+    )
+
+
+@pytest.mark.parametrize(
+    ("nmbe_pct", "cvrmse_pct", "expected"),
+    [
+        (0.0, 0.0, True),  # perfect
+        (9.99, 29.99, True),  # just inside both
+        (10.0, 30.0, True),  # exactly on both limits -- G14 says "<="
+        (-10.0, 30.0, True),  # the limit is on |NMBE|, so symmetric
+        (10.01, 29.99, False),  # NMBE alone fails it
+        (9.99, 30.01, False),  # CV(RMSE) alone fails it
+        (-10.01, 1.0, False),  # over-prediction fails the same way
+    ],
+)
+def test_hourly_pass_fail_boundaries(
+    nmbe_pct: float, cvrmse_pct: float, expected: bool
+) -> None:
+    """Both criteria required; the comparison is inclusive on both."""
+    assert _verdict(nmbe_pct, cvrmse_pct, DataInterval.HOURLY).passed is expected
+
+
+def test_monthly_is_stricter_than_hourly_on_identical_metrics() -> None:
+    """The same numbers pass hourly and fail monthly.
+
+    This is the whole reason the interval has to be an argument: a
+    verdict is meaningless without it.
+    """
+    assert _verdict(7.0, 20.0, DataInterval.HOURLY).passed is True
+    assert _verdict(7.0, 20.0, DataInterval.MONTHLY).passed is False
+
+
+def test_verdict_reports_which_criterion_failed() -> None:
+    """A bare bool would lose exactly this."""
+    verdict = _verdict(nmbe_pct=15.0, cvrmse_pct=20.0, interval=DataInterval.HOURLY)
+
+    assert verdict.passed is False
+    assert verdict.nmbe_pass is False
+    assert verdict.cvrmse_pass is True
+
+
+def test_stretch_target_is_separate_from_the_g14_pass() -> None:
+    """CV(RMSE) <= 20% is this project's target, not the standard's."""
+    passes_g14_only = _verdict(1.0, 25.0, DataInterval.HOURLY)
+    assert passes_g14_only.passed is True
+    assert passes_g14_only.meets_stretch_target is False
+
+    assert _verdict(1.0, 20.0, DataInterval.HOURLY).meets_stretch_target is True
+
+
+def test_suspiciously_good_is_flagged_and_is_not_a_pass_signal() -> None:
+    """06_ASSESSMENT.md: hourly CV(RMSE) < 5% is implausible."""
+    too_good = _verdict(0.1, 4.9, DataInterval.HOURLY)
+
+    assert too_good.passed is True  # it does pass the standard...
+    assert too_good.is_suspiciously_good is True  # ...and still needs checking
+
+    assert _verdict(0.1, 5.0, DataInterval.HOURLY).is_suspiciously_good is False
+
+
+def test_suspiciously_good_does_not_apply_to_monthly_data() -> None:
+    """The 5% plausibility floor is stated for hourly prediction only.
+
+    Monthly averaging genuinely removes most of the variance that makes
+    hourly prediction hard, so a low monthly CV(RMSE) is not the same
+    warning sign.
+    """
+    assert _verdict(0.1, 4.9, DataInterval.MONTHLY).is_suspiciously_good is False
+
+
+def test_suspiciously_good_logs_a_warning(
+    caplog: pytest.LogCaptureFixture,
+) -> None:
+    """The flag must reach a human, not just sit on the dataclass."""
+    with caplog.at_level("WARNING"):
+        ashrae_g14_pass(MEASURED, MEASURED, n_params=0)
+
+    assert "plausibility floor" in caplog.text
+
+
+def test_summary_names_the_failing_criterion() -> None:
+    text = _verdict(15.0, 20.0, DataInterval.HOURLY).summary()
+
+    assert text.startswith("FAIL")
+    assert "NMBE +15.00%" in text
+    assert "limit +/-10%" in text
+    assert "n=8760" in text
+    assert "p=8" in text
+
+
+def test_verdict_is_immutable() -> None:
+    """Frozen so a verdict cannot be edited after the fact.
+
+    A mutable verdict is a verdict that can be "fixed" between being
+    computed and being written into reports/02_calibration.md.
+    """
+    verdict = _verdict(15.0, 20.0, DataInterval.HOURLY)
+    with pytest.raises(Exception):  # noqa: B017 -- FrozenInstanceError
+        verdict.nmbe_pct = 1.0  # type: ignore[misc]
+
+
+def test_rejects_an_unknown_interval() -> None:
+    with pytest.raises(ValueError, match="must be a DataInterval"):
+        ashrae_g14_pass(MEASURED, PREDICTED, n_params=0, interval="hourly")  # type: ignore[arg-type]
+
+
+def test_gate_reports_n_and_p_it_actually_used() -> None:
+    verdict = ashrae_g14_pass(MEASURED, PREDICTED, n_params=1)
+
+    assert verdict.n_points == 4
+    assert verdict.n_params == 1
+    assert verdict.nmbe_pct == pytest.approx(nmbe(MEASURED, PREDICTED, n_params=1))
+    assert verdict.cvrmse_pct == pytest.approx(cvrmse(MEASURED, PREDICTED, n_params=1))

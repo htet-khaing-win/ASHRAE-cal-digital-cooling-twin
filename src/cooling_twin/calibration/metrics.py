@@ -31,6 +31,9 @@ them. See the "Why it's written this way" note on this in the lesson.
 from __future__ import annotations
 
 import logging
+from dataclasses import dataclass
+from enum import Enum
+from types import MappingProxyType
 
 import numpy as np
 import numpy.typing as npt
@@ -38,6 +41,45 @@ import numpy.typing as npt
 logger = logging.getLogger(__name__)
 
 _PERCENT = 100.0
+
+
+class DataInterval(Enum):
+    """The averaging interval the metrics were computed at.
+
+    G14 sets different thresholds for hourly and monthly data, and the
+    interval is not inferable from the arrays themselves -- 8,760
+    numbers could be hourly for a year or monthly for 730 years. It has
+    to be stated, so it is an argument, and an enum rather than a
+    string so a typo is a NameError at import rather than a silently
+    wrong verdict at report time.
+    """
+
+    HOURLY = "hourly"
+    MONTHLY = "monthly"
+
+
+# 03_DOMAIN_REFERENCE.md SS4, "Acceptance thresholds". These are the
+# published values of a consensus standard, NOT project settings --
+# deliberately module constants rather than entries in
+# config/calibration.yaml. See the L6.3 rationale: a threshold that
+# lives in a config file is a threshold that can be widened by whoever
+# is failing it, which destroys the only property that makes an
+# external standard worth using.
+_THRESHOLDS: MappingProxyType[DataInterval, tuple[float, float]] = MappingProxyType(
+    {
+        # interval: (|NMBE| limit %, CV(RMSE) limit %)
+        DataInterval.HOURLY: (10.0, 30.0),
+        DataInterval.MONTHLY: (5.0, 15.0),
+    }
+)
+
+# 03_DOMAIN_REFERENCE.md SS4: "Stretch target: CV(RMSE) <= 20%."
+_STRETCH_CVRMSE_PCT = 20.0
+
+# 06_ASSESSMENT.md, "On suspiciously good results": hourly building
+# energy prediction below 5% CV(RMSE) is implausible and should be
+# investigated, not celebrated.
+_SUSPICIOUSLY_GOOD_CVRMSE_PCT = 5.0
 
 
 def _validated_errors(
@@ -173,6 +215,146 @@ def cvrmse(
     return root_mean_square_error / y_bar * _PERCENT
 
 
+@dataclass(frozen=True)
+class G14Verdict:
+    """The full result of an ASHRAE Guideline 14 acceptance check.
+
+    Deliberately not a bare `bool`. A bool answers "did it pass" and
+    throws away every question actually asked next: which of the two
+    criteria failed, by how much, against which interval's thresholds,
+    and what the numbers were. All of those are needed for
+    `reports/02_calibration.md`'s required table (06_ASSESSMENT.md M6)
+    and for L6.10's one-time test-set log entry, and reconstructing
+    them by re-running the metrics alongside the bool invites the two
+    call sites drifting apart.
+
+    Attributes:
+        interval: Which threshold set was applied.
+        nmbe_pct: Measured NMBE, percent (sign convention as `nmbe()`).
+        cvrmse_pct: Measured CV(RMSE), percent.
+        nmbe_limit_pct: The |NMBE| limit applied, percent.
+        cvrmse_limit_pct: The CV(RMSE) limit applied, percent.
+        n_params: Number of calibrated parameters used in `n - p`.
+        n_points: Number of paired observations scored.
+    """
+
+    interval: DataInterval
+    nmbe_pct: float
+    cvrmse_pct: float
+    nmbe_limit_pct: float
+    cvrmse_limit_pct: float
+    n_params: int
+    n_points: int
+
+    @property
+    def nmbe_pass(self) -> bool:
+        """|NMBE| <= the interval's limit. Note: inclusive."""
+        return abs(self.nmbe_pct) <= self.nmbe_limit_pct
+
+    @property
+    def cvrmse_pass(self) -> bool:
+        """CV(RMSE) <= the interval's limit. Note: inclusive."""
+        return self.cvrmse_pct <= self.cvrmse_limit_pct
+
+    @property
+    def passed(self) -> bool:
+        """G14 requires BOTH criteria. Neither alone is sufficient."""
+        return self.nmbe_pass and self.cvrmse_pass
+
+    @property
+    def meets_stretch_target(self) -> bool:
+        """CV(RMSE) <= 20% -- this project's own target, not G14's."""
+        return self.cvrmse_pct <= _STRETCH_CVRMSE_PCT
+
+    @property
+    def is_suspiciously_good(self) -> bool:
+        """CV(RMSE) < 5% on hourly data (06_ASSESSMENT.md).
+
+        A true condition here is NOT a pass signal. It is a prompt to
+        check for a leak, a trivially-predictable target, or the test
+        set having been touched.
+        """
+        return (
+            self.interval is DataInterval.HOURLY
+            and self.cvrmse_pct < _SUSPICIOUSLY_GOOD_CVRMSE_PCT
+        )
+
+    def summary(self) -> str:
+        """One-line human-readable verdict, for logs and reports."""
+        return (
+            f"{'PASS' if self.passed else 'FAIL'} "
+            f"({self.interval.value}, n={self.n_points}, p={self.n_params}): "
+            f"NMBE {self.nmbe_pct:+.2f}% "
+            f"[{'ok' if self.nmbe_pass else 'FAIL'}, limit +/-{self.nmbe_limit_pct:g}%], "
+            f"CV(RMSE) {self.cvrmse_pct:.2f}% "
+            f"[{'ok' if self.cvrmse_pass else 'FAIL'}, limit {self.cvrmse_limit_pct:g}%]"
+        )
+
+
+def ashrae_g14_pass(
+    measured: npt.ArrayLike,
+    predicted: npt.ArrayLike,
+    n_params: int,
+    interval: DataInterval = DataInterval.HOURLY,
+) -> G14Verdict:
+    """Score a model against ASHRAE Guideline 14's acceptance criteria.
+
+    Computes both metrics and applies the interval's published
+    thresholds. A model passes only if BOTH criteria pass.
+
+    This function does not know, and must not know, whether it is being
+    handed train or test data. That distinction is a matter of process
+    (ADR-002's locked split, and L6.10's one-time opening), enforced by
+    the caller and logged in `07_PROGRESS.md` -- not something a
+    scoring function can police.
+
+    Args:
+        measured: Measured values `y`.
+        predicted: Model output `yhat`, aligned with `measured`.
+        n_params: Number of calibrated parameters `p`.
+        interval: Averaging interval of the data. Defaults to hourly,
+            this project's declared target (03_DOMAIN_REFERENCE.md SS4).
+
+    Returns:
+        A `G14Verdict` carrying both metrics, both thresholds, and the
+        per-criterion outcomes.
+
+    Raises:
+        ValueError: If `interval` is not a `DataInterval`, or for any
+            of the input problems listed in `_validated_errors`.
+    """
+    if interval not in _THRESHOLDS:
+        raise ValueError(
+            f"interval must be a DataInterval, got {interval!r}. "
+            "G14 publishes thresholds only for hourly and monthly data; "
+            "any other interval needs its own justification, not a "
+            "borrowed threshold."
+        )
+
+    nmbe_limit_pct, cvrmse_limit_pct = _THRESHOLDS[interval]
+    verdict = G14Verdict(
+        interval=interval,
+        nmbe_pct=nmbe(measured, predicted, n_params),
+        cvrmse_pct=cvrmse(measured, predicted, n_params),
+        nmbe_limit_pct=nmbe_limit_pct,
+        cvrmse_limit_pct=cvrmse_limit_pct,
+        n_params=n_params,
+        n_points=int(np.asarray(measured, dtype=float).size),
+    )
+
+    if verdict.is_suspiciously_good:
+        logger.warning(
+            "CV(RMSE) of %.2f%% is below the %.1f%% plausibility floor for "
+            "hourly building energy prediction (06_ASSESSMENT.md). Check for "
+            "a data leak, a trivially-predictable target, or the test set "
+            "having been touched, before reporting this as a result.",
+            verdict.cvrmse_pct,
+            _SUSPICIOUSLY_GOOD_CVRMSE_PCT,
+        )
+
+    return verdict
+
+
 if __name__ == "__main__":
     logging.basicConfig(level=logging.INFO)
 
@@ -202,4 +384,33 @@ if __name__ == "__main__":
             p,
             nmbe(measured_demo, biased_model, n_params=p),
             cvrmse(measured_demo, biased_model, n_params=p),
+        )
+
+    # 4. The G14 gate, on a synthetic year. set_seed() keeps this
+    #    reproducible (L0.3) -- a demo whose verdict changes between runs
+    #    is worse than no demo.
+    from cooling_twin import set_seed
+
+    rng = set_seed()
+    hours = np.arange(8760)
+    truth = 2000.0 + 600.0 * np.sin(2 * np.pi * hours / 8760) + rng.normal(0, 150, 8760)
+
+    logger.info("--- 4. G14 gate, hourly, n=8760, p=8 ---")
+    for label, model in (
+        ("uncalibrated (90% low)", truth * 0.1),
+        ("biased but well-shaped", truth * 0.85),
+        ("plausibly calibrated", truth + rng.normal(0, 300, 8760)),
+    ):
+        verdict = ashrae_g14_pass(truth, model, n_params=8)
+        logger.info("%-24s %s", label, verdict.summary())
+
+    # 5. Same numbers, monthly thresholds -- the standard is stricter when
+    #    averaging has already removed most of the hour-to-hour variance.
+    logger.info("--- 5. hourly vs monthly thresholds on identical data ---")
+    borderline = truth * 0.93
+    for data_interval in DataInterval:
+        logger.info(
+            "%-8s %s",
+            data_interval.value,
+            ashrae_g14_pass(truth, borderline, n_params=8, interval=data_interval).summary(),
         )
