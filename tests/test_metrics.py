@@ -26,6 +26,7 @@ from cooling_twin.calibration.metrics import (
     G14Verdict,
     ashrae_g14_pass,
     cvrmse,
+    g14_thresholds,
     nmbe,
 )
 
@@ -328,6 +329,32 @@ def test_verdict_is_immutable() -> None:
 def test_rejects_an_unknown_interval() -> None:
     with pytest.raises(ValueError, match="must be a DataInterval"):
         ashrae_g14_pass(MEASURED, PREDICTED, n_params=0, interval="hourly")  # type: ignore[arg-type]
+
+
+def test_g14_thresholds_match_what_the_gate_applies() -> None:
+    """The accessor and the verdict must never disagree.
+
+    `g14_thresholds()` exists so L6.6's objective can normalise against
+    the published limits instead of restating them. If the two ever
+    drifted apart the failure would be silent -- the optimiser would
+    walk toward a target the gate does not use -- so they are checked
+    against each other rather than against literals twice.
+    """
+    for interval in DataInterval:
+        nmbe_limit, cvrmse_limit = g14_thresholds(interval)
+        verdict = ashrae_g14_pass(MEASURED, PREDICTED, n_params=0, interval=interval)
+
+        assert nmbe_limit == verdict.nmbe_limit_pct
+        assert cvrmse_limit == verdict.cvrmse_limit_pct
+
+
+def test_g14_thresholds_defaults_to_hourly() -> None:
+    assert g14_thresholds() == (10.0, 30.0)
+
+
+def test_g14_thresholds_rejects_an_unknown_interval() -> None:
+    with pytest.raises(ValueError, match="must be a DataInterval"):
+        g14_thresholds("hourly")  # type: ignore[arg-type]
 
 
 def test_gate_reports_n_and_p_it_actually_used() -> None:

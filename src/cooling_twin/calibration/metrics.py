@@ -215,6 +215,30 @@ def cvrmse(
     return root_mean_square_error / y_bar * _PERCENT
 
 
+def g14_thresholds(interval: DataInterval = DataInterval.HOURLY) -> tuple[float, float]:
+    """Return `(nmbe_limit_pct, cvrmse_limit_pct)` for an interval.
+
+    Exists so that other modules -- L6.6's objective normalises each
+    metric by its own acceptance limit -- can read the published
+    thresholds instead of restating them. A second copy of `30.0` in
+    another file is a copy that can drift out of step with the gate,
+    and the failure would be silent: the optimiser would simply be
+    walking toward a target the gate does not use.
+
+    Args:
+        interval: Which threshold set to read.
+
+    Returns:
+        `(|NMBE| limit, CV(RMSE) limit)`, both in percent.
+
+    Raises:
+        ValueError: If `interval` is not a `DataInterval`.
+    """
+    if interval not in _THRESHOLDS:
+        raise ValueError(f"interval must be a DataInterval, got {interval!r}")
+    return _THRESHOLDS[interval]
+
+
 @dataclass(frozen=True)
 class G14Verdict:
     """The full result of an ASHRAE Guideline 14 acceptance check.
