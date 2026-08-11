@@ -20,17 +20,27 @@ lines, not from calling the code.
 
 from __future__ import annotations
 
+import json
+from pathlib import Path
+
 import numpy as np
 import pytest
+from scipy.optimize import minimize
 
 from cooling_twin.calibration.metrics import DataInterval, cvrmse, nmbe
 from cooling_twin.calibration.optimize import (
     DEFAULT_PENALTY_WEIGHT,
     INFEASIBLE_OBJECTIVE,
+    LOCAL_STEP_FRACTION,
+    CalibrationResult,
     ObjectiveBreakdown,
+    calibrate,
     clipping_violation,
+    find_pinned_parameters,
     g14_objective,
     physical_penalty,
+    select_better_stage,
+    write_artifact,
 )
 
 MEASURED = np.array([100.0, 200.0, 300.0, 400.0])
@@ -292,3 +302,266 @@ def test_infeasible_objective_is_finite_and_dominant() -> None:
         MEASURED, MODEL_A, n_params=0, violations={"v": 100.0}
     ).total
     assert badly_infeasible < INFEASIBLE_OBJECTIVE
+
+
+# --------------------------------------------------------------------
+# L6.7 -- the two-stage search
+# --------------------------------------------------------------------
+#
+# Known-answer surface for every test below:
+#
+#     rippled_bowl(x) = sum(z^2) + 0.15 * sum(1 - cos(2*pi*4*z))
+#     z = (x - truth) / bound_width
+#
+# Minimum is EXACTLY 0.0 at x = truth, and there is a local minimum
+# roughly every quarter of each bound width. A local optimiser started
+# at the nominal guess lands in one of those and stops; a global one
+# must not.
+
+
+TRAP_BOUNDS = {"gain": (5.0, 200.0), "ua": (0.3, 3.0)}
+TRAP_TRUTH = np.array([120.0, 1.7])
+TRAP_WIDTH = np.array([195.0, 2.7])
+
+
+def rippled_bowl(vector: np.ndarray) -> float:
+    """Known-answer multi-modal objective; 0.0 at TRAP_TRUTH."""
+    offset = (np.asarray(vector, dtype=float) - TRAP_TRUTH) / TRAP_WIDTH
+    ripple = 1.0 - np.cos(2.0 * np.pi * 4.0 * offset)
+    return float(np.sum(offset**2) + 0.15 * np.sum(ripple))
+
+
+def test_calibrate_finds_the_known_optimum() -> None:
+    """DE must cross the ripples that trap a local start."""
+    result = calibrate(rippled_bowl, TRAP_BOUNDS, maxiter=40)
+
+    assert result.objective_value < 1e-6
+    np.testing.assert_allclose(result.best_parameters, TRAP_TRUTH, rtol=1e-3)
+
+
+def test_local_only_is_trapped_by_the_same_surface() -> None:
+    """The reason stage 1 exists: this is what a local-only run returns."""
+    trapped = minimize(
+        rippled_bowl,
+        x0=np.array([15.0, 1.0]),  # L6.1's nominal guess
+        method="L-BFGS-B",
+        bounds=list(TRAP_BOUNDS.values()),
+        options={"eps": LOCAL_STEP_FRACTION * TRAP_WIDTH},
+    )
+    assert float(trapped.fun) > 0.1
+    assert abs(float(trapped.x[0]) - TRAP_TRUTH[0]) > 50.0
+
+
+def test_calibrate_is_reproducible_under_the_same_seed() -> None:
+    """L0.3's rule applied to the optimiser: same seed, same answer."""
+    first = calibrate(rippled_bowl, TRAP_BOUNDS, maxiter=15, seed=7)
+    second = calibrate(rippled_bowl, TRAP_BOUNDS, maxiter=15, seed=7)
+
+    assert first.best_parameters == second.best_parameters
+    assert first.n_evaluations == second.n_evaluations
+
+
+def test_select_better_stage_keeps_the_local_refinement_when_it_helps() -> None:
+    global_x, local_x = np.array([1.0]), np.array([2.0])
+    x, value, stage = select_better_stage(global_x, 5.0, local_x, 4.0)
+
+    assert (x, value, stage) == (local_x, 4.0, "local")
+
+
+def test_select_better_stage_discards_a_local_refinement_that_hurts() -> None:
+    """Finite-difference noise must not be allowed to degrade the run."""
+    global_x, local_x = np.array([1.0]), np.array([2.0])
+    x, value, stage = select_better_stage(global_x, 4.0, local_x, 5.0)
+
+    assert (x, value, stage) == (global_x, 4.0, "global")
+
+
+def test_calibrate_reports_the_better_stage() -> None:
+    """The local stage is a candidate, not an override."""
+    result = calibrate(rippled_bowl, TRAP_BOUNDS, maxiter=15)
+
+    assert result.objective_value == min(result.global_objective, result.local_objective)
+    expected_stage = "local" if result.local_objective <= result.global_objective else "global"
+    assert result.accepted_stage == expected_stage
+
+
+def test_calibrate_substitutes_the_sentinel_for_a_non_finite_objective() -> None:
+    """A NaN must never reach the optimiser's comparison."""
+
+    def sometimes_nan(vector: np.ndarray) -> float:
+        return float("nan") if vector[0] < 100.0 else rippled_bowl(vector)
+
+    result = calibrate(sometimes_nan, TRAP_BOUNDS, maxiter=20)
+
+    assert np.isfinite(result.objective_value)
+    assert result.best_parameters[0] >= 100.0
+
+
+def test_calibrate_rejects_a_collapsed_bound() -> None:
+    """A zero-width bound charges a degree of freedom and fits nothing."""
+    with pytest.raises(ValueError, match="strictly less than"):
+        calibrate(rippled_bowl, {"gain": (5.0, 200.0), "ua": (1.7, 1.7)})
+
+
+def test_calibrate_rejects_empty_bounds() -> None:
+    with pytest.raises(ValueError, match="at least one parameter"):
+        calibrate(rippled_bowl, {})
+
+
+def test_calibrate_rejects_non_finite_bounds() -> None:
+    with pytest.raises(ValueError, match="finite"):
+        calibrate(rippled_bowl, {"gain": (5.0, np.inf)})
+
+
+def test_calibrate_records_the_breakdown_when_asked() -> None:
+    """The artifact has to explain itself, not just report a number."""
+
+    def breakdown_fn(vector: np.ndarray) -> ObjectiveBreakdown:
+        return g14_objective(MEASURED, MODEL_A, n_params=len(vector))
+
+    result = calibrate(rippled_bowl, TRAP_BOUNDS, breakdown_fn=breakdown_fn, maxiter=10)
+
+    assert result.breakdown is not None
+    assert result.breakdown.binding_criterion == "nmbe"
+
+
+# --------------------------------------------------------------------
+# Pinned parameters -- a finding, not a result
+# --------------------------------------------------------------------
+
+
+def test_pinned_parameters_detects_both_bounds() -> None:
+    names = ("at_lower", "interior", "at_upper")
+    values = np.array([0.0, 5.0, 10.0])
+    bounds = ((0.0, 10.0), (0.0, 10.0), (0.0, 10.0))
+
+    assert find_pinned_parameters(names, values, bounds) == ("at_lower", "at_upper")
+
+
+def test_pinned_tolerance_is_relative_to_bound_width() -> None:
+    """0.05 away from a bound is pinned on a width-1 range, not on width-100."""
+    narrow = find_pinned_parameters(("p",), np.array([0.05]), ((0.0, 1.0),))
+    wide = find_pinned_parameters(("p",), np.array([0.05]), ((0.0, 100.0),))
+
+    assert narrow == ()
+    assert wide == ("p",)
+
+
+def test_pinned_parameters_rejects_an_absurd_tolerance() -> None:
+    """A tolerance of 0.5 would call every point pinned."""
+    with pytest.raises(ValueError, match="tolerance"):
+        find_pinned_parameters(("p",), np.array([0.5]), ((0.0, 1.0),), tolerance=0.5)
+
+
+def test_calibrate_flags_a_pinned_optimum() -> None:
+    """A truth outside the box must come back as pinned, not as an answer.
+
+    This is Q7's situation reproduced on a known-answer surface: the
+    objective wants `gain = 120`, the bound stops it at 60, and the run
+    must SAY so rather than reporting 60 as the calibrated value.
+    """
+
+    def unreachable_optimum(vector: np.ndarray) -> float:
+        offset = (np.asarray(vector, dtype=float) - TRAP_TRUTH) / TRAP_WIDTH
+        return float(np.sum(offset**2))
+
+    result = calibrate(unreachable_optimum, {"gain": (5.0, 60.0), "ua": (0.3, 3.0)}, maxiter=25)
+
+    assert "gain" in result.pinned_parameters
+    assert "ua" not in result.pinned_parameters
+    assert result.best_parameters[0] > 59.0
+
+
+# --------------------------------------------------------------------
+# Artifact logging
+# --------------------------------------------------------------------
+
+
+def test_write_artifact_round_trips(tmp_path: Path) -> None:
+    result = calibrate(
+        rippled_bowl,
+        TRAP_BOUNDS,
+        maxiter=10,
+        metadata={"building_id": "Fox_education_Theodore", "year": 2016},
+    )
+    path = write_artifact(result, tmp_path)
+    record = json.loads(path.read_text(encoding="utf-8"))
+
+    assert path.parent == tmp_path
+    assert record["seed"] == result.seed
+    assert record["parameters"]["gain"] == result.parameters["gain"]
+    assert record["metadata"]["building_id"] == "Fox_education_Theodore"
+    assert record["stages"]["global"]["objective"] == result.global_objective
+
+
+def make_result(**overrides: object) -> CalibrationResult:
+    """A minimal result record, for testing the record itself."""
+    fields: dict[str, object] = {
+        "parameter_names": ("gain",),
+        "best_parameters": (1.0,),
+        "bounds": ((0.0, 2.0),),
+        "objective_value": 1.0,
+        "global_objective": 2.0,
+        "local_objective": 1.0,
+        "accepted_stage": "local",
+        "n_evaluations": 10,
+        "global_message": "converged",
+        "local_message": "converged",
+        "pinned_parameters": (),
+        "seed": 42,
+        "elapsed_seconds": 0.5,
+        "timestamp_utc": "2026-08-11T00:00:00+00:00",
+    }
+    fields.update(overrides)
+    return CalibrationResult(**fields)  # type: ignore[arg-type]
+
+
+def test_local_improvement_reports_the_fraction_de_left_on_the_table() -> None:
+    assert make_result().local_improvement == pytest.approx(0.5)
+
+
+def test_local_improvement_is_zero_when_the_global_stage_scored_zero() -> None:
+    """Guards the division -- a perfect global fit is not a 0/0 error."""
+    result = make_result(global_objective=0.0, local_objective=0.0)
+
+    assert result.local_improvement == 0.0
+
+
+def test_artifact_record_includes_the_breakdown(tmp_path: Path) -> None:
+    """The binding criterion is the most useful line in the log."""
+
+    def breakdown_fn(vector: np.ndarray) -> ObjectiveBreakdown:
+        return g14_objective(MEASURED, MODEL_A, n_params=len(vector))
+
+    result = calibrate(rippled_bowl, TRAP_BOUNDS, breakdown_fn=breakdown_fn, maxiter=10)
+    record = json.loads(write_artifact(result, tmp_path).read_text(encoding="utf-8"))
+
+    assert record["breakdown"]["binding_criterion"] == "nmbe"
+    # n = 4, p = 2 -> sqrt(1920 / 2) / 250 * 100 = 12.3935%
+    assert record["breakdown"]["cvrmse_pct"] == pytest.approx(12.3935, abs=1e-4)
+
+
+def test_write_artifact_creates_the_directory(tmp_path: Path) -> None:
+    result = calibrate(rippled_bowl, TRAP_BOUNDS, maxiter=10)
+    path = write_artifact(result, tmp_path / "runs" / "nested")
+
+    assert path.exists()
+
+
+def test_write_artifact_rejects_unserialisable_metadata(tmp_path: Path) -> None:
+    """Caught here rather than as a half-written file on disk."""
+    result = calibrate(rippled_bowl, TRAP_BOUNDS, maxiter=10, metadata={"index": object()})
+
+    with pytest.raises(ValueError, match="JSON-serialisable"):
+        write_artifact(result, tmp_path)
+
+    assert list(tmp_path.iterdir()) == []
+
+
+def test_two_runs_do_not_overwrite_each_other(tmp_path: Path) -> None:
+    """Filenames carry timestamp and seed for exactly this reason."""
+    first = calibrate(rippled_bowl, TRAP_BOUNDS, maxiter=10, seed=1)
+    second = calibrate(rippled_bowl, TRAP_BOUNDS, maxiter=10, seed=2)
+
+    assert write_artifact(first, tmp_path) != write_artifact(second, tmp_path)
+    assert len(list(tmp_path.iterdir())) == 2
