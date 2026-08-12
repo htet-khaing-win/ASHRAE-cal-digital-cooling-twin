@@ -47,3 +47,8 @@ Thumbs.db
 # secrets — belt and suspenders, no secrets expected in this project
 .env
 .env.local
+
+# private notes -- interview prep and anything else not for the repo.
+# The whole directory is ignored, not just the one file, so a second
+# private note cannot be committed by accident.
+/private/
