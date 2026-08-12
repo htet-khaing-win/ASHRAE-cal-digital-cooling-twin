@@ -21,6 +21,7 @@ lines, not from calling the code.
 from __future__ import annotations
 
 import json
+import pickle
 from pathlib import Path
 
 import numpy as np
@@ -29,11 +30,13 @@ from scipy.optimize import minimize
 
 from cooling_twin.calibration.metrics import DataInterval, cvrmse, nmbe
 from cooling_twin.calibration.optimize import (
+    DEFAULT_DE_POPSIZE,
     DEFAULT_PENALTY_WEIGHT,
     INFEASIBLE_OBJECTIVE,
     LOCAL_STEP_FRACTION,
     CalibrationResult,
     ObjectiveBreakdown,
+    _FiniteObjective,
     calibrate,
     clipping_violation,
     find_pinned_parameters,
@@ -350,6 +353,41 @@ def test_local_only_is_trapped_by_the_same_surface() -> None:
     )
     assert float(trapped.fun) > 0.1
     assert abs(float(trapped.x[0]) - TRAP_TRUTH[0]) > 50.0
+
+
+def test_calibrate_runs_in_parallel_without_a_pickling_error() -> None:
+    """workers != 1 pickles the objective -- including our own wrapper.
+
+    Regression test: `calibrate` used to wrap the objective in a nested
+    closure to count evaluations, which made every parallel run fail
+    with "Can't pickle local object" no matter how picklable the
+    caller's own objective was.
+    """
+    result = calibrate(rippled_bowl, TRAP_BOUNDS, maxiter=3, workers=2)
+
+    assert np.isfinite(result.objective_value)
+    assert result.n_evaluations > 0
+
+
+def test_evaluation_count_comes_from_the_optimisers() -> None:
+    """A hand-rolled counter cannot see a worker process's calls."""
+    result = calibrate(rippled_bowl, TRAP_BOUNDS, maxiter=5)
+
+    # DE alone evaluates at least its initial population.
+    assert result.n_evaluations >= DEFAULT_DE_POPSIZE * len(TRAP_BOUNDS)
+
+
+def test_finite_objective_wrapper_is_picklable() -> None:
+    """The property the parallel path depends on, tested directly."""
+    wrapper = _FiniteObjective(rippled_bowl)
+    restored = pickle.loads(pickle.dumps(wrapper))
+
+    assert restored(TRAP_TRUTH) == wrapper(TRAP_TRUTH) == 0.0
+
+
+def test_finite_objective_wrapper_substitutes_the_sentinel() -> None:
+    assert _FiniteObjective(lambda _v: float("nan"))(TRAP_TRUTH) == INFEASIBLE_OBJECTIVE
+    assert _FiniteObjective(lambda _v: float("inf"))(TRAP_TRUTH) == INFEASIBLE_OBJECTIVE
 
 
 def test_calibrate_is_reproducible_under_the_same_seed() -> None:

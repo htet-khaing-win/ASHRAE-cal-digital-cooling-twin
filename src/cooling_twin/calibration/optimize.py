@@ -541,6 +541,34 @@ def find_pinned_parameters(
     return tuple(pinned)
 
 
+class _FiniteObjective:
+    """Picklable wrapper that keeps non-finite values away from the optimiser.
+
+    Not a nested closure, and that is the whole point: `workers != 1`
+    hands the objective to a `multiprocessing` pool, which pickles it.
+    A closure defined inside `calibrate` cannot be pickled, so wrapping
+    the user's objective in one would make parallel search impossible
+    no matter how picklable the user's own objective was.
+
+    Attributes:
+        objective: The wrapped objective.
+    """
+
+    def __init__(self, objective: Callable[[npt.NDArray[np.float64]], float]) -> None:
+        self.objective = objective
+
+    def __call__(self, vector: npt.NDArray[np.float64]) -> float:
+        """Evaluate, substituting `INFEASIBLE_OBJECTIVE` for NaN/inf."""
+        value = float(self.objective(np.asarray(vector, dtype=float)))
+        if not np.isfinite(value):
+            # Never let a NaN reach the optimiser: `nan < best` is False
+            # in DE's comparison but True in some others, so the failure
+            # mode is silent and inconsistent between optimisers.
+            logger.warning("objective returned %s; substituting INFEASIBLE_OBJECTIVE", value)
+            return INFEASIBLE_OBJECTIVE
+        return value
+
+
 def select_better_stage(
     global_x: npt.NDArray[np.float64],
     global_objective: float,
@@ -631,10 +659,12 @@ def calibrate(
         tol: DE convergence tolerance.
         seed: Passed to DE's sampler. Two runs with the same seed and
             the same data must produce the same answer (L0.3).
-        workers: Passed to DE. `-1` uses every core, but requires the
-            objective to be picklable -- a closure defined in a
-            notebook is not, and the failure is a confusing pickling
-            error rather than a clear one.
+        workers: Passed to DE. `-1` uses every core. The objective
+            must then be picklable: a closure or a lambda (including
+            one defined in a notebook cell) is not, and SciPy reports
+            it as an opaque pickling error from inside its pool. A
+            module-level function, or an instance of a class with
+            `__call__`, both work.
         metadata: Run context to record in the artifact (building, year,
             data fingerprint, objective name).
 
@@ -662,20 +692,7 @@ def calibrate(
                 "for it in n - p."
             )
 
-    n_evaluations = 0
-
-    def counted(vector: npt.NDArray[np.float64]) -> float:
-        nonlocal n_evaluations
-        n_evaluations += 1
-        value = float(objective(np.asarray(vector, dtype=float)))
-        if not np.isfinite(value):
-            # Never let a NaN reach the optimiser: `nan < best` is False
-            # in DE's comparison but True in some others, so the failure
-            # mode is silent and inconsistent.
-            logger.warning("objective returned %s; substituting INFEASIBLE_OBJECTIVE", value)
-            return INFEASIBLE_OBJECTIVE
-        return value
-
+    guarded = _FiniteObjective(objective)
     started = time.perf_counter()
 
     logger.info(
@@ -685,7 +702,7 @@ def calibrate(
         maxiter,
     )
     global_result = differential_evolution(
-        counted,
+        guarded,
         bounds=list(bound_pairs),
         popsize=popsize,
         maxiter=maxiter,
@@ -706,11 +723,11 @@ def calibrate(
     logger.info(
         "stage 1/2 done: objective %.6f after %d evaluations (%s)",
         global_objective,
-        n_evaluations,
+        int(global_result.nfev),
         global_result.message,
     )
 
-    # No finiteness check is needed here: `counted` is the only thing DE
+    # No finiteness check is needed here: `guarded` is the only thing DE
     # ever evaluates and it cannot return a non-finite value.
 
     # Parameter-scaled finite-difference step (see LOCAL_STEP_FRACTION).
@@ -718,7 +735,7 @@ def calibrate(
 
     logger.info("stage 2/2 L-BFGS-B refinement from the DE optimum")
     local_result = minimize(
-        counted,
+        guarded,
         x0=global_x,
         method="L-BFGS-B",
         bounds=bound_pairs,
@@ -751,7 +768,10 @@ def calibrate(
         global_objective=global_objective,
         local_objective=local_objective,
         accepted_stage=accepted_stage,
-        n_evaluations=n_evaluations,
+        # SciPy's own counts, not a hand-rolled one: a worker process
+        # cannot increment a counter in the parent, so counting locally
+        # would silently under-report every parallel run.
+        n_evaluations=int(global_result.nfev) + int(local_result.nfev),
         global_message=str(global_result.message),
         local_message=str(local_result.message),
         pinned_parameters=pinned,
