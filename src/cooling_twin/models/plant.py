@@ -21,8 +21,14 @@ from dataclasses import dataclass
 
 logger = logging.getLogger(__name__)
 
+# Public because the ventilation term in models/rc.py (ADR-011) must use
+# the SAME latent heat of vaporisation this coil model uses -- two values
+# for h_fg in one repository would put a silent inconsistency between the
+# plant model and the load model that calibrates against it.
+H_FG_J_PER_KG = 2_450_000.0  # 03_DOMAIN_REFERENCE.md SS3: h_fg ~ 2450 kJ/kg near 25degC
+
 _CP_AIR_J_PER_KG_K = 1006.0  # standard dry air specific heat -- physical constant
-_H_FG_J_PER_KG = 2_450_000.0  # 03_DOMAIN_REFERENCE.md SS3: h_fg ~ 2450 kJ/kg near 25degC
+_H_FG_J_PER_KG = H_FG_J_PER_KG  # retained name for this module's own use
 
 
 @dataclass(frozen=True)
