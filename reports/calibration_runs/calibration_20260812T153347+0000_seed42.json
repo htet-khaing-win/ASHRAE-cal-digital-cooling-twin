@@ -1,0 +1,65 @@
+{
+  "timestamp_utc": "2026-08-12T15:33:47+00:00",
+  "seed": 42,
+  "elapsed_seconds": 149.88,
+  "objective_value": 9.443874109841083,
+  "accepted_stage": "local",
+  "parameters": {
+    "ua_envelope_w_per_m2k": 2.667400845948628,
+    "r_internal_ratio": 13.93534609613039,
+    "internal_gain_w_per_m2": 59.7637532527906,
+    "t_setpoint_c": 20.22294997360558
+  },
+  "bounds": {
+    "ua_envelope_w_per_m2k": [
+      0.3,
+      3.0
+    ],
+    "r_internal_ratio": [
+      2.0,
+      20.0
+    ],
+    "internal_gain_w_per_m2": [
+      1.0,
+      60.0
+    ],
+    "t_setpoint_c": [
+      20.0,
+      26.0
+    ]
+  },
+  "pinned_parameters": [
+    "internal_gain_w_per_m2"
+  ],
+  "stages": {
+    "global": {
+      "objective": 9.444452357924702,
+      "message": "Optimization terminated successfully."
+    },
+    "local": {
+      "objective": 9.443874109841083,
+      "message": "ABNORMAL: ",
+      "relative_improvement": 6.122621637593469e-05
+    }
+  },
+  "n_evaluations": 1100,
+  "metadata": {
+    "building_id": "Bull_office_Anne",
+    "site_id": "Bull",
+    "year": 2016,
+    "n_hours": 8574,
+    "mean_load_kw": 318.07492670865406,
+    "floor_area_m2": 1499.0,
+    "objective": "g14_budget_with_clipping_penalty",
+    "config_path": "config/calibration.yaml"
+  },
+  "breakdown": {
+    "cvrmse_pct": 71.56315047764133,
+    "nmbe_pct": 70.58435760586373,
+    "cvrmse_term": 2.385438349254711,
+    "nmbe_term": 7.058435760586373,
+    "penalty": 0.0,
+    "total": 9.443874109841083,
+    "binding_criterion": "nmbe"
+  }
+}

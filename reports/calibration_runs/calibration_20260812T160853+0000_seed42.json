@@ -1,0 +1,71 @@
+{
+  "timestamp_utc": "2026-08-12T16:08:53+00:00",
+  "seed": 42,
+  "elapsed_seconds": 143.059,
+  "objective_value": 6.82172400114414,
+  "accepted_stage": "global",
+  "parameters": {
+    "ua_envelope_w_per_m2k": 2.512907833579675,
+    "r_internal_ratio": 7.922674510110502,
+    "internal_gain_w_per_m2": 119.95357630480302,
+    "vent_flow_kg_per_s": 171.58966231025204,
+    "t_setpoint_c": 20.010243450138976
+  },
+  "bounds": {
+    "ua_envelope_w_per_m2k": [
+      0.3,
+      3.0
+    ],
+    "r_internal_ratio": [
+      2.0,
+      20.0
+    ],
+    "internal_gain_w_per_m2": [
+      1.0,
+      120.0
+    ],
+    "vent_flow_kg_per_s": [
+      0.5,
+      180.0
+    ],
+    "t_setpoint_c": [
+      20.0,
+      26.0
+    ]
+  },
+  "pinned_parameters": [
+    "internal_gain_w_per_m2",
+    "t_setpoint_c"
+  ],
+  "stages": {
+    "global": {
+      "objective": 6.82172400114414,
+      "message": "Optimization terminated successfully."
+    },
+    "local": {
+      "objective": 6.842267372943014,
+      "message": "ABNORMAL: ",
+      "relative_improvement": -0.003011463347891061
+    }
+  },
+  "n_evaluations": 2661,
+  "metadata": {
+    "building_id": "Fox_education_Claude",
+    "site_id": "Fox",
+    "year": 2016,
+    "n_hours": 8782,
+    "mean_load_kw": 6882.5806570257355,
+    "floor_area_m2": 17957.6,
+    "objective": "g14_budget_with_clipping_penalty",
+    "config_path": "config/calibration.yaml"
+  },
+  "breakdown": {
+    "cvrmse_pct": 52.463573900508266,
+    "nmbe_pct": 50.72938204460531,
+    "cvrmse_term": 1.748785796683609,
+    "nmbe_term": 5.072938204460531,
+    "penalty": 0.0,
+    "total": 6.82172400114414,
+    "binding_criterion": "nmbe"
+  }
+}

@@ -1,0 +1,70 @@
+{
+  "timestamp_utc": "2026-08-12T16:28:02+00:00",
+  "seed": 42,
+  "elapsed_seconds": 122.096,
+  "objective_value": 0.9551931683064244,
+  "accepted_stage": "local",
+  "parameters": {
+    "ua_envelope_w_per_m2k": 0.3215949887999421,
+    "r_internal_ratio": 7.3522361864499155,
+    "internal_gain_w_per_m2": 104.00571831528211,
+    "vent_flow_kg_per_s": 41.1351423312786,
+    "t_setpoint_c": 20.168845159649134
+  },
+  "bounds": {
+    "ua_envelope_w_per_m2k": [
+      0.3,
+      3.0
+    ],
+    "r_internal_ratio": [
+      2.0,
+      20.0
+    ],
+    "internal_gain_w_per_m2": [
+      1.0,
+      120.0
+    ],
+    "vent_flow_kg_per_s": [
+      0.5,
+      180.0
+    ],
+    "t_setpoint_c": [
+      20.0,
+      26.0
+    ]
+  },
+  "pinned_parameters": [
+    "ua_envelope_w_per_m2k"
+  ],
+  "stages": {
+    "global": {
+      "objective": 0.9555797822900468,
+      "message": "Maximum number of iterations has been exceeded."
+    },
+    "local": {
+      "objective": 0.9551931683064244,
+      "message": "ABNORMAL: ",
+      "relative_improvement": 0.0004045857716828892
+    }
+  },
+  "n_evaluations": 4827,
+  "metadata": {
+    "building_id": "Hog_education_Cathleen",
+    "site_id": "Hog",
+    "year": 2016,
+    "n_hours": 8782,
+    "mean_load_kw": 1122.0756881348211,
+    "floor_area_m2": 14440.7,
+    "objective": "g14_budget_with_clipping_penalty",
+    "config_path": "/tmp/claude-1000/-home-ubuntu-projects-data-center-cooling-digital-twin/7b40af57-4dfa-4396-bf48-a924d687dba3/scratchpad/Hog_education_Cathleen.yaml"
+  },
+  "breakdown": {
+    "cvrmse_pct": 28.652493413452344,
+    "nmbe_pct": -0.0011005452467959097,
+    "cvrmse_term": 0.9550831137817448,
+    "nmbe_term": 0.00011005452467959098,
+    "penalty": 0.0,
+    "total": 0.9551931683064244,
+    "binding_criterion": "cvrmse"
+  }
+}
