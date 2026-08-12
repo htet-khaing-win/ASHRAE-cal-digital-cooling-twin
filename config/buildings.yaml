@@ -1,32 +1,86 @@
 primary:
+- building_id: Fox_education_Claude
+  site_id: Fox
+  primary_use: Education
+  sub_use: College Laboratory
+  floor_area_m2: 17957.6
+  missing_pct_chilledwater: 0.09
+  soft_score: 7.11
+  ceiling_cvrmse_pct: 10.0
+  stability_ratio: 0.19
+  humid_hours_pct: 5.8
+  companion_meters:
+  - hotwater
+  reasons:
+  - primary_use=Education (simple occupancy pattern)
+  - year_built=2006 present
+  - chilledwater missing only 0.1% (cleanliness proxy, not a real flatline check yet)
+  - weather-explainability ceiling 10.0% (G14 limit 30% -- headroom 67%)
+  - worst 11-day excursion 0.19x the median day
+  - companion meters hotwater (makes simultaneous heating/cooling detectable)
+  - site humid hours 6%
+generalisation:
+- building_id: Bull_education_Luke
+  site_id: Bull
+  primary_use: Education
+  sub_use: Student Union
+  floor_area_m2: 15458.6
+  missing_pct_chilledwater: 0.19
+  soft_score: 5.91
+  ceiling_cvrmse_pct: 13.7
+  stability_ratio: 0.1
+  humid_hours_pct: 51.3
+  companion_meters:
+  - steam
+  reasons:
+  - primary_use=Education (simple occupancy pattern)
+  - chilledwater missing only 0.2% (cleanliness proxy, not a real flatline check yet)
+  - weather-explainability ceiling 13.7% (G14 limit 30% -- headroom 54%)
+  - worst 11-day excursion 0.10x the median day
+  - companion meters steam (makes simultaneous heating/cooling detectable)
+  - site humid hours 51%
+- building_id: Hog_education_Cathleen
+  site_id: Hog
+  primary_use: Education
+  sub_use: College Laboratory
+  floor_area_m2: 14440.8
+  missing_pct_chilledwater: 0.0
+  soft_score: 5.25
+  ceiling_cvrmse_pct: 17.4
+  stability_ratio: 0.25
+  humid_hours_pct: 11.2
+  companion_meters:
+  - steam
+  reasons:
+  - primary_use=Education (simple occupancy pattern)
+  - chilledwater missing only 0.0% (cleanliness proxy, not a real flatline check yet)
+  - weather-explainability ceiling 17.4% (G14 limit 30% -- headroom 42%)
+  - worst 11-day excursion 0.25x the median day
+  - companion meters steam (makes simultaneous heating/cooling detectable)
+  - site humid hours 11%
+negative_case:
 - building_id: Fox_education_Theodore
   site_id: Fox
   primary_use: Education
+  sub_use: College Laboratory
   floor_area_m2: 11389.2
   missing_pct_chilledwater: 0.0
   soft_score: 4.0
+  rejected_because:
+  - explainability ceiling 38.3% > 30% -- no model on these drivers can pass G14 for
+    this building
+  - worst 11-day excursion 1.66x median > 0.5x -- an unexplained operational regime
+    no weather model reproduces
+  ceiling_cvrmse_pct: 38.3
+  stability_ratio: 1.66
+  humid_hours_pct: 5.8
+  companion_meters:
+  - hotwater
   reasons:
   - primary_use=Education (simple occupancy pattern)
   - year_built=1971 present
   - chilledwater missing only 0.0% (cleanliness proxy, not a real flatline check yet)
-generalisation:
-- building_id: Panther_education_Aurora
-  site_id: Panther
-  primary_use: Education
-  floor_area_m2: 8012.9
-  missing_pct_chilledwater: 8.66
-  soft_score: 3.13
-  reasons:
-  - primary_use=Education (simple occupancy pattern)
-  - year_built=2013 present
-  - chilledwater missing only 8.7% (cleanliness proxy, not a real flatline check yet)
-- building_id: Cockatoo_education_Brigitte
-  site_id: Cockatoo
-  primary_use: Education
-  floor_area_m2: 25998.0
-  missing_pct_chilledwater: 9.56
-  soft_score: 3.04
-  reasons:
-  - primary_use=Education (simple occupancy pattern)
-  - year_built=2008 present
-  - chilledwater missing only 9.6% (cleanliness proxy, not a real flatline check yet)
+  - weather-explainability ceiling 38.3% (G14 limit 30% -- headroom -28%)
+  - worst 11-day excursion 1.66x the median day
+  - companion meters hotwater (makes simultaneous heating/cooling detectable)
+  - site humid hours 6%
