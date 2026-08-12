@@ -18,9 +18,29 @@ import numpy as np
 import pandas as pd
 from scipy.integrate import solve_ivp
 
+from cooling_twin.models.plant import H_FG_J_PER_KG
+
 logger = logging.getLogger(__name__)
 
 _SECONDS_PER_HOUR = 3600.0
+
+# Standard dry-air properties near 20 degC, sea level
+# (03_DOMAIN_REFERENCE.md SS3). Constants rather than literals because
+# they appear in both the zone capacitance and, from M7, the
+# ventilation term -- two call sites that must never disagree.
+AIR_DENSITY_KG_PER_M3 = 1.2
+AIR_CP_J_PER_KGK = 1005.0
+
+# Humidity ratio of the air leaving a cooling coil, kg/kg. Saturated at
+# roughly 12.8 degC (55 degF), the conventional supply condition.
+#
+# ADR-011 makes this a STATED ASSUMPTION, never a fitted parameter. Fit
+# it and it trades off one-for-one against the ventilation flow -- the
+# same latent load is produced by more air that is dried less, or less
+# air dried more, and no data separates them. Stating it means the
+# calibrated flow can be read in L/s/m2 and checked against ventilation
+# practice; fitting it would make both numbers meaningless.
+DEFAULT_SUPPLY_HUMIDITY_RATIO = 0.0092
 
 
 @dataclass(frozen=True)
@@ -190,6 +210,186 @@ def simulate(
         {"t_i": result.y[0], "t_e": result.y[1]},
         index=pd.Index(t_hours, name="hours_since_start"),
     )
+
+
+def inverse_cooling_load(
+    t_seconds: np.ndarray,
+    t_ambient_c: np.ndarray,
+    ua_envelope_w_per_m2k: float,
+    r_internal_ratio: float,
+    internal_gain_w_per_m2: float,
+    t_setpoint_c: float,
+    floor_area_m2: float,
+    envelope_capacity_ratio: float = 20.0,
+    ceiling_height_m: float = 3.0,
+    method: str = "RK45",
+    vent_flow_kg_per_s: float = 0.0,
+    outdoor_humidity_ratio: np.ndarray | None = None,
+    supply_humidity_ratio: float = DEFAULT_SUPPLY_HUMIDITY_RATIO,
+) -> tuple[np.ndarray, np.ndarray]:
+    """Cooling load required to hold the air node at setpoint (inverse mode).
+
+    `simulate()` runs the model FORWARD: given a heat input, what does
+    the indoor temperature do. A cooling-load model needs the inverse.
+    The control system already holds indoor air at setpoint, so indoor
+    temperature is not the unknown -- the unknown is how much heat must
+    be removed to keep it there. The air node is therefore pinned at
+    `t_setpoint_c` and only the envelope node is integrated:
+
+        dT_e/dt = ( (T_sp - T_e)/r_ie - (T_e - T_amb)/r_ea ) / c_e
+        Q_cool  = q_internal + (T_e - T_sp)/r_ie          [clipped at 0]
+
+    Both the clipped and the raw series are returned. The clip is
+    physically correct -- a chiller cannot add heat -- but it is also
+    the escape hatch `clipping_violation()` (L6.6) exists to close, and
+    that check needs to see the negative values BEFORE they are
+    flattened. Returning only the clipped series would silently destroy
+    the evidence.
+
+    The parameters are the four L6.5's Morris screening kept, expressed
+    in the units a building engineer would state them in (W/m2K, W/m2)
+    rather than as raw `RCParams` -- the conversion to R and C lives
+    here so that the calibrator, the notebook and any report all use
+    one implementation.
+
+    Args:
+        t_seconds: Strictly increasing time since the first sample,
+            seconds. At least 2 points.
+        t_ambient_c: Outdoor dry-bulb at each `t_seconds`, degC.
+        ua_envelope_w_per_m2k: Envelope conductance per unit floor area.
+        r_internal_ratio: How much more tightly the air node couples to
+            the envelope than the envelope does to ambient
+            (`r_ie = r_ea / r_internal_ratio`). Must exceed 1.
+        internal_gain_w_per_m2: Constant internal gain per unit floor
+            area.
+        t_setpoint_c: Indoor air setpoint held by the control system.
+        floor_area_m2: Conditioned floor area.
+        envelope_capacity_ratio: Envelope thermal mass as a multiple of
+            the air-node capacitance. Fixed at nominal by L6.5's
+            screening -- it and `ceiling_height_m` enter only as a
+            product, so no data can separate them.
+        ceiling_height_m: Used with the floor area to size the air node.
+        method: `solve_ivp` integration method.
+        vent_flow_kg_per_s: Outside-air mass flow (ADR-011). The SAME
+            flow carries both the sensible and the latent ventilation
+            load, which is what makes it identifiable: on humid hours
+            the latent term pins the flow, and the flow then claims its
+            share of the temperature slope, leaving the remainder as
+            envelope conduction. 0.0 reproduces the pre-ADR-011 model
+            exactly.
+        outdoor_humidity_ratio: Outdoor humidity ratio at each
+            `t_seconds`, kg/kg. Required when `vent_flow_kg_per_s` is
+            positive; without it the latent half of the ventilation
+            load is unknowable and the sensible half alone is
+            structurally indistinguishable from envelope UA.
+        supply_humidity_ratio: Humidity ratio the coil dries air down
+            to. A stated assumption -- see
+            `DEFAULT_SUPPLY_HUMIDITY_RATIO`.
+
+    Returns:
+        `(clipped_kw, raw_kw)` -- required cooling at each timestamp,
+        kW. `raw_kw` may be negative; `clipped_kw` never is.
+
+    Raises:
+        ValueError: If the arrays are mismatched, too short, not
+            strictly increasing, or if any parameter is non-positive
+            (or `r_internal_ratio <= 1`, which would make the air node
+            couple to outside more tightly than to the mass it sits in).
+        RuntimeError: If `solve_ivp` fails -- the caller decides whether
+            that is fatal or merely an infeasible candidate.
+    """
+    if len(t_seconds) != len(t_ambient_c):
+        raise ValueError(
+            f"t_seconds ({len(t_seconds)}) and t_ambient_c "
+            f"({len(t_ambient_c)}) must be the same length"
+        )
+    if len(t_seconds) < 2:
+        raise ValueError("t_seconds must have at least 2 points to integrate over")
+    if not np.all(np.diff(t_seconds) > 0):
+        raise ValueError("t_seconds must be strictly increasing")
+    for name, value in (
+        ("ua_envelope_w_per_m2k", ua_envelope_w_per_m2k),
+        ("floor_area_m2", floor_area_m2),
+        ("envelope_capacity_ratio", envelope_capacity_ratio),
+        ("ceiling_height_m", ceiling_height_m),
+    ):
+        if value <= 0:
+            raise ValueError(f"{name} must be > 0, got {value}")
+    if vent_flow_kg_per_s < 0.0:
+        raise ValueError(
+            f"vent_flow_kg_per_s must be >= 0, got {vent_flow_kg_per_s}. A "
+            "negative outside-air flow would supply cooling from nowhere."
+        )
+    if vent_flow_kg_per_s > 0.0 and outdoor_humidity_ratio is None:
+        raise ValueError(
+            "outdoor_humidity_ratio is required when vent_flow_kg_per_s > 0. "
+            "Without the latent term the ventilation flow is just a second "
+            "name for envelope UA -- same driver, same functional form, no "
+            "data able to separate them (ADR-011)."
+        )
+    if outdoor_humidity_ratio is not None and len(outdoor_humidity_ratio) != len(t_seconds):
+        raise ValueError(
+            f"outdoor_humidity_ratio ({len(outdoor_humidity_ratio)}) must be the "
+            f"same length as t_seconds ({len(t_seconds)})"
+        )
+    if supply_humidity_ratio <= 0.0:
+        raise ValueError(
+            f"supply_humidity_ratio must be > 0, got {supply_humidity_ratio}"
+        )
+    if r_internal_ratio <= 1.0:
+        raise ValueError(
+            f"r_internal_ratio must be > 1, got {r_internal_ratio}. At or "
+            "below 1 the air node couples to outdoor ambient at least as "
+            "tightly as to the mass it sits inside, which is not a building."
+        )
+
+    r_ea = 1.0 / (ua_envelope_w_per_m2k * floor_area_m2)
+    r_ie = r_ea / r_internal_ratio
+    c_i = floor_area_m2 * ceiling_height_m * AIR_DENSITY_KG_PER_M3 * AIR_CP_J_PER_KGK
+    c_e = envelope_capacity_ratio * c_i
+
+    def envelope_derivative(t: float, state: np.ndarray) -> list[float]:
+        t_amb = float(np.interp(t, t_seconds, t_ambient_c))
+        return [((t_setpoint_c - state[0]) / r_ie - (state[0] - t_amb) / r_ea) / c_e]
+
+    result = solve_ivp(
+        envelope_derivative,
+        t_span=(float(t_seconds[0]), float(t_seconds[-1])),
+        # The envelope starts at ambient. Any other choice is a claim
+        # about history this dataset does not contain; the error it
+        # introduces decays with the envelope time constant, which is
+        # why the first days of a run are never trusted.
+        y0=[float(t_ambient_c[0])],
+        t_eval=t_seconds,
+        method=method,
+    )
+    if not result.success:
+        raise RuntimeError(f"solve_ivp failed to integrate: {result.message}")
+
+    envelope_w = (result.y[0] - t_setpoint_c) / r_ie
+    ventilation_w = np.zeros_like(envelope_w)
+    if vent_flow_kg_per_s > 0.0 and outdoor_humidity_ratio is not None:
+        # Sensible: the outside air must be brought to the zone
+        # setpoint. Signed on purpose -- air colder than setpoint
+        # genuinely REMOVES load, which is what an economiser exploits,
+        # and forcing it positive would invent load every winter hour.
+        sensible_w = (
+            vent_flow_kg_per_s * AIR_CP_J_PER_KGK * (t_ambient_c - t_setpoint_c)
+        )
+        # Latent: moisture only has to be removed when the outdoor air
+        # is wetter than the supply condition. Clipped at zero because a
+        # coil cannot add moisture back (03_DOMAIN_REFERENCE.md SS3).
+        latent_w = (
+            vent_flow_kg_per_s
+            * H_FG_J_PER_KG
+            * np.maximum(outdoor_humidity_ratio - supply_humidity_ratio, 0.0)
+        )
+        ventilation_w = sensible_w + latent_w
+
+    raw_kw = (
+        internal_gain_w_per_m2 * floor_area_m2 + envelope_w + ventilation_w
+    ) / 1000.0
+    return np.clip(raw_kw, 0.0, None), raw_kw
 
 
 if __name__ == "__main__":

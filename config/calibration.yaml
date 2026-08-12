@@ -1,0 +1,154 @@
+# Calibration configuration (M6).
+#
+# Every number here is a decision with a traceable origin. Bounds are
+# PHYSICAL statements (L6.5): the width of a bound controls how
+# influential a parameter can appear, and a bound set for search
+# convenience rather than physics is a silent bias.
+#
+# NOTE ON Q7 (07_PROGRESS.md): under L6.6's three objectives, both
+# `internal_gain_w_per_m2` and `ua_envelope_w_per_m2k` sat on their
+# UPPER bounds. Those bounds are deliberately UNCHANGED here -- see
+# option (c): run with them as they are, and let the pinning be
+# evidence about model structure rather than pre-empting the question
+# by widening the box. Do not widen these without an ADR.
+#
+# BUILDING CHANGED 2026-08-12 (ADR-012). The primary was
+# Fox_education_Theodore, where L6.7b reached CV(RMSE) 42.25% and the
+# ADR-012 screen later measured a weather-explainability ceiling of
+# 38.3% -- above the G14 limit, so no model could have passed there.
+# Theodore is retained as a documented negative case in
+# config/buildings.yaml.
+#
+# The bounds below are physical statements about THIS building:
+#   Fox_education_Claude, Tempe AZ, 17,958 m2, College Laboratory, 2006
+#   mean cooling  6,884 kW = 383.4 W/m2
+#   electricity     962 kW =  53.6 W/m2  (equipment-dense research lab)
+#   chilledwater/electricity ratio 7.16  (Q6 verified 7.93 as genuine)
+#   weather-explainability ceiling 10.0%, residual stability 0.19
+#   meters: electricity + hotwater
+#
+# Two earlier primaries were rejected on the way here, both by checks
+# that did not exist before ADR-012: Fox_education_Gloria (meter stuck at
+# 2315.8281 kW for runs up to 503 h) and Bull_office_Anne (cooling 15x
+# its own electricity -- the meter serves more than the building).
+
+building_id: Fox_education_Claude
+site_id: Fox
+
+# ADR-002: 2017 is the held-out test set. Nothing in M6 before L6.10
+# may touch it; scripts/run_calibration.py refuses any other year.
+train_year: 2016
+
+# The 4 parameters L6.5's Morris screening kept, of the 7 screened.
+# lower / upper / nominal, in the units an engineer states them in.
+parameters:
+  ua_envelope_w_per_m2k:
+    # 0.3 = well-insulated modern envelope; 3.0 = a single-glazed
+    # building in poor repair. `yearbuilt` is missing for this building,
+    # so the range is left at its full physical width rather than
+    # narrowed on an assumption.
+    lower: 0.3
+    upper: 3.0
+    nominal: 1.0
+  r_internal_ratio:
+    # Air-to-envelope coupling relative to envelope-to-ambient. The air
+    # node must couple to the mass far more tightly than the mass does
+    # to outside, but "far more" spans an order of magnitude.
+    lower: 2.0
+    upper: 20.0
+    nominal: 5.0
+  internal_gain_w_per_m2:
+    # DERIVED FROM THE DATA, not typed in -- see ADR-012 amendment 4 and
+    # src/cooling_twin/calibration/bounds.py. The bound is 4x the
+    # cooling load that survives the coldest hours of the year, which is
+    # the constant term measured directly with no model involved.
+    #
+    # The electricity anchor this replaces was wrong in a way that was
+    # invisible until it was measured: a load served directly by chilled
+    # water never appears on the building's electricity meter, and the
+    # measured floor runs 2.2-3.5x electricity intensity on every
+    # building tested.
+    #
+    # `auto` applies identically to every building. Do not replace it
+    # with a number for one building -- that is the exact move this
+    # amendment exists to prevent.
+    lower: 1.0
+    upper: auto
+    nominal: 55.0
+  vent_flow_kg_per_s:
+    # ADR-011. ONE flow, entering both the sensible and the latent term,
+    # which is what makes it identifiable: the humid hours pin it, and
+    # it then claims its share of the temperature slope instead of
+    # leaving all of it to envelope UA.
+    #
+    # Bounds are air-change rates converted at this building's volume
+    # (17,958 m2 x 3 m = 53,874 m3, 1.2 kg/m3):
+    #     1 ACH   =  18.0 kg/s
+    #     6 ACH   = 107.7 kg/s   (typical laboratory design)
+    #    10 ACH   = 179.6 kg/s   (fume-hood-dominated laboratory)
+    # The lower bound is near zero rather than at zero so that a fitted
+    # value ON the lower bound reads as "the data wants no ventilation
+    # term", which is a finding, not a default.
+    lower: 0.5
+    upper: 180.0
+    nominal: 50.0
+  t_setpoint_c:
+    # ASHRAE comfort range for a conditioned space; the true setpoint
+    # is not recorded anywhere in BDG2.
+    lower: 20.0
+    upper: 26.0
+    nominal: 22.0
+
+# Screened but not calibrated -- fixed at nominal (L6.5). These two
+# enter the model only as a product, so no amount of data separates
+# them; calibrating both would be pure equifinality.
+fixed:
+  envelope_capacity_ratio: 20.0
+  ceiling_height_m: 3.0
+
+ventilation:
+  # ADR-011: a STATED ASSUMPTION, never fitted. Saturated air leaving a
+  # coil at ~12.8 degC. Fitting it would trade off one-for-one against
+  # the flow -- the same latent load comes from more air dried less or
+  # less air dried more -- and both numbers would stop meaning anything.
+  #
+  # NOT confirmed for this building: BDG2 records no supply-air state.
+  # The L6.7b analysis at Theodore found a humidity effect in the
+  # 20-25 degC band where a 12.8 degC coil predicts no latent load at
+  # all, so this assumption is known to be imperfect and must be
+  # reported with the result.
+  supply_humidity_ratio: 0.0092
+
+objective:
+  # L6.6 objective B: each G14 metric normalised by its own acceptance
+  # limit, so both terms read as "fraction of the allowance used".
+  interval: hourly
+  nmbe_weight: 1.0
+  penalty_weight: 10.0
+  # Fraction of hours the model may predict zero cooling for before the
+  # clipping penalty engages. A laboratory in Arizona has very few
+  # genuinely zero-load hours, so a large clipped fraction is evidence
+  # of a wrong parameter set rather than a real shoulder season.
+  max_clipped_fraction: 0.05
+
+optimiser:
+  # Cost is roughly popsize * n_params * maxiter simulations, plus the
+  # local stage. MEASURED on this building-year: ~1.07 s per objective
+  # evaluation (not the ~0.3 s a spot check of four parameter sets
+  # suggested -- the search concentrates in the expensive, high-UA
+  # region), so these settings are ~80 minutes on ONE core. Raise
+  # maxiter before popsize.
+  popsize: 15
+  maxiter: 60
+  tol: 0.01
+  # -1 = every core. The DE stage is embarrassingly parallel and this
+  # brings the run under ~15 minutes; `calibrate()` switches DE to
+  # deferred updating when workers != 1, which is still deterministic
+  # for a fixed seed but is a DIFFERENT search path from the serial
+  # run, so a run's artifact records the setting it used. Requires a
+  # picklable objective -- see CalibrationObjective in
+  # scripts/run_calibration.py.
+  workers: -1
+
+artifacts:
+  directory: reports/calibration_runs

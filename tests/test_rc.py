@@ -18,7 +18,8 @@ import pytest
 from scipy.integrate import solve_ivp
 
 from cooling_twin import set_seed
-from cooling_twin.models.rc import RCParams, simulate
+from cooling_twin.models.plant import H_FG_J_PER_KG
+from cooling_twin.models.rc import RCParams, inverse_cooling_load, simulate
 
 N_PROPERTY_DRAWS = 50
 HORIZON_HOURS = 48.0
@@ -253,3 +254,269 @@ def test_property_tests_catch_a_sign_flip_bug() -> None:
         "(demonstrating monotonicity alone would NOT have caught this bug), "
         f"but min step was {signed_diffs.min():.4f} degC"
     )
+
+
+# --------------------------------------------------------------------
+# Inverse mode -- the cooling load required to hold setpoint (L6.1/L6.7)
+# --------------------------------------------------------------------
+#
+# Known-answer reasoning for the steady-state case: with a constant
+# outdoor temperature the envelope node settles where its two flows
+# balance, and the required cooling reduces to
+#
+#     Q = q_internal + (T_out - T_sp) / (r_ie + r_ea)
+#
+# i.e. the two resistances in series, exactly as in L4.1's 1R1C
+# closed form. Every expected number below comes from that identity,
+# not from calling the function.
+
+
+INVERSE_AREA_M2 = 1000.0
+INVERSE_HOURS = 240  # 10 days -- several envelope time constants
+
+
+def _inverse_inputs(
+    t_ambient_c: float, hours: int = INVERSE_HOURS
+) -> tuple[np.ndarray, np.ndarray]:
+    t_seconds = np.arange(hours, dtype=float) * 3600.0
+    return t_seconds, np.full(hours, t_ambient_c)
+
+
+def test_inverse_load_matches_the_series_resistance_steady_state() -> None:
+    """Constant weather: the answer is q_internal + dT / (r_ie + r_ea)."""
+    ua, ratio, gain, setpoint, ambient = 1.0, 5.0, 20.0, 22.0, 35.0
+    t_seconds, t_ambient = _inverse_inputs(ambient)
+
+    clipped_kw, _ = inverse_cooling_load(
+        t_seconds, t_ambient, ua, ratio, gain, setpoint, INVERSE_AREA_M2
+    )
+
+    r_ea = 1.0 / (ua * INVERSE_AREA_M2)
+    r_ie = r_ea / ratio
+    expected_kw = (gain * INVERSE_AREA_M2 + (ambient - setpoint) / (r_ie + r_ea)) / 1000.0
+    assert clipped_kw[-1] == pytest.approx(expected_kw, rel=1e-3)
+
+
+def test_inverse_load_returns_the_unclipped_series_too() -> None:
+    """`clipping_violation` (L6.6) needs the negatives before they vanish."""
+    # Cold outside, no internal gain: the model wants to HEAT, which a
+    # chiller cannot do. The raw series must show that; the clipped one
+    # must not.
+    t_seconds, t_ambient = _inverse_inputs(-5.0)
+
+    clipped_kw, raw_kw = inverse_cooling_load(
+        t_seconds, t_ambient, 1.0, 5.0, 0.0, 22.0, INVERSE_AREA_M2
+    )
+
+    assert raw_kw.min() < 0.0
+    assert clipped_kw.min() == 0.0
+    np.testing.assert_allclose(clipped_kw, np.clip(raw_kw, 0.0, None))
+
+
+def test_inverse_load_rises_with_internal_gain_one_for_one() -> None:
+    """Internal gain enters additively, so the offset is exact."""
+    t_seconds, t_ambient = _inverse_inputs(30.0)
+    shared = dict(
+        t_seconds=t_seconds,
+        t_ambient_c=t_ambient,
+        ua_envelope_w_per_m2k=1.0,
+        r_internal_ratio=5.0,
+        t_setpoint_c=22.0,
+        floor_area_m2=INVERSE_AREA_M2,
+    )
+
+    low, _ = inverse_cooling_load(internal_gain_w_per_m2=10.0, **shared)
+    high, _ = inverse_cooling_load(internal_gain_w_per_m2=30.0, **shared)
+
+    np.testing.assert_allclose(high - low, 20.0 * INVERSE_AREA_M2 / 1000.0, rtol=1e-9)
+
+
+def test_inverse_load_rejects_a_ratio_that_turns_the_building_inside_out() -> None:
+    """r_internal_ratio <= 1 couples the air to outside, not to the mass."""
+    t_seconds, t_ambient = _inverse_inputs(30.0)
+
+    with pytest.raises(ValueError, match="r_internal_ratio"):
+        inverse_cooling_load(t_seconds, t_ambient, 1.0, 1.0, 20.0, 22.0, INVERSE_AREA_M2)
+
+
+@pytest.mark.parametrize(
+    ("kwargs", "match"),
+    [
+        ({"ua_envelope_w_per_m2k": 0.0}, "ua_envelope_w_per_m2k"),
+        ({"floor_area_m2": -1.0}, "floor_area_m2"),
+        ({"ceiling_height_m": 0.0}, "ceiling_height_m"),
+        ({"envelope_capacity_ratio": 0.0}, "envelope_capacity_ratio"),
+    ],
+)
+def test_inverse_load_rejects_non_positive_geometry(kwargs: dict, match: str) -> None:
+    t_seconds, t_ambient = _inverse_inputs(30.0)
+    arguments = dict(
+        t_seconds=t_seconds,
+        t_ambient_c=t_ambient,
+        ua_envelope_w_per_m2k=1.0,
+        r_internal_ratio=5.0,
+        internal_gain_w_per_m2=20.0,
+        t_setpoint_c=22.0,
+        floor_area_m2=INVERSE_AREA_M2,
+    )
+    arguments.update(kwargs)
+
+    with pytest.raises(ValueError, match=match):
+        inverse_cooling_load(**arguments)
+
+
+def test_inverse_load_rejects_mismatched_or_short_inputs() -> None:
+    t_seconds, t_ambient = _inverse_inputs(30.0)
+
+    with pytest.raises(ValueError, match="same length"):
+        inverse_cooling_load(t_seconds, t_ambient[:-1], 1.0, 5.0, 20.0, 22.0, INVERSE_AREA_M2)
+    with pytest.raises(ValueError, match="at least 2 points"):
+        inverse_cooling_load(
+            t_seconds[:1], t_ambient[:1], 1.0, 5.0, 20.0, 22.0, INVERSE_AREA_M2
+        )
+    with pytest.raises(ValueError, match="strictly increasing"):
+        inverse_cooling_load(
+            t_seconds[::-1], t_ambient, 1.0, 5.0, 20.0, 22.0, INVERSE_AREA_M2
+        )
+
+
+def test_inverse_load_is_deterministic() -> None:
+    """Same inputs, same answer -- the optimiser depends on this (L6.7)."""
+    t_seconds, t_ambient = _inverse_inputs(33.0)
+    first, _ = inverse_cooling_load(t_seconds, t_ambient, 2.0, 8.0, 50.0, 23.0, INVERSE_AREA_M2)
+    second, _ = inverse_cooling_load(t_seconds, t_ambient, 2.0, 8.0, 50.0, 23.0, INVERSE_AREA_M2)
+
+    np.testing.assert_array_equal(first, second)
+
+
+# --------------------------------------------------------------------
+# ADR-011: ventilation as ONE flow shared by the sensible and latent terms
+# --------------------------------------------------------------------
+
+
+def test_zero_flow_reproduces_the_pre_ventilation_model_exactly() -> None:
+    """The term must be inert when switched off, or every earlier result moves."""
+    t_seconds, t_ambient = _inverse_inputs(30.0)
+    shared = dict(
+        t_seconds=t_seconds, t_ambient_c=t_ambient, ua_envelope_w_per_m2k=1.0,
+        r_internal_ratio=5.0, internal_gain_w_per_m2=20.0, t_setpoint_c=22.0,
+        floor_area_m2=INVERSE_AREA_M2,
+    )
+
+    without, _ = inverse_cooling_load(**shared)
+    with_zero_flow, _ = inverse_cooling_load(**shared, vent_flow_kg_per_s=0.0)
+
+    np.testing.assert_array_equal(without, with_zero_flow)
+
+
+def test_ventilation_sensible_term_matches_m_cp_delta_t() -> None:
+    """Known answer: 10 kg/s at 8 K above setpoint is 10*1005*8 = 80.4 kW."""
+    t_seconds, t_ambient = _inverse_inputs(30.0)
+    dry = np.zeros_like(t_ambient)  # below the supply humidity ratio -> no latent
+    shared = dict(
+        t_seconds=t_seconds, t_ambient_c=t_ambient, ua_envelope_w_per_m2k=1.0,
+        r_internal_ratio=5.0, internal_gain_w_per_m2=20.0, t_setpoint_c=22.0,
+        floor_area_m2=INVERSE_AREA_M2,
+    )
+
+    base, _ = inverse_cooling_load(**shared)
+    ventilated, _ = inverse_cooling_load(
+        **shared, vent_flow_kg_per_s=10.0, outdoor_humidity_ratio=dry
+    )
+
+    np.testing.assert_allclose(ventilated - base, 10.0 * 1005.0 * 8.0 / 1000.0, rtol=1e-9)
+
+
+def test_ventilation_latent_term_matches_m_h_fg_delta_w() -> None:
+    """Known answer: 10 kg/s at dw = 0.0058 is 10*2.45e6*0.0058 = 142.1 kW."""
+    t_seconds, t_ambient = _inverse_inputs(22.0)  # at setpoint -> no sensible term
+    humid = np.full_like(t_ambient, 0.0150)
+    shared = dict(
+        t_seconds=t_seconds, t_ambient_c=t_ambient, ua_envelope_w_per_m2k=1.0,
+        r_internal_ratio=5.0, internal_gain_w_per_m2=20.0, t_setpoint_c=22.0,
+        floor_area_m2=INVERSE_AREA_M2,
+    )
+
+    base, _ = inverse_cooling_load(**shared)
+    ventilated, _ = inverse_cooling_load(
+        **shared, vent_flow_kg_per_s=10.0, outdoor_humidity_ratio=humid,
+        supply_humidity_ratio=0.0092,
+    )
+
+    expected_kw = 10.0 * 2_450_000.0 * (0.0150 - 0.0092) / 1000.0
+    np.testing.assert_allclose(ventilated[-1] - base[-1], expected_kw, rtol=1e-6)
+
+
+def test_dry_outdoor_air_produces_no_latent_load() -> None:
+    """A coil cannot add moisture back, so the latent term clips at zero."""
+    t_seconds, t_ambient = _inverse_inputs(22.0)
+    shared = dict(
+        t_seconds=t_seconds, t_ambient_c=t_ambient, ua_envelope_w_per_m2k=1.0,
+        r_internal_ratio=5.0, internal_gain_w_per_m2=20.0, t_setpoint_c=22.0,
+        floor_area_m2=INVERSE_AREA_M2, vent_flow_kg_per_s=10.0,
+    )
+
+    drier_than_supply, _ = inverse_cooling_load(
+        **shared, outdoor_humidity_ratio=np.full_like(t_ambient, 0.002)
+    )
+    at_supply, _ = inverse_cooling_load(
+        **shared, outdoor_humidity_ratio=np.full_like(t_ambient, 0.0092)
+    )
+
+    np.testing.assert_allclose(drier_than_supply, at_supply, rtol=1e-12)
+
+
+def test_cold_outdoor_air_reduces_the_load() -> None:
+    """Signed sensible term: an economiser's free cooling is real."""
+    t_seconds, t_ambient = _inverse_inputs(10.0)  # 12 K BELOW setpoint
+    dry = np.zeros_like(t_ambient)
+    shared = dict(
+        t_seconds=t_seconds, t_ambient_c=t_ambient, ua_envelope_w_per_m2k=1.0,
+        r_internal_ratio=5.0, internal_gain_w_per_m2=50.0, t_setpoint_c=22.0,
+        floor_area_m2=INVERSE_AREA_M2,
+    )
+
+    base, _ = inverse_cooling_load(**shared)
+    ventilated, raw = inverse_cooling_load(
+        **shared, vent_flow_kg_per_s=5.0, outdoor_humidity_ratio=dry
+    )
+
+    assert ventilated[-1] < base[-1]
+    np.testing.assert_allclose(raw[-1] - base[-1], 5.0 * 1005.0 * (10.0 - 22.0) / 1000.0,
+                               rtol=1e-9)
+
+
+def test_ventilation_flow_requires_humidity_data() -> None:
+    """Sensible-only ventilation is just a second name for envelope UA."""
+    t_seconds, t_ambient = _inverse_inputs(30.0)
+
+    with pytest.raises(ValueError, match="outdoor_humidity_ratio is required"):
+        inverse_cooling_load(
+            t_seconds, t_ambient, 1.0, 5.0, 20.0, 22.0, INVERSE_AREA_M2,
+            vent_flow_kg_per_s=3.0,
+        )
+
+
+def test_ventilation_rejects_a_negative_flow() -> None:
+    t_seconds, t_ambient = _inverse_inputs(30.0)
+
+    with pytest.raises(ValueError, match="vent_flow_kg_per_s"):
+        inverse_cooling_load(
+            t_seconds, t_ambient, 1.0, 5.0, 20.0, 22.0, INVERSE_AREA_M2,
+            vent_flow_kg_per_s=-1.0, outdoor_humidity_ratio=np.zeros_like(t_ambient),
+        )
+
+
+def test_ventilation_rejects_mismatched_humidity_length() -> None:
+    t_seconds, t_ambient = _inverse_inputs(30.0)
+
+    with pytest.raises(ValueError, match="same length"):
+        inverse_cooling_load(
+            t_seconds, t_ambient, 1.0, 5.0, 20.0, 22.0, INVERSE_AREA_M2,
+            vent_flow_kg_per_s=3.0, outdoor_humidity_ratio=np.zeros(5),
+        )
+
+
+def test_ventilation_uses_the_same_h_fg_as_the_plant_model() -> None:
+    """One latent heat of vaporisation in the repository, not two."""
+    assert H_FG_J_PER_KG == 2_450_000.0
