@@ -36,7 +36,11 @@ three rather than implementing a fix:
                                output becomes visible in the other.
 
 Mitigation 3 is the only one that adds information; the first two only
-stop the search from spending information it does not have.
+stop the search from spending information it does not have. It is also
+the one this project does NOT have: there is a single measured series,
+the chilled-water load. Saying otherwise is the easiest overclaim in
+the subject to make by accident, so it is written down here next to the
+list that invites it (see 06_ASSESSMENT.md question 3).
 """
 
 from __future__ import annotations
