@@ -73,6 +73,70 @@ a constant coil load, and Q8's reheat evidence suggests what produces it.
 Naming it "internal gain" is now a known misnomer for reheat-dominated
 buildings — carried into M7 rather than papered over.
 
+### Equifinality — how much of that table is actually measured
+
+The parameters above are point estimates from one optimisation. L6.8 probed
+`Fox_education_Claude` with 41 independent local refinements to find every
+parameter set the data **cannot reject** — objective within 5% of the best,
+which on this building means CV(RMSE) 11.68% to 12.16%, all passing G14.
+
+Two studies, because the sampler decides which question gets answered:
+
+| Study | Restarts drawn from | Behavioural sets | Question |
+|---|---|---|---|
+| whole box | 100% of each bound width | 3 of 41 | is there a **distant** rival that fits as well? |
+| ridge | 10% of each bound width | 7 of 41 | how **wide** is the family around the reported answer? |
+
+Whole-box answer: **no distant rival.** 38 of 41 refinements landed in other
+basins entirely, objectives 0.414 to 11.85 against a 0.409 threshold. The
+behavioural region is small and isolated — which is also why that study could
+not answer the second question, and why both were run.
+
+Ridge study, `internal_gain_w_per_m2` ↔ `t_setpoint_c` at **r = +1.000**:
+
+| Parameter | Behavioural range | % of bounds | Verdict |
+|---|---|---|---|
+| `ua_envelope_w_per_m2k` | 2.733 – 3.000 | 9.9% | identified |
+| `r_internal_ratio` | 17.15 – 19.77 | 14.6% | weakly identified |
+| `internal_gain_w_per_m2` | 348.0 – 387.1 | 5.5% | identified |
+| `vent_flow_kg_per_s` | 174.6 – 179.6 | 2.8% | identified |
+| `t_setpoint_c` | **22.90 – 26.00** | **51.6%** | **unidentified** |
+
+The setpoint is not measured by this calibration at all: any value from 22.9 °C
+to the top of its range fits equally well, provided internal gain moves with it.
+The mechanism is physical, not numerical — a higher assumed setpoint means less
+cooling driven by the indoor-outdoor difference, so the fit buys the shortfall
+back as internal gain. Reporting `t_setpoint_c = 24.83` without that range is a
+precision the data does not support.
+
+In the whole-box study, run against the same calibration, both pinned
+parameters (`ua_envelope`, `vent_flow`) sat on their ceiling in **every**
+behavioural set. That is reported as `bound-limited`, not as `identified`: a
+span of zero against a bound means the box stopped the fit, not that the data
+determined the value.
+
+**Consequence for advice.** The same retrofit priced by every admissible
+parameter set:
+
+| Measure | Calibrated answer | Across behavioural sets |
+|---|---|---|
+| ventilation setback −30% | 0.86% saving | −0.06% to 2.31% |
+| envelope upgrade −30% UA | 0.03% saving | −0.23% to 0.46% |
+
+Both measures are within noise of doing nothing under *some* admissible
+parameter set. No retrofit recommendation can be made for this building from
+this calibration, and that conclusion is not visible anywhere in the CV(RMSE).
+
+```bash
+python scripts/run_equifinality.py --n-starts 40 --start-spread 1.00
+python scripts/run_equifinality.py --n-starts 40 --start-spread 0.10
+```
+
+Artifacts: `reports/calibration_runs/equifinality_*_spread{100,010}.json`,
+figures `reports/figures/l6_8_equifinality{,_wholebox}.png`. Each study records
+**every** refinement, so it can be re-thresholded or redrawn without re-running
+(`--replot`). Not yet run for Luke or Cathleen — an M6 gap, listed as such.
+
 ## Reproducing
 
 ```bash

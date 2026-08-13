@@ -1,0 +1,937 @@
+{
+  "tolerance": 0.05,
+  "threshold": 0.408762107043937,
+  "reference_objective": 0.39073990450052926,
+  "best_objective": 0.3892972448037495,
+  "n_behavioural": 3,
+  "n_rejected": 38,
+  "n_evaluations": 17352,
+  "elapsed_seconds": 1145.676,
+  "seed": 42,
+  "start_spread": 1.0,
+  "spread": {
+    "ua_envelope_w_per_m2k": {
+      "min": 2.9973828046043622,
+      "max": 2.9993507881716743,
+      "span_fraction": 0.0007288828027081824,
+      "verdict": "bound-limited",
+      "pinned_at": "upper"
+    },
+    "r_internal_ratio": {
+      "min": 14.353665253880964,
+      "max": 19.99999427990273,
+      "span_fraction": 0.3136849458900981,
+      "verdict": "weakly identified",
+      "pinned_at": null
+    },
+    "internal_gain_w_per_m2": {
+      "min": 309.85461840717016,
+      "max": 382.90446087514704,
+      "span_fraction": 0.10282375614341882,
+      "verdict": "weakly identified",
+      "pinned_at": null
+    },
+    "vent_flow_kg_per_s": {
+      "min": 179.60298605068022,
+      "max": 180.0,
+      "span_fraction": 0.0022117768764333416,
+      "verdict": "bound-limited",
+      "pinned_at": "upper"
+    },
+    "t_setpoint_c": {
+      "min": 20.0,
+      "max": 25.67169763744806,
+      "span_fraction": 0.9452829395746765,
+      "verdict": "unidentified",
+      "pinned_at": null
+    }
+  },
+  "parameter_names": [
+    "ua_envelope_w_per_m2k",
+    "r_internal_ratio",
+    "internal_gain_w_per_m2",
+    "vent_flow_kg_per_s",
+    "t_setpoint_c"
+  ],
+  "bounds": {
+    "ua_envelope_w_per_m2k": [
+      0.3,
+      3.0
+    ],
+    "r_internal_ratio": [
+      2.0,
+      20.0
+    ],
+    "internal_gain_w_per_m2": [
+      1.0,
+      711.437404816128
+    ],
+    "vent_flow_kg_per_s": [
+      0.5,
+      180.0
+    ],
+    "t_setpoint_c": [
+      20.0,
+      26.0
+    ]
+  },
+  "candidates": [
+    {
+      "origin": "restart-9",
+      "objective": 0.3892972448037495,
+      "behavioural": true,
+      "message": "ABNORMAL: ",
+      "parameters": {
+        "ua_envelope_w_per_m2k": 2.9993507881716743,
+        "r_internal_ratio": 19.99999427990273,
+        "internal_gain_w_per_m2": 382.90446087514704,
+        "vent_flow_kg_per_s": 180.0,
+        "t_setpoint_c": 25.67169763744806
+      },
+      "start": {
+        "ua_envelope_w_per_m2k": 2.0006784058689657,
+        "r_internal_ratio": 8.125634729436422,
+        "internal_gain_w_per_m2": 31.400893493512463,
+        "vent_flow_kg_per_s": 91.6748014259123,
+        "t_setpoint_c": 24.329037127458605
+      }
+    },
+    {
+      "origin": "reference",
+      "objective": 0.3908776938324037,
+      "behavioural": true,
+      "message": "ABNORMAL: ",
+      "parameters": {
+        "ua_envelope_w_per_m2k": 2.9973828046043622,
+        "r_internal_ratio": 18.573243233800437,
+        "internal_gain_w_per_m2": 372.04631062335807,
+        "vent_flow_kg_per_s": 179.60298605068022,
+        "t_setpoint_c": 24.82903860341174
+      },
+      "start": {
+        "ua_envelope_w_per_m2k": 2.9973828046043622,
+        "r_internal_ratio": 18.573243233800437,
+        "internal_gain_w_per_m2": 372.04631062335807,
+        "vent_flow_kg_per_s": 179.60298605068022,
+        "t_setpoint_c": 24.82903860341174
+      }
+    },
+    {
+      "origin": "restart-8",
+      "objective": 0.3914958818387808,
+      "behavioural": true,
+      "message": "ABNORMAL: ",
+      "parameters": {
+        "ua_envelope_w_per_m2k": 2.9979016990016256,
+        "r_internal_ratio": 14.353665253880964,
+        "internal_gain_w_per_m2": 309.85461840717016,
+        "vent_flow_kg_per_s": 180.0,
+        "t_setpoint_c": 20.0
+      },
+      "start": {
+        "ua_envelope_w_per_m2k": 2.5654922454761175,
+        "r_internal_ratio": 19.175294811773973,
+        "internal_gain_w_per_m2": 130.65011791948112,
+        "vent_flow_kg_per_s": 129.23575469679807,
+        "t_setpoint_c": 22.425161029790722
+      }
+    },
+    {
+      "origin": "restart-0",
+      "objective": 0.5360798998845012,
+      "behavioural": false,
+      "message": "CONVERGENCE: RELATIVE REDUCTION OF F <= FACTR*EPSMCH",
+      "parameters": {
+        "ua_envelope_w_per_m2k": 2.9926247042105056,
+        "r_internal_ratio": 16.863183563653106,
+        "internal_gain_w_per_m2": 382.48913004641093,
+        "vent_flow_kg_per_s": 141.323687853812,
+        "t_setpoint_c": 25.530719747873913
+      },
+      "start": {
+        "ua_envelope_w_per_m2k": 2.3402579667224725,
+        "r_internal_ratio": 16.202504702111575,
+        "internal_gain_w_per_m2": 429.7738760600208,
+        "vent_flow_kg_per_s": 136.4830609695961,
+        "t_setpoint_c": 22.985873397816853
+      }
+    },
+    {
+      "origin": "restart-1",
+      "objective": 3.1658184487520193,
+      "behavioural": false,
+      "message": "CONVERGENCE: RELATIVE REDUCTION OF F <= FACTR*EPSMCH",
+      "parameters": {
+        "ua_envelope_w_per_m2k": 0.3,
+        "r_internal_ratio": 11.35209405542724,
+        "internal_gain_w_per_m2": 465.85455624157464,
+        "vent_flow_kg_per_s": 125.44315098836975,
+        "t_setpoint_c": 26.0
+      },
+      "start": {
+        "ua_envelope_w_per_m2k": 0.7066454912645188,
+        "r_internal_ratio": 11.107487134104343,
+        "internal_gain_w_per_m2": 466.5840111243976,
+        "vent_flow_kg_per_s": 125.57509007336849,
+        "t_setpoint_c": 20.682442109315666
+      }
+    },
+    {
+      "origin": "restart-2",
+      "objective": 0.8499377611944686,
+      "behavioural": false,
+      "message": "CONVERGENCE: RELATIVE REDUCTION OF F <= FACTR*EPSMCH",
+      "parameters": {
+        "ua_envelope_w_per_m2k": 3.0,
+        "r_internal_ratio": 7.925006223510382,
+        "internal_gain_w_per_m2": 347.7135946845818,
+        "vent_flow_kg_per_s": 67.71834868970048,
+        "t_setpoint_c": 20.0
+      },
+      "start": {
+        "ua_envelope_w_per_m2k": 2.232471133364301,
+        "r_internal_ratio": 16.88295575501813,
+        "internal_gain_w_per_m2": 291.5002504228111,
+        "vent_flow_kg_per_s": 41.68285726044715,
+        "t_setpoint_c": 20.9834878701759
+      }
+    },
+    {
+      "origin": "restart-3",
+      "objective": 0.5119005359192932,
+      "behavioural": false,
+      "message": "ABNORMAL: ",
+      "parameters": {
+        "ua_envelope_w_per_m2k": 0.45683802844073435,
+        "r_internal_ratio": 14.739481026783336,
+        "internal_gain_w_per_m2": 321.56433939052044,
+        "vent_flow_kg_per_s": 180.0,
+        "t_setpoint_c": 20.0
+      },
+      "start": {
+        "ua_envelope_w_per_m2k": 0.8246613862795275,
+        "r_internal_ratio": 7.600436845842874,
+        "internal_gain_w_per_m2": 88.67122145678759,
+        "vent_flow_kg_per_s": 176.2860051156833,
+        "t_setpoint_c": 21.255250340131692
+      }
+    },
+    {
+      "origin": "restart-4",
+      "objective": 2.757091735412832,
+      "behavioural": false,
+      "message": "ABNORMAL: ",
+      "parameters": {
+        "ua_envelope_w_per_m2k": 3.0,
+        "r_internal_ratio": 2.463627722483595,
+        "internal_gain_w_per_m2": 445.51387518471233,
+        "vent_flow_kg_per_s": 27.908558049301945,
+        "t_setpoint_c": 26.0
+      },
+      "start": {
+        "ua_envelope_w_per_m2k": 2.9488290775442376,
+        "r_internal_ratio": 2.2904633143415594,
+        "internal_gain_w_per_m2": 445.54380849770183,
+        "vent_flow_kg_per_s": 27.90461896806664,
+        "t_setpoint_c": 25.733242475438935
+      }
+    },
+    {
+      "origin": "restart-5",
+      "objective": 0.7187623084292889,
+      "behavioural": false,
+      "message": "ABNORMAL: ",
+      "parameters": {
+        "ua_envelope_w_per_m2k": 2.9967345197609667,
+        "r_internal_ratio": 2.0,
+        "internal_gain_w_per_m2": 337.7289623561287,
+        "vent_flow_kg_per_s": 107.8071615661501,
+        "t_setpoint_c": 20.0
+      },
+      "start": {
+        "ua_envelope_w_per_m2k": 1.974361887219992,
+        "r_internal_ratio": 4.039975548322834,
+        "internal_gain_w_per_m2": 284.39696608427494,
+        "vent_flow_kg_per_s": 85.07012590434688,
+        "t_setpoint_c": 23.797542657013633
+      }
+    },
+    {
+      "origin": "restart-6",
+      "objective": 0.6556774805199004,
+      "behavioural": false,
+      "message": "ABNORMAL: ",
+      "parameters": {
+        "ua_envelope_w_per_m2k": 2.9999998257533167,
+        "r_internal_ratio": 2.055710725625898,
+        "internal_gain_w_per_m2": 378.94330012143365,
+        "vent_flow_kg_per_s": 121.95947439320747,
+        "t_setpoint_c": 25.198873164429923
+      },
+      "start": {
+        "ua_envelope_w_per_m2k": 1.1947285544762223,
+        "r_internal_ratio": 8.764620620404607,
+        "internal_gain_w_per_m2": 670.1285715288477,
+        "vent_flow_kg_per_s": 115.51256206916852,
+        "t_setpoint_c": 21.429566628308628
+      }
+    },
+    {
+      "origin": "restart-7",
+      "objective": 5.176347739716844,
+      "behavioural": false,
+      "message": "ABNORMAL: ",
+      "parameters": {
+        "ua_envelope_w_per_m2k": 2.9227801337600443,
+        "r_internal_ratio": 17.744948977298158,
+        "internal_gain_w_per_m2": 188.37414325390756,
+        "vent_flow_kg_per_s": 111.76514884158507,
+        "t_setpoint_c": 20.0
+      },
+      "start": {
+        "ua_envelope_w_per_m2k": 1.2997106832618106,
+        "r_internal_ratio": 17.691535322599037,
+        "internal_gain_w_per_m2": 187.9213219932802,
+        "vent_flow_kg_per_s": 111.66924429613417,
+        "t_setpoint_c": 23.349527900797625
+      }
+    },
+    {
+      "origin": "restart-10",
+      "objective": 1.6210141464058818,
+      "behavioural": false,
+      "message": "ABNORMAL: ",
+      "parameters": {
+        "ua_envelope_w_per_m2k": 2.933306576516584,
+        "r_internal_ratio": 2.7956298333654526,
+        "internal_gain_w_per_m2": 324.6559667217888,
+        "vent_flow_kg_per_s": 64.89522740550586,
+        "t_setpoint_c": 20.0
+      },
+      "start": {
+        "ua_envelope_w_per_m2k": 0.35400619633293,
+        "r_internal_ratio": 2.8966869786120473,
+        "internal_gain_w_per_m2": 324.48125447418164,
+        "vent_flow_kg_per_s": 64.82898178104325,
+        "t_setpoint_c": 21.99422519320605
+      }
+    },
+    {
+      "origin": "restart-11",
+      "objective": 10.389334344907518,
+      "behavioural": false,
+      "message": "ABNORMAL: ",
+      "parameters": {
+        "ua_envelope_w_per_m2k": 2.999035596638507,
+        "r_internal_ratio": 3.0033371278746985,
+        "internal_gain_w_per_m2": 683.3264335104678,
+        "vent_flow_kg_per_s": 147.9517073803748,
+        "t_setpoint_c": 26.0
+      },
+      "start": {
+        "ua_envelope_w_per_m2k": 1.597300790406017,
+        "r_internal_ratio": 3.143487901007747,
+        "internal_gain_w_per_m2": 683.575094214105,
+        "vent_flow_kg_per_s": 147.96016097090214,
+        "t_setpoint_c": 24.482820488969605
+      }
+    },
+    {
+      "origin": "restart-12",
+      "objective": 0.8113197505445042,
+      "behavioural": false,
+      "message": "ABNORMAL: ",
+      "parameters": {
+        "ua_envelope_w_per_m2k": 2.100403911404961,
+        "r_internal_ratio": 11.727029450246077,
+        "internal_gain_w_per_m2": 346.6120037984364,
+        "vent_flow_kg_per_s": 86.94562060723206,
+        "t_setpoint_c": 20.242149602811953
+      },
+      "start": {
+        "ua_envelope_w_per_m2k": 0.592382800079143,
+        "r_internal_ratio": 12.588006707235591,
+        "internal_gain_w_per_m2": 346.17958059314236,
+        "vent_flow_kg_per_s": 86.8170676273456,
+        "t_setpoint_c": 24.554792251999913
+      }
+    },
+    {
+      "origin": "restart-13",
+      "objective": 3.491271517423569,
+      "behavioural": false,
+      "message": "ABNORMAL: ",
+      "parameters": {
+        "ua_envelope_w_per_m2k": 1.7236587268975754,
+        "r_internal_ratio": 2.2797520288345616,
+        "internal_gain_w_per_m2": 227.9087084334485,
+        "vent_flow_kg_per_s": 162.29034603923142,
+        "t_setpoint_c": 20.0
+      },
+      "start": {
+        "ua_envelope_w_per_m2k": 1.140133390455585,
+        "r_internal_ratio": 4.898356777664564,
+        "internal_gain_w_per_m2": 226.49371859371135,
+        "vent_flow_kg_per_s": 161.91170496737638,
+        "t_setpoint_c": 25.934492391615144
+      }
+    },
+    {
+      "origin": "restart-14",
+      "objective": 0.5518928165740005,
+      "behavioural": false,
+      "message": "ABNORMAL: ",
+      "parameters": {
+        "ua_envelope_w_per_m2k": 0.7856452645064181,
+        "r_internal_ratio": 9.351243977507705,
+        "internal_gain_w_per_m2": 358.9125017934646,
+        "vent_flow_kg_per_s": 165.50976490026903,
+        "t_setpoint_c": 23.399353155887507
+      },
+      "start": {
+        "ua_envelope_w_per_m2k": 0.6905155345846816,
+        "r_internal_ratio": 9.466162110323914,
+        "internal_gain_w_per_m2": 358.82240091259865,
+        "vent_flow_kg_per_s": 165.48769655717928,
+        "t_setpoint_c": 24.19125458874664
+      }
+    },
+    {
+      "origin": "restart-15",
+      "objective": 4.558596967339691,
+      "behavioural": false,
+      "message": "ABNORMAL: ",
+      "parameters": {
+        "ua_envelope_w_per_m2k": 2.649353665313195,
+        "r_internal_ratio": 19.999999932047658,
+        "internal_gain_w_per_m2": 503.7431103884488,
+        "vent_flow_kg_per_s": 20.416196752702078,
+        "t_setpoint_c": 25.999974211042407
+      },
+      "start": {
+        "ua_envelope_w_per_m2k": 2.913506587288515,
+        "r_internal_ratio": 19.86788280900499,
+        "internal_gain_w_per_m2": 504.310862218505,
+        "vent_flow_kg_per_s": 20.437818216368512,
+        "t_setpoint_c": 21.832415268634037
+      }
+    },
+    {
+      "origin": "restart-16",
+      "objective": 4.472228111591955,
+      "behavioural": false,
+      "message": "CONVERGENCE: RELATIVE REDUCTION OF F <= FACTR*EPSMCH",
+      "parameters": {
+        "ua_envelope_w_per_m2k": 1.3391059786991968,
+        "r_internal_ratio": 6.303792649102243,
+        "internal_gain_w_per_m2": 506.1560750995387,
+        "vent_flow_kg_per_s": 106.27899962497752,
+        "t_setpoint_c": 25.99997106089906
+      },
+      "start": {
+        "ua_envelope_w_per_m2k": 1.0651588360279012,
+        "r_internal_ratio": 16.66712591235197,
+        "internal_gain_w_per_m2": 519.370290373357,
+        "vent_flow_kg_per_s": 107.45070902191418,
+        "t_setpoint_c": 22.39659318902992
+      }
+    },
+    {
+      "origin": "restart-17",
+      "objective": 10.600796212635059,
+      "behavioural": false,
+      "message": "ABNORMAL: ",
+      "parameters": {
+        "ua_envelope_w_per_m2k": 0.563921769397644,
+        "r_internal_ratio": 5.274938292231598,
+        "internal_gain_w_per_m2": 63.84036896152639,
+        "vent_flow_kg_per_s": 58.11379289158671,
+        "t_setpoint_c": 20.224843283734497
+      },
+      "start": {
+        "ua_envelope_w_per_m2k": 0.563921769397644,
+        "r_internal_ratio": 5.274938292231598,
+        "internal_gain_w_per_m2": 63.84036896152639,
+        "vent_flow_kg_per_s": 58.11379289158671,
+        "t_setpoint_c": 20.224843283734497
+      }
+    },
+    {
+      "origin": "restart-18",
+      "objective": 5.329284667468066,
+      "behavioural": false,
+      "message": "CONVERGENCE: RELATIVE REDUCTION OF F <= FACTR*EPSMCH",
+      "parameters": {
+        "ua_envelope_w_per_m2k": 1.3432810403954891,
+        "r_internal_ratio": 6.082480966474642,
+        "internal_gain_w_per_m2": 206.41946773549998,
+        "vent_flow_kg_per_s": 79.6478046285475,
+        "t_setpoint_c": 20.0
+      },
+      "start": {
+        "ua_envelope_w_per_m2k": 1.437218933066861,
+        "r_internal_ratio": 5.736655831215019,
+        "internal_gain_w_per_m2": 206.20706878080733,
+        "vent_flow_kg_per_s": 79.56516724789203,
+        "t_setpoint_c": 20.404773186627818
+      }
+    },
+    {
+      "origin": "restart-19",
+      "objective": 0.4135449336966959,
+      "behavioural": false,
+      "message": "CONVERGENCE: RELATIVE REDUCTION OF F <= FACTR*EPSMCH",
+      "parameters": {
+        "ua_envelope_w_per_m2k": 2.4885444329759316,
+        "r_internal_ratio": 11.124268266419657,
+        "internal_gain_w_per_m2": 312.53212405516814,
+        "vent_flow_kg_per_s": 180.0,
+        "t_setpoint_c": 20.00830308982536
+      },
+      "start": {
+        "ua_envelope_w_per_m2k": 2.079955924964475,
+        "r_internal_ratio": 14.887184325250976,
+        "internal_gain_w_per_m2": 177.05260667375015,
+        "vent_flow_kg_per_s": 62.79544851423419,
+        "t_setpoint_c": 23.455715350317572
+      }
+    },
+    {
+      "origin": "restart-20",
+      "objective": 0.5997228668619763,
+      "behavioural": false,
+      "message": "ABNORMAL: ",
+      "parameters": {
+        "ua_envelope_w_per_m2k": 0.3005118934590978,
+        "r_internal_ratio": 9.78042706354883,
+        "internal_gain_w_per_m2": 329.06163665842917,
+        "vent_flow_kg_per_s": 160.45976369153672,
+        "t_setpoint_c": 20.0250329474744
+      },
+      "start": {
+        "ua_envelope_w_per_m2k": 1.6561708033772367,
+        "r_internal_ratio": 10.685131789785162,
+        "internal_gain_w_per_m2": 244.93099254969817,
+        "vent_flow_kg_per_s": 130.77582100665208,
+        "t_setpoint_c": 20.03318736440513
+      }
+    },
+    {
+      "origin": "restart-21",
+      "objective": 10.821655695121452,
+      "behavioural": false,
+      "message": "CONVERGENCE: RELATIVE REDUCTION OF F <= FACTR*EPSMCH",
+      "parameters": {
+        "ua_envelope_w_per_m2k": 0.3394835309523048,
+        "r_internal_ratio": 2.111845275906417,
+        "internal_gain_w_per_m2": 50.74825997839552,
+        "vent_flow_kg_per_s": 76.36914214143457,
+        "t_setpoint_c": 20.00000884429758
+      },
+      "start": {
+        "ua_envelope_w_per_m2k": 2.816609912231768,
+        "r_internal_ratio": 13.497787324035295,
+        "internal_gain_w_per_m2": 49.447540644200494,
+        "vent_flow_kg_per_s": 76.35494555733618,
+        "t_setpoint_c": 20.464609640518425
+      }
+    },
+    {
+      "origin": "restart-22",
+      "objective": 11.846076060853516,
+      "behavioural": false,
+      "message": "ABNORMAL: ",
+      "parameters": {
+        "ua_envelope_w_per_m2k": 0.3,
+        "r_internal_ratio": 4.59703675554907,
+        "internal_gain_w_per_m2": 705.9689918761463,
+        "vent_flow_kg_per_s": 69.69604424143613,
+        "t_setpoint_c": 22.771172545282287
+      },
+      "start": {
+        "ua_envelope_w_per_m2k": 0.4717351004362311,
+        "r_internal_ratio": 4.608936485842146,
+        "internal_gain_w_per_m2": 706.0033290649307,
+        "vent_flow_kg_per_s": 69.70075218437324,
+        "t_setpoint_c": 22.673484082559114
+      }
+    },
+    {
+      "origin": "restart-23",
+      "objective": 1.2141267863517373,
+      "behavioural": false,
+      "message": "ABNORMAL: ",
+      "parameters": {
+        "ua_envelope_w_per_m2k": 1.476552439258165,
+        "r_internal_ratio": 16.31494446102662,
+        "internal_gain_w_per_m2": 379.8956057539355,
+        "vent_flow_kg_per_s": 14.97269741945038,
+        "t_setpoint_c": 23.284926805461907
+      },
+      "start": {
+        "ua_envelope_w_per_m2k": 1.7946785358237645,
+        "r_internal_ratio": 14.258666211574154,
+        "internal_gain_w_per_m2": 396.7231728870955,
+        "vent_flow_kg_per_s": 16.510982484009222,
+        "t_setpoint_c": 21.105903673894634
+      }
+    },
+    {
+      "origin": "restart-24",
+      "objective": 6.1045729152769415,
+      "behavioural": false,
+      "message": "CONVERGENCE: RELATIVE REDUCTION OF F <= FACTR*EPSMCH",
+      "parameters": {
+        "ua_envelope_w_per_m2k": 3.0,
+        "r_internal_ratio": 11.58882289539062,
+        "internal_gain_w_per_m2": 550.0225402695537,
+        "vent_flow_kg_per_s": 34.53643235646681,
+        "t_setpoint_c": 25.381311457970614
+      },
+      "start": {
+        "ua_envelope_w_per_m2k": 2.6230733870983904,
+        "r_internal_ratio": 11.60756902930033,
+        "internal_gain_w_per_m2": 550.0891786234472,
+        "vent_flow_kg_per_s": 34.53406428275939,
+        "t_setpoint_c": 25.093757873920715
+      }
+    },
+    {
+      "origin": "restart-25",
+      "objective": 8.80290423177567,
+      "behavioural": false,
+      "message": "ABNORMAL: ",
+      "parameters": {
+        "ua_envelope_w_per_m2k": 2.0856178051460637,
+        "r_internal_ratio": 18.984428558528965,
+        "internal_gain_w_per_m2": 637.2649769409107,
+        "vent_flow_kg_per_s": 152.54530840681662,
+        "t_setpoint_c": 26.0
+      },
+      "start": {
+        "ua_envelope_w_per_m2k": 1.886655619700995,
+        "r_internal_ratio": 18.951562454450244,
+        "internal_gain_w_per_m2": 637.8267795927366,
+        "vent_flow_kg_per_s": 152.61097918234506,
+        "t_setpoint_c": 23.061853314173344
+      }
+    },
+    {
+      "origin": "restart-26",
+      "objective": 9.224066211678274,
+      "behavioural": false,
+      "message": "ABNORMAL: ",
+      "parameters": {
+        "ua_envelope_w_per_m2k": 1.153183512491156,
+        "r_internal_ratio": 11.462783938863192,
+        "internal_gain_w_per_m2": 646.8220020292089,
+        "vent_flow_kg_per_s": 120.07191955516767,
+        "t_setpoint_c": 26.0
+      },
+      "start": {
+        "ua_envelope_w_per_m2k": 0.42348497462376,
+        "r_internal_ratio": 10.133695946730443,
+        "internal_gain_w_per_m2": 647.8344102517121,
+        "vent_flow_kg_per_s": 120.10592175214991,
+        "t_setpoint_c": 23.961362676277787
+      }
+    },
+    {
+      "origin": "restart-27",
+      "objective": 1.0126142814982346,
+      "behavioural": false,
+      "message": "ABNORMAL: ",
+      "parameters": {
+        "ua_envelope_w_per_m2k": 1.2118763183373962,
+        "r_internal_ratio": 14.133022302866168,
+        "internal_gain_w_per_m2": 316.3307574223765,
+        "vent_flow_kg_per_s": 141.78149885393162,
+        "t_setpoint_c": 20.0
+      },
+      "start": {
+        "ua_envelope_w_per_m2k": 1.3784607387054952,
+        "r_internal_ratio": 6.51864835404135,
+        "internal_gain_w_per_m2": 312.1306721153673,
+        "vent_flow_kg_per_s": 140.58747566771433,
+        "t_setpoint_c": 25.387590500011633
+      }
+    },
+    {
+      "origin": "restart-28",
+      "objective": 6.7412358235810075,
+      "behavioural": false,
+      "message": "ABNORMAL: ",
+      "parameters": {
+        "ua_envelope_w_per_m2k": 2.801562004817214,
+        "r_internal_ratio": 7.465719973503615,
+        "internal_gain_w_per_m2": 569.3932931045441,
+        "vent_flow_kg_per_s": 11.259549405779003,
+        "t_setpoint_c": 26.0
+      },
+      "start": {
+        "ua_envelope_w_per_m2k": 0.874650562668424,
+        "r_internal_ratio": 6.279181852540465,
+        "internal_gain_w_per_m2": 570.4541841522972,
+        "vent_flow_kg_per_s": 11.396870364962362,
+        "t_setpoint_c": 21.578976589841457
+      }
+    },
+    {
+      "origin": "restart-29",
+      "objective": 6.594146180033354,
+      "behavioural": false,
+      "message": "CONVERGENCE: RELATIVE REDUCTION OF F <= FACTR*EPSMCH",
+      "parameters": {
+        "ua_envelope_w_per_m2k": 1.496979142741297,
+        "r_internal_ratio": 3.650793951195851,
+        "internal_gain_w_per_m2": 560.102295093621,
+        "vent_flow_kg_per_s": 155.59288482188109,
+        "t_setpoint_c": 24.79675818801795
+      },
+      "start": {
+        "ua_envelope_w_per_m2k": 1.496979142741297,
+        "r_internal_ratio": 3.650793951195851,
+        "internal_gain_w_per_m2": 560.102295093621,
+        "vent_flow_kg_per_s": 155.59288482188109,
+        "t_setpoint_c": 24.79675818801795
+      }
+    },
+    {
+      "origin": "restart-30",
+      "objective": 2.2813990070127934,
+      "behavioural": false,
+      "message": "ABNORMAL: ",
+      "parameters": {
+        "ua_envelope_w_per_m2k": 2.4042252951168805,
+        "r_internal_ratio": 15.546727652672104,
+        "internal_gain_w_per_m2": 424.7714879192768,
+        "vent_flow_kg_per_s": 2.501262805868516,
+        "t_setpoint_c": 25.53371363882968
+      },
+      "start": {
+        "ua_envelope_w_per_m2k": 2.404225295116881,
+        "r_internal_ratio": 15.546727652672104,
+        "internal_gain_w_per_m2": 424.7714879192768,
+        "vent_flow_kg_per_s": 2.501262805868516,
+        "t_setpoint_c": 25.53371363882968
+      }
+    },
+    {
+      "origin": "restart-31",
+      "objective": 0.59405151494544,
+      "behavioural": false,
+      "message": "CONVERGENCE: RELATIVE REDUCTION OF F <= FACTR*EPSMCH",
+      "parameters": {
+        "ua_envelope_w_per_m2k": 3.0,
+        "r_internal_ratio": 2.4097436704965682,
+        "internal_gain_w_per_m2": 339.8661018166557,
+        "vent_flow_kg_per_s": 134.86766289570014,
+        "t_setpoint_c": 21.210762218164845
+      },
+      "start": {
+        "ua_envelope_w_per_m2k": 2.4821237937198126,
+        "r_internal_ratio": 12.223444797272444,
+        "internal_gain_w_per_m2": 95.85364809073099,
+        "vent_flow_kg_per_s": 46.60011166838762,
+        "t_setpoint_c": 20.78470287621235
+      }
+    },
+    {
+      "origin": "restart-32",
+      "objective": 0.8399738349434562,
+      "behavioural": false,
+      "message": "ABNORMAL: ",
+      "parameters": {
+        "ua_envelope_w_per_m2k": 1.5928879230293072,
+        "r_internal_ratio": 9.871364351530302,
+        "internal_gain_w_per_m2": 387.2100072165672,
+        "vent_flow_kg_per_s": 99.03440958738926,
+        "t_setpoint_c": 26.0
+      },
+      "start": {
+        "ua_envelope_w_per_m2k": 1.575227486147977,
+        "r_internal_ratio": 9.687794669688078,
+        "internal_gain_w_per_m2": 387.6517568927773,
+        "vent_flow_kg_per_s": 99.0571111541594,
+        "t_setpoint_c": 22.166772129591276
+      }
+    },
+    {
+      "origin": "restart-33",
+      "objective": 1.0880852875573626,
+      "behavioural": false,
+      "message": "CONVERGENCE: RELATIVE REDUCTION OF F <= FACTR*EPSMCH",
+      "parameters": {
+        "ua_envelope_w_per_m2k": 0.300082432747881,
+        "r_internal_ratio": 13.42059655487346,
+        "internal_gain_w_per_m2": 382.9375872712974,
+        "vent_flow_kg_per_s": 52.6864395276043,
+        "t_setpoint_c": 25.715483853313362
+      },
+      "start": {
+        "ua_envelope_w_per_m2k": 1.7599627458392852,
+        "r_internal_ratio": 12.876594615590413,
+        "internal_gain_w_per_m2": 590.5164921374045,
+        "vent_flow_kg_per_s": 39.464339218458065,
+        "t_setpoint_c": 24.80706509073954
+      }
+    },
+    {
+      "origin": "restart-34",
+      "objective": 0.5758859645381773,
+      "behavioural": false,
+      "message": "CONVERGENCE: RELATIVE REDUCTION OF F <= FACTR*EPSMCH",
+      "parameters": {
+        "ua_envelope_w_per_m2k": 3.0,
+        "r_internal_ratio": 19.999533062840452,
+        "internal_gain_w_per_m2": 327.0681314958285,
+        "vent_flow_kg_per_s": 127.15712419044654,
+        "t_setpoint_c": 20.0
+      },
+      "start": {
+        "ua_envelope_w_per_m2k": 2.1703630459255416,
+        "r_internal_ratio": 15.26822429184573,
+        "internal_gain_w_per_m2": 262.8678474393887,
+        "vent_flow_kg_per_s": 99.51200447940529,
+        "t_setpoint_c": 21.775308827362696
+      }
+    },
+    {
+      "origin": "restart-35",
+      "objective": 8.452476329566188,
+      "behavioural": false,
+      "message": "ABNORMAL: ",
+      "parameters": {
+        "ua_envelope_w_per_m2k": 1.0394685331910176,
+        "r_internal_ratio": 13.954206322998633,
+        "internal_gain_w_per_m2": 143.22289807535955,
+        "vent_flow_kg_per_s": 23.423598267681076,
+        "t_setpoint_c": 22.737708797081456
+      },
+      "start": {
+        "ua_envelope_w_per_m2k": 1.0394685331910176,
+        "r_internal_ratio": 13.954206322998633,
+        "internal_gain_w_per_m2": 143.22289807535955,
+        "vent_flow_kg_per_s": 23.423598267681076,
+        "t_setpoint_c": 22.737708797081456
+      }
+    },
+    {
+      "origin": "restart-36",
+      "objective": 3.8000460556222384,
+      "behavioural": false,
+      "message": "ABNORMAL: ",
+      "parameters": {
+        "ua_envelope_w_per_m2k": 3.0,
+        "r_internal_ratio": 17.7937004482103,
+        "internal_gain_w_per_m2": 489.05666003456855,
+        "vent_flow_kg_per_s": 174.09449229620603,
+        "t_setpoint_c": 25.61757555882318
+      },
+      "start": {
+        "ua_envelope_w_per_m2k": 2.7373715068656996,
+        "r_internal_ratio": 17.797949012135962,
+        "internal_gain_w_per_m2": 489.0907736957871,
+        "vent_flow_kg_per_s": 174.09476837990934,
+        "t_setpoint_c": 25.134198135183354
+      }
+    },
+    {
+      "origin": "restart-37",
+      "objective": 8.716949099698866,
+      "behavioural": false,
+      "message": "ABNORMAL: ",
+      "parameters": {
+        "ua_envelope_w_per_m2k": 1.9263265303082209,
+        "r_internal_ratio": 18.43862551403028,
+        "internal_gain_w_per_m2": 620.8954116475644,
+        "vent_flow_kg_per_s": 6.119086745237985,
+        "t_setpoint_c": 23.35129411885654
+      },
+      "start": {
+        "ua_envelope_w_per_m2k": 2.2803378647361763,
+        "r_internal_ratio": 18.48185402200683,
+        "internal_gain_w_per_m2": 620.9549128516309,
+        "vent_flow_kg_per_s": 6.123781619071246,
+        "t_setpoint_c": 23.260630922611572
+      }
+    },
+    {
+      "origin": "restart-38",
+      "objective": 6.794174924122186,
+      "behavioural": false,
+      "message": "ABNORMAL: ",
+      "parameters": {
+        "ua_envelope_w_per_m2k": 2.99999999963578,
+        "r_internal_ratio": 2.1347951723251075,
+        "internal_gain_w_per_m2": 123.62466797237622,
+        "vent_flow_kg_per_s": 167.3496929357031,
+        "t_setpoint_c": 20.0
+      },
+      "start": {
+        "ua_envelope_w_per_m2k": 0.9117651123389697,
+        "r_internal_ratio": 7.2915632412474425,
+        "internal_gain_w_per_m2": 123.14625016974716,
+        "vent_flow_kg_per_s": 167.29538188383947,
+        "t_setpoint_c": 25.677007352506326
+      }
+    },
+    {
+      "origin": "restart-39",
+      "objective": 0.9777007972679459,
+      "behavioural": false,
+      "message": "ABNORMAL: ",
+      "parameters": {
+        "ua_envelope_w_per_m2k": 1.0794761005524534,
+        "r_internal_ratio": 14.229126406259581,
+        "internal_gain_w_per_m2": 361.3883750881529,
+        "vent_flow_kg_per_s": 64.97591788778973,
+        "t_setpoint_c": 20.98647983037026
+      },
+      "start": {
+        "ua_envelope_w_per_m2k": 2.7178993891993524,
+        "r_internal_ratio": 8.48027774381562,
+        "internal_gain_w_per_m2": 3.2278954543215796,
+        "vent_flow_kg_per_s": 53.46849943760585,
+        "t_setpoint_c": 23.703451449064985
+      }
+    }
+  ],
+  "building_id": "Fox_education_Claude",
+  "year": 2016,
+  "calibration_artifact": "calibration_20260812T200947+0000_seed42.json",
+  "cvrmse_pct_range": [
+    11.676354453335042,
+    11.74427501115182
+  ],
+  "tolerance_sensitivity": {
+    "0.020": 3,
+    "0.050": 3,
+    "0.100": 4,
+    "0.200": 4
+  },
+  "retrofit_savings_pct": {
+    "ventilation setback -30%": {
+      "min": 0.19334201776934626,
+      "max": 4.665044225504152,
+      "median": 0.8558199455447684,
+      "calibrated": 0.8558199455447684,
+      "values": [
+        0.19334201776934626,
+        0.8558199455447684,
+        4.665044225504152
+      ]
+    },
+    "envelope upgrade -30% UA": {
+      "min": -0.15653507177250633,
+      "max": 1.085930199733192,
+      "median": 0.030277654492672924,
+      "calibrated": 0.030277654492672924,
+      "values": [
+        -0.15653507177250633,
+        0.030277654492672924,
+        1.085930199733192
+      ]
+    }
+  }
+}
