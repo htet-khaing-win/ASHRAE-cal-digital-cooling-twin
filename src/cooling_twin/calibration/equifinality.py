@@ -46,7 +46,7 @@ import os
 import time
 from collections.abc import Callable, Mapping
 from concurrent.futures import ProcessPoolExecutor
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 from typing import Any
 
 import numpy as np
@@ -57,6 +57,7 @@ from scipy.stats import qmc
 from cooling_twin import SEED
 from cooling_twin.calibration.optimize import (
     LOCAL_STEP_FRACTION,
+    PINNED_TOLERANCE,
     _FiniteObjective,
 )
 
@@ -97,6 +98,12 @@ UNIDENTIFIED_SPAN_FRACTION = 0.50
 # identified" and means nothing.
 MIN_SETS_FOR_SPREAD = 3
 
+# Correlation needs more points than a spread does, and how many more
+# depends on the PARAMETER COUNT -- see `minimum_sets_for_correlation`.
+# Two spare points above the dimension is the minimum at which a
+# correlation is measuring the model rather than the sample size.
+CORRELATION_SETS_ABOVE_DIMENSION = 2
+
 # |correlation| above which two parameters are reported as compensating.
 # 0.8 is a reporting threshold, not a physical one.
 DEFAULT_COMPENSATION_THRESHOLD = 0.8
@@ -135,8 +142,10 @@ class ParameterSpread:
         span_fraction: `(maximum - minimum) / (upper - lower)` -- the
             share of its own physical range the parameter roams over
             without the fit noticing.
-        verdict: `"identified"`, `"weakly identified"` or
-            `"unidentified"`, cut at `IDENTIFIED_SPAN_FRACTION` and
+        pinned_at: `"lower"`, `"upper"` or `None` -- set when EVERY
+            behavioural set leaves the parameter on the same bound.
+        verdict: `"identified"`, `"weakly identified"`, `"unidentified"`
+            or `"bound-limited"`, cut at `IDENTIFIED_SPAN_FRACTION` and
             `UNIDENTIFIED_SPAN_FRACTION`.
     """
 
@@ -145,6 +154,7 @@ class ParameterSpread:
     maximum: float
     span_fraction: float
     verdict: str
+    pinned_at: str | None = None
 
     @property
     def span(self) -> float:
@@ -210,6 +220,10 @@ class EquifinalityStudy:
         tolerance: Relative margin defining behavioural.
         threshold: `best_objective * (1 + tolerance)`.
         seed: Seed for the restart sampler.
+        start_spread: Fraction of each bound width the restarts were
+            drawn from -- part of the result, not a setting, because a
+            spread measured from a concentrated sample answers a
+            different question from one measured over the whole box.
         n_evaluations: Total objective calls across all refinements.
         elapsed_seconds: Wall clock.
     """
@@ -225,6 +239,7 @@ class EquifinalityStudy:
     seed: int
     n_evaluations: int
     elapsed_seconds: float
+    start_spread: float = 1.0
 
     @property
     def matrix(self) -> npt.NDArray[np.float64]:
@@ -251,26 +266,138 @@ class EquifinalityStudy:
             "n_evaluations": self.n_evaluations,
             "elapsed_seconds": round(self.elapsed_seconds, 3),
             "seed": self.seed,
+            "start_spread": self.start_spread,
             "spread": {
                 name: {
                     "min": spread.minimum,
                     "max": spread.maximum,
                     "span_fraction": spread.span_fraction,
                     "verdict": spread.verdict,
+                    "pinned_at": spread.pinned_at,
                 }
                 for name, spread in parameter_spread(self).items()
             },
-            "behavioural_sets": [
+            "parameter_names": list(self.parameter_names),
+            "bounds": {
+                name: list(bound)
+                for name, bound in zip(self.parameter_names, self.bounds, strict=True)
+            },
+            # EVERY refinement, not just the surviving ones, and the
+            # rejected ones in full rather than as a count. Two reasons.
+            # They describe the SURFACE -- a cluster just above the
+            # threshold means the behavioural region was under-sampled
+            # and `n_starts` should rise, while a scatter of far worse
+            # values means the restarts are landing in other basins,
+            # which is the empirical case for L6.7's global stage. And
+            # they make the artifact re-analysable: `from_dict` plus
+            # `rethreshold` can re-partition the study at another
+            # tolerance months later without re-running a single
+            # simulation. An artifact that records only the answer
+            # cannot be re-questioned.
+            "candidates": [
                 {
                     "origin": entry.origin,
                     "objective": entry.objective,
+                    "behavioural": behavioural,
+                    "message": entry.message,
                     "parameters": dict(
                         zip(self.parameter_names, entry.parameters, strict=True)
                     ),
+                    "start": dict(zip(self.parameter_names, entry.start, strict=True)),
                 }
-                for entry in self.sets
+                for entries, behavioural in ((self.sets, True), (self.rejected, False))
+                for entry in entries
             ],
         }
+
+    @classmethod
+    def from_dict(cls, record: Mapping[str, Any]) -> EquifinalityStudy:
+        """Rebuild a study from `to_dict`'s output.
+
+        Lossless for everything the analysis functions use, which is
+        what makes a written study re-analysable rather than merely
+        readable.
+
+        Args:
+            record: A mapping as produced by `to_dict`.
+
+        Returns:
+            The reconstructed study.
+
+        Raises:
+            KeyError: If the record is missing a required field --
+                raised rather than defaulted, because a study silently
+                rebuilt with an empty `rejected` list would report a
+                different threshold sensitivity than the run it claims
+                to be.
+        """
+        names = tuple(record["parameter_names"])
+        entries = {True: [], False: []}  # type: dict[bool, list[BehaviouralSet]]
+        for candidate in record["candidates"]:
+            entries[bool(candidate["behavioural"])].append(
+                BehaviouralSet(
+                    parameters=tuple(
+                        float(candidate["parameters"][name]) for name in names
+                    ),
+                    objective=float(candidate["objective"]),
+                    start=tuple(float(candidate["start"][name]) for name in names),
+                    origin=str(candidate["origin"]),
+                    message=str(candidate["message"]),
+                )
+            )
+        return cls(
+            parameter_names=names,
+            bounds=tuple((float(low), float(high)) for low, high in
+                         (record["bounds"][name] for name in names)),
+            sets=tuple(sorted(entries[True], key=lambda entry: entry.objective)),
+            rejected=tuple(entries[False]),
+            reference_objective=float(record["reference_objective"]),
+            best_objective=float(record["best_objective"]),
+            tolerance=float(record["tolerance"]),
+            threshold=float(record["threshold"]),
+            seed=int(record["seed"]),
+            n_evaluations=int(record["n_evaluations"]),
+            elapsed_seconds=float(record["elapsed_seconds"]),
+            start_spread=float(record["start_spread"]),
+        )
+
+    def rethreshold(self, tolerance: float) -> EquifinalityStudy:
+        """Re-partition the SAME refinements at a different tolerance.
+
+        Costs nothing, and that is the reason `rejected` is retained
+        rather than discarded at collection time: the behavioural
+        threshold is a judgement, so a result that depends on it must be
+        shown at more than one value. Recollecting instead would spend
+        another few hundred simulations to answer a question the
+        existing ones already answer.
+
+        Args:
+            tolerance: The new relative margin.
+
+        Returns:
+            A new study over the same candidates.
+
+        Raises:
+            ValueError: If `tolerance` is not positive.
+        """
+        if tolerance <= 0.0:
+            raise ValueError(f"tolerance must be > 0, got {tolerance}")
+        candidates = [*self.sets, *self.rejected]
+        threshold = self.best_objective * (1.0 + tolerance)
+        return replace(
+            self,
+            sets=tuple(
+                sorted(
+                    (entry for entry in candidates if entry.objective <= threshold),
+                    key=lambda entry: entry.objective,
+                )
+            ),
+            rejected=tuple(
+                entry for entry in candidates if entry.objective > threshold
+            ),
+            tolerance=tolerance,
+            threshold=threshold,
+        )
 
     def summary(self) -> str:
         """Multi-line human-readable summary, for logs and notebooks."""
@@ -285,6 +412,7 @@ class EquifinalityStudy:
             lines.append(
                 f"  {name:<28} {spread.minimum:10.3f} .. {spread.maximum:10.3f}  "
                 f"{spread.span_fraction:6.1%} of range  {spread.verdict}"
+                + (f" [{spread.pinned_at} bound]" if spread.pinned_at else "")
             )
         return "\n".join(lines)
 
@@ -374,6 +502,7 @@ def collect_behavioural_sets(
     n_starts: int = DEFAULT_N_STARTS,
     seed: int = SEED,
     workers: int = 1,
+    start_spread: float = 1.0,
 ) -> EquifinalityStudy:
     """Find parameter sets that fit as well as the calibrated one.
 
@@ -413,6 +542,19 @@ def collect_behavioural_sets(
             refinements across a process pool, `-1` meaning every core.
             Restarts are independent and collected by index, so the
             result does not depend on completion order.
+        start_spread: Fraction of each bound width the restarts are
+            drawn from, centred on the reference and clipped to the
+            bounds. `1.0` -- the default -- scatters over the whole box
+            and asks "is there a DISTANT rival that fits as well". A
+            small value concentrates the budget near the reported
+            optimum and asks the different question "how wide is the
+            ridge the optimum sits on". Both are legitimate and they
+            are not interchangeable: on a surface whose behavioural
+            region is small, a whole-box sample spends nearly all its
+            refinements in other basins and reports a handful of
+            behavioural sets -- too few to correlate -- while a
+            concentrated sample maps the trade-offs but says nothing
+            about distant rivals. Run both and report both.
 
     Returns:
         An `EquifinalityStudy`.
@@ -432,6 +574,12 @@ def collect_behavioural_sets(
         )
     if n_starts < 0:
         raise ValueError(f"n_starts must be >= 0, got {n_starts}")
+    if not 0.0 < start_spread <= 1.0:
+        raise ValueError(
+            f"start_spread must be in (0, 1], got {start_spread}. Zero would "
+            "start every refinement at the reference, which finds one point "
+            "and calls it a family."
+        )
 
     reference = np.asarray(reference_parameters, dtype=float)
     if reference.shape != (len(names),):
@@ -460,8 +608,22 @@ def collect_behavioural_sets(
         )
 
     sampler = qmc.LatinHypercube(d=len(names), seed=seed)
-    scattered = qmc.scale(sampler.random(n=n_starts), lower, upper) if n_starts else np.empty(
-        (0, len(names))
+    # The window shrinks toward the reference by `start_spread` of the
+    # room available on EACH side, rather than as a symmetric band of
+    # fixed width clipped to the box. Two reasons. At 1.0 this returns
+    # the box exactly, so the default keeps meaning "the whole box" --
+    # a symmetric band clipped to the bounds does not, and on this
+    # building (four parameters sitting near a bound) it silently
+    # sampled as little as half the box while claiming to sample all of
+    # it. And a reference near a bound has little room on one side and
+    # plenty on the other; shrinking proportionally respects that
+    # instead of spending half the window outside the box.
+    window_lower = reference - start_spread * (reference - lower)
+    window_upper = reference + start_spread * (upper - reference)
+    scattered = (
+        qmc.scale(sampler.random(n=n_starts), window_lower, window_upper)
+        if n_starts
+        else np.empty((0, len(names)))
     )
     starts = np.vstack([reference.reshape(1, -1), scattered])
     origins = ["reference", *(f"restart-{index}" for index in range(n_starts))]
@@ -470,9 +632,11 @@ def collect_behavioural_sets(
     refiner = _LocalRefiner(objective, pairs, steps)
 
     logger.info(
-        "equifinality probe: %d refinements (1 reference + %d restarts), %d parameters",
+        "equifinality probe: %d refinements (1 reference + %d restarts over %.0f%% "
+        "of each bound width), %d parameters",
         len(starts),
         n_starts,
+        100 * start_spread,
         len(names),
     )
     started = time.perf_counter()
@@ -525,6 +689,7 @@ def collect_behavioural_sets(
         tolerance=tolerance,
         threshold=threshold,
         seed=seed,
+        start_spread=start_spread,
         n_evaluations=sum(int(outcome[3]) for outcome in outcomes),
         elapsed_seconds=elapsed,
     )
@@ -539,6 +704,14 @@ def parameter_spread(study: EquifinalityStudy) -> dict[str, ParameterSpread]:
     width, because the raw span is not comparable between a parameter
     spanning 0.3-3.0 and one spanning 0.5-180: 5 units is the whole
     story for the first and rounding error for the second.
+
+    A narrow span has TWO causes and they are opposite findings. Either
+    the data holds the parameter in place -- identified -- or the BOX
+    does, every behavioural set piled against the same bound because the
+    fit wants to keep going and cannot. The second reads as a span of
+    zero, which is the most confident-looking output this function can
+    produce and means the least. It is reported as `"bound-limited"`
+    with `pinned_at` set, never as `"identified"`.
 
     Args:
         study: A completed study.
@@ -563,7 +736,17 @@ def parameter_spread(study: EquifinalityStudy) -> dict[str, ParameterSpread]:
         minimum = float(np.min(column))
         maximum = float(np.max(column))
         span_fraction = (maximum - minimum) / (high - low)
-        if span_fraction <= IDENTIFIED_SPAN_FRACTION:
+
+        margin = PINNED_TOLERANCE * (high - low)
+        pinned_at: str | None = None
+        if maximum <= low + margin:
+            pinned_at = "lower"
+        elif minimum >= high - margin:
+            pinned_at = "upper"
+
+        if pinned_at is not None and span_fraction <= IDENTIFIED_SPAN_FRACTION:
+            verdict = "bound-limited"
+        elif span_fraction <= IDENTIFIED_SPAN_FRACTION:
             verdict = "identified"
         elif span_fraction >= UNIDENTIFIED_SPAN_FRACTION:
             verdict = "unidentified"
@@ -575,8 +758,40 @@ def parameter_spread(study: EquifinalityStudy) -> dict[str, ParameterSpread]:
             maximum=maximum,
             span_fraction=span_fraction,
             verdict=verdict,
+            pinned_at=pinned_at,
         )
     return spreads
+
+
+def minimum_sets_for_correlation(n_params: int) -> int:
+    """Behavioural sets needed before a correlation means anything.
+
+    `n` points always lie inside an `(n-1)`-dimensional affine subspace
+    of the parameter space. When `n` is at or below the number of
+    parameters, that subspace is a proper slice of the box and EVERY
+    pair of coordinates comes out strongly correlated -- not because the
+    parameters trade off, but because three points in five dimensions
+    have nowhere else to be. Reporting "r = +1.000" from such a sample
+    would dress up the sample size as a physical finding, and it is the
+    kind of mistake that survives review because the number looks
+    decisive.
+
+    The rule is therefore `n_params + CORRELATION_SETS_ABOVE_DIMENSION`:
+    enough points that the family has room to be uncorrelated if it
+    wants to be.
+
+    Args:
+        n_params: Number of calibrated parameters.
+
+    Returns:
+        The minimum behavioural-set count.
+
+    Raises:
+        ValueError: If `n_params` is not positive.
+    """
+    if n_params < 1:
+        raise ValueError(f"n_params must be >= 1, got {n_params}")
+    return max(MIN_SETS_FOR_SPREAD, n_params + CORRELATION_SETS_ABOVE_DIMENSION)
 
 
 def parameter_correlations(study: EquifinalityStudy) -> npt.NDArray[np.float64]:
@@ -601,16 +816,20 @@ def parameter_correlations(study: EquifinalityStudy) -> npt.NDArray[np.float64]:
         claim.
 
     Raises:
-        ValueError: If there are fewer than `MIN_SETS_FOR_SPREAD`
-            behavioural sets. A correlation over two points is exactly
-            +-1 by construction and would manufacture the finding.
+        ValueError: If there are fewer behavioural sets than the
+            parameter count requires -- see
+            `minimum_sets_for_correlation`.
     """
-    if len(study.sets) < MIN_SETS_FOR_SPREAD:
+    required = minimum_sets_for_correlation(len(study.parameter_names))
+    if len(study.sets) < required:
         raise ValueError(
-            f"need at least {MIN_SETS_FOR_SPREAD} behavioural sets to correlate "
-            f"parameters, got {len(study.sets)}. Over two points every "
-            "correlation is exactly +-1, which would invent the trade-off this "
-            "function exists to detect."
+            f"need at least {required} behavioural sets to correlate "
+            f"{len(study.parameter_names)} parameters, got {len(study.sets)}. "
+            "n points lie in an (n-1)-dimensional plane, so with n at or below "
+            "the parameter count every pair comes out near +-1 whatever the "
+            "model does -- the trade-off would be an artifact of the sample "
+            "size. Raise n_starts, or widen the tolerance if the surface is "
+            "genuinely that sharp."
         )
     matrix = study.matrix
     constant = np.std(matrix, axis=0) == 0.0
