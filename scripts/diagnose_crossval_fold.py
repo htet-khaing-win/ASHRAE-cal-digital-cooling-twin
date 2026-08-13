@@ -64,6 +64,7 @@ from run_calibration import (  # noqa: E402
     resolve_bounds,
 )
 
+from cooling_twin.analysis.residual import linear_residual_slopes  # noqa: E402
 from cooling_twin.calibration.crossval import (  # noqa: E402
     TimeFold,
     expanding_window_folds,
@@ -172,42 +173,6 @@ def season_table(
             }
         )
     return pd.DataFrame(rows).set_index("season")
-
-
-def decompose_residual(
-    residual_kw: npt.NDArray[np.float64],
-    t_ambient_c: npt.NDArray[np.float64],
-    humidity_ratio: npt.NDArray[np.float64],
-) -> dict[str, float]:
-    """Regress the residual on the drivers the model already has.
-
-    A residual that is a flat positive offset says the CONSTANT term is
-    too small. One that slopes with temperature says a weather-driven
-    term is too small. One that slopes with humidity says the latent
-    term is. The three are separable because the regression reports all
-    three coefficients at once, and the mean is reported beside them so
-    a large slope on a small mean is not mistaken for the main effect.
-
-    Args:
-        residual_kw: Measured minus predicted, kW.
-        t_ambient_c: Outdoor dry bulb, degC.
-        humidity_ratio: Outdoor humidity ratio, kg/kg.
-
-    Returns:
-        Intercept, slopes, and the correlations behind them.
-    """
-    design = np.column_stack(
-        [np.ones_like(residual_kw), t_ambient_c, humidity_ratio * 1000.0]
-    )
-    coefficients, *_ = np.linalg.lstsq(design, residual_kw, rcond=None)
-    return {
-        "mean_residual_kw": float(residual_kw.mean()),
-        "intercept_kw": float(coefficients[0]),
-        "slope_kw_per_K": float(coefficients[1]),
-        "slope_kw_per_g_per_kg": float(coefficients[2]),
-        "corr_temperature": float(np.corrcoef(residual_kw, t_ambient_c)[0, 1]),
-        "corr_humidity": float(np.corrcoef(residual_kw, humidity_ratio)[0, 1]),
-    }
 
 
 def hot_water_correlation(
@@ -413,7 +378,7 @@ def main() -> None:
 
     # --- 6. what is left in the residual --------------------------------
     target_residual = residuals[arguments.fold][1]
-    parts = decompose_residual(
+    parts = linear_residual_slopes(
         target_residual,
         t_ambient[target.validate_slice],
         humidity[target.validate_slice],
@@ -432,7 +397,7 @@ def main() -> None:
     repaired = dict(fold_parameters[arguments.fold])
     repaired[best_swap] = full_year[best_swap]
     repaired_residual = fold_residuals(objective, repaired, names, target)
-    repaired_parts = decompose_residual(
+    repaired_parts = linear_residual_slopes(
         repaired_residual,
         t_ambient[target.validate_slice],
         humidity[target.validate_slice],
