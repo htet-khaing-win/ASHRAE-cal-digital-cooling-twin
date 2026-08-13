@@ -1,0 +1,137 @@
+{
+  "building_id": "Fox_education_Claude",
+  "year": 2016,
+  "n_folds": 4,
+  "spin_up_hours": 72,
+  "embargo_hours": 0,
+  "leak_check": {
+    "random_split_pct": 5.5006084257514996,
+    "blocked_split_pct": 36.93325107617878
+  },
+  "overfitting_gap_pct": 5.0,
+  "mean_validate_cvrmse_pct": 11.193502732286575,
+  "worst_validate_cvrmse_pct": 15.68302512113974,
+  "folds_failing_g14": [
+    2
+  ],
+  "mean_gap_pct": 0.3319676555514435,
+  "overfitting_suspected": false,
+  "folds": [
+    {
+      "fold": 1,
+      "train_hours": 1756,
+      "validate_hours": 1756,
+      "objective": 0.29728325755646073,
+      "parameters": {
+        "ua_envelope_w_per_m2k": 2.7484570485764825,
+        "r_internal_ratio": 17.51596311655121,
+        "internal_gain_w_per_m2": 305.962457835641,
+        "vent_flow_kg_per_s": 147.41427330696695,
+        "t_setpoint_c": 23.04442426856033
+      },
+      "pinned_parameters": [],
+      "n_evaluations": 4677,
+      "elapsed_seconds": 46.9,
+      "train_cvrmse_pct": 8.917846948927197,
+      "validate_cvrmse_pct": 11.777424155252385,
+      "train_nmbe_pct": -0.00021692592220853642,
+      "validate_nmbe_pct": 5.771005220890965,
+      "gap_pct": 2.859577206325188
+    },
+    {
+      "fold": 2,
+      "train_hours": 3512,
+      "validate_hours": 1756,
+      "objective": 0.3072952770156184,
+      "parameters": {
+        "ua_envelope_w_per_m2k": 2.946956582505112,
+        "r_internal_ratio": 17.55879013985244,
+        "internal_gain_w_per_m2": 293.8443715240842,
+        "vent_flow_kg_per_s": 179.93311265532918,
+        "t_setpoint_c": 20.92653190954823
+      },
+      "pinned_parameters": [
+        "vent_flow_kg_per_s"
+      ],
+      "n_evaluations": 3816,
+      "elapsed_seconds": 120.5,
+      "train_cvrmse_pct": 9.215635627170519,
+      "validate_cvrmse_pct": 15.68302512113974,
+      "train_nmbe_pct": 0.0010742277660106955,
+      "validate_nmbe_pct": 11.927160434687,
+      "gap_pct": 6.467389493969222
+    },
+    {
+      "fold": 3,
+      "train_hours": 5268,
+      "validate_hours": 1756,
+      "objective": 0.44480294770150514,
+      "parameters": {
+        "ua_envelope_w_per_m2k": 2.985185313165105,
+        "r_internal_ratio": 18.412398573539335,
+        "internal_gain_w_per_m2": 349.5562959401369,
+        "vent_flow_kg_per_s": 179.94185557403705,
+        "t_setpoint_c": 23.516515321642665
+      },
+      "pinned_parameters": [
+        "ua_envelope_w_per_m2k",
+        "vent_flow_kg_per_s"
+      ],
+      "n_evaluations": 4386,
+      "elapsed_seconds": 185.2,
+      "train_cvrmse_pct": 13.343562502258349,
+      "validate_cvrmse_pct": 9.301464571330515,
+      "train_nmbe_pct": -0.00017530959560124756,
+      "validate_nmbe_pct": 6.070834330457645,
+      "gap_pct": -4.042097930927834
+    },
+    {
+      "fold": 4,
+      "train_hours": 7024,
+      "validate_hours": 1758,
+      "objective": 0.3989495815306457,
+      "parameters": {
+        "ua_envelope_w_per_m2k": 2.99409365081743,
+        "r_internal_ratio": 19.692507110795415,
+        "internal_gain_w_per_m2": 379.94364781735715,
+        "vent_flow_kg_per_s": 179.9363558665274,
+        "t_setpoint_c": 25.294302525074556
+      },
+      "pinned_parameters": [
+        "ua_envelope_w_per_m2k",
+        "vent_flow_kg_per_s"
+      ],
+      "n_evaluations": 5043,
+      "elapsed_seconds": 380.8,
+      "train_cvrmse_pct": 11.969095228584466,
+      "validate_cvrmse_pct": 8.012097081423665,
+      "train_nmbe_pct": 3.7524762333115397e-06,
+      "validate_nmbe_pct": -3.345562585001432,
+      "gap_pct": -3.9569981471608013
+    }
+  ],
+  "parameter_stability": {
+    "ua_envelope_w_per_m2k": [
+      2.7484570485764825,
+      2.99409365081743
+    ],
+    "r_internal_ratio": [
+      17.51596311655121,
+      19.692507110795415
+    ],
+    "internal_gain_w_per_m2": [
+      293.8443715240842,
+      379.94364781735715
+    ],
+    "vent_flow_kg_per_s": [
+      147.41427330696695,
+      179.94185557403705
+    ],
+    "t_setpoint_c": [
+      20.92653190954823,
+      25.294302525074556
+    ]
+  },
+  "total_evaluations": 17922,
+  "full_year_cvrmse_pct": 11.722183917855155
+}

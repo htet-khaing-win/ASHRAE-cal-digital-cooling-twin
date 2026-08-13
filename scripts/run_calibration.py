@@ -184,7 +184,7 @@ class CalibrationObjective:
         self._n_params = len(config["parameters"])
 
     def predict(
-        self, vector: npt.NDArray[np.float64]
+        self, vector: npt.NDArray[np.float64], window: slice | None = None
     ) -> tuple[npt.NDArray[np.float64], npt.NDArray[np.float64]]:
         """Run the inverse model at one parameter vector.
 
@@ -193,18 +193,35 @@ class CalibrationObjective:
                 Looked up BY NAME rather than unpacked positionally, so
                 that adding a parameter (ADR-011's ventilation flow) is
                 a config change and not a silent re-ordering bug.
+            window: Optional slice restricting the simulation to part of
+                the year (L6.9's cross-validation folds). The drivers
+                are sliced together and `t_seconds` keeps its absolute
+                values, which is safe because the ODE is time-invariant
+                except through the interpolated drivers. Note that
+                `inverse_cooling_load` starts the envelope at the FIRST
+                ambient temperature it is given, so a window that begins
+                mid-year begins with a wrong initial condition -- which
+                is precisely why folds simulate a spin-up period and
+                discard it.
 
         Returns:
-            `(clipped_kw, raw_kw)` as `inverse_cooling_load` returns.
+            `(clipped_kw, raw_kw)` as `inverse_cooling_load` returns,
+            covering `window` when one is given.
 
         Raises:
             RuntimeError: If the ODE solver fails.
         """
         values = dict(zip(self._parameter_names, (float(v) for v in vector), strict=True))
         vent_flow = values.get("vent_flow_kg_per_s", 0.0)
+        chosen = slice(None) if window is None else window
+        humidity = (
+            None
+            if self._outdoor_humidity_ratio is None
+            else self._outdoor_humidity_ratio[chosen]
+        )
         return inverse_cooling_load(
-            self._t_seconds,
-            self._t_ambient_c,
+            self._t_seconds[chosen],
+            self._t_ambient_c[chosen],
             ua_envelope_w_per_m2k=values["ua_envelope_w_per_m2k"],
             r_internal_ratio=values["r_internal_ratio"],
             internal_gain_w_per_m2=values["internal_gain_w_per_m2"],
@@ -213,17 +230,27 @@ class CalibrationObjective:
             envelope_capacity_ratio=self._capacity_ratio,
             ceiling_height_m=self._ceiling_height_m,
             vent_flow_kg_per_s=vent_flow,
-            outdoor_humidity_ratio=(
-                None if vent_flow <= 0.0 else self._outdoor_humidity_ratio
-            ),
+            outdoor_humidity_ratio=(None if vent_flow <= 0.0 else humidity),
             supply_humidity_ratio=self._supply_humidity_ratio,
         )
 
-    def breakdown(self, vector: npt.NDArray[np.float64]) -> ObjectiveBreakdown:
-        """Decompose the objective at one parameter vector, for the log."""
-        clipped_kw, raw_kw = self.predict(vector)
+    def breakdown(
+        self, vector: npt.NDArray[np.float64], window: slice | None = None
+    ) -> ObjectiveBreakdown:
+        """Decompose the objective at one parameter vector, for the log.
+
+        Args:
+            vector: Parameter values in the config's parameter order.
+            window: Optional slice restricting BOTH the simulation and
+                the measurements it is scored against. Passing a window
+                to one and not the other would score the model against
+                the wrong hours, so they are sliced together here rather
+                than by the caller.
+        """
+        chosen = slice(None) if window is None else window
+        clipped_kw, raw_kw = self.predict(vector, window=window)
         return g14_objective(
-            self.observed_kw,
+            self.observed_kw[chosen],
             clipped_kw,
             n_params=self._n_params,
             violations={
@@ -236,15 +263,30 @@ class CalibrationObjective:
             penalty_weight=self._penalty_weight,
         )
 
-    def __call__(self, vector: npt.NDArray[np.float64]) -> float:
-        """The scalar the optimiser minimises."""
+    def evaluate(
+        self, vector: npt.NDArray[np.float64], window: slice | None = None
+    ) -> float:
+        """The scalar the optimiser minimises, optionally on one window.
+
+        Args:
+            vector: Parameter values in the config's parameter order.
+            window: Optional slice restricting the scored hours.
+
+        Returns:
+            The objective total, or `INFEASIBLE_OBJECTIVE` if the solver
+            could not integrate this parameter set.
+        """
         try:
-            return self.breakdown(vector).total
+            return self.breakdown(vector, window=window).total
         except RuntimeError as error:
             # A parameter set the solver cannot integrate is infeasible,
             # not fatal: the optimiser must be able to walk away from it.
             logger.debug("infeasible candidate %s: %s", vector, error)
             return INFEASIBLE_OBJECTIVE
+
+    def __call__(self, vector: npt.NDArray[np.float64]) -> float:
+        """The scalar the optimiser minimises, over the whole window."""
+        return self.evaluate(vector)
 
 
 AUTO_BOUND = "auto"

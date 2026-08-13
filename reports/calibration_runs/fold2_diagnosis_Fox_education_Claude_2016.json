@@ -1,0 +1,107 @@
+{
+  "building_id": "Fox_education_Claude",
+  "year": 2016,
+  "fold": 2,
+  "fold_window": [
+    "2016-05-26 08:00:00",
+    "2016-08-07 12:00:00"
+  ],
+  "own_parameters": {
+    "cvrmse_pct": 15.68302512113974,
+    "nmbe_pct": 11.927160434687
+  },
+  "full_year_parameters_same_window": {
+    "cvrmse_pct": 12.314188673187344,
+    "nmbe_pct": 6.912552190199725
+  },
+  "ablation": [
+    {
+      "swapped to full-year value": "ua_envelope_w_per_m2k",
+      "from": 2.95,
+      "to": 3.0,
+      "CV(RMSE) %": 15.59,
+      "NMBE %": 11.81,
+      "bias removed pp": 0.11
+    },
+    {
+      "swapped to full-year value": "r_internal_ratio",
+      "from": 17.56,
+      "to": 18.57,
+      "CV(RMSE) %": 15.67,
+      "NMBE %": 11.91,
+      "bias removed pp": 0.01
+    },
+    {
+      "swapped to full-year value": "internal_gain_w_per_m2",
+      "from": 293.84,
+      "to": 372.05,
+      "CV(RMSE) %": 10.38,
+      "NMBE %": -1.91,
+      "bias removed pp": 10.01
+    },
+    {
+      "swapped to full-year value": "vent_flow_kg_per_s",
+      "from": 179.93,
+      "to": 179.6,
+      "CV(RMSE) %": 15.73,
+      "NMBE %": 11.98,
+      "bias removed pp": -0.05
+    },
+    {
+      "swapped to full-year value": "t_setpoint_c",
+      "from": 20.93,
+      "to": 24.83,
+      "CV(RMSE) %": 23.15,
+      "NMBE %": 20.81,
+      "bias removed pp": -8.88
+    }
+  ],
+  "residual_decomposition": {
+    "mean_residual_kw": 1210.2107389059702,
+    "intercept_kw": -1479.3547898948011,
+    "slope_kw_per_K": 51.49795591427984,
+    "slope_kw_per_g_per_kg": 113.25171690317325,
+    "corr_temperature": 0.20745738758836607,
+    "corr_humidity": 0.38632257611802906
+  },
+  "best_swap": "internal_gain_w_per_m2",
+  "residual_decomposition_after_swap": {
+    "mean_residual_kw": -194.10840266315088,
+    "intercept_kw": -2883.673931463925,
+    "slope_kw_per_K": 51.497955914279885,
+    "slope_kw_per_g_per_kg": 113.2517169031733,
+    "corr_temperature": 0.2074573875883661,
+    "corr_humidity": 0.38632257611802906
+  },
+  "corr_residual_hotwater": 0.11208378899315737,
+  "season_table_full_year_fit": [
+    {
+      "season": "winter (DJF)",
+      "hours": 2183,
+      "mean kW": 4059.0,
+      "CV(RMSE) %": 14.57,
+      "NMBE %": -9.81
+    },
+    {
+      "season": "spring (MAM)",
+      "hours": 2208,
+      "mean kW": 5938.0,
+      "CV(RMSE) %": 11.77,
+      "NMBE %": -8.33
+    },
+    {
+      "season": "summer (JJA)",
+      "hours": 2207,
+      "mean kW": 10326.0,
+      "CV(RMSE) %": 11.86,
+      "NMBE %": 7.49
+    },
+    {
+      "season": "autumn (SON)",
+      "hours": 2184,
+      "mean kW": 7181.0,
+      "CV(RMSE) %": 7.12,
+      "NMBE %": 1.62
+    }
+  ]
+}
