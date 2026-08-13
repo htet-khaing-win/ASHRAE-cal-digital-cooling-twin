@@ -1,13 +1,144 @@
-# Calibration — training year (2016)
+# Calibration and the M6 gate — Fox, Bull, Hog
 
-> ⚠️ **This is not the M6 gate report.** Every number here is from the
-> **training** year. The 2017 test set has not been opened; L6.10 opens it once,
-> deliberately, and logs the access in `07_PROGRESS.md`. A model that passes on
-> its training year has not passed the gate.
+> 🔓 **The test set is open.** 2017 was read once, on 2026-08-13, by
+> `scripts/open_test_set.py --open-test-set`. The access is logged in
+> `07_PROGRESS.md`. Nothing was refitted on 2017: the script never imports the
+> optimiser, and the parameters are read frozen from the 2016 artifacts.
 
-*Generated 2026-08-13. Model: 3-node inverse RC with the ADR-011 ventilation
-term. 5 calibrated parameters. Objective: L6.6's G14 budget with the clipping
-penalty. Seed 42, differential evolution then L-BFGS-B.*
+*Model: 3-node inverse RC with the ADR-011 ventilation term. 5 calibrated
+parameters. Objective: L6.6's G14 budget with the clipping penalty. Seed 42,
+differential evolution then L-BFGS-B, fitted on 2016 only.*
+
+## THE GATE — held-out year, 2017
+
+**Result: the primary gate FAILS. Two of three buildings pass; the gate
+requires all three.** The 2-of-3 outcome was accepted on 2026-08-13
+(ADR-014) and `Hog_education_Cathleen` is retired to `negative_case` in
+`config/buildings.yaml`. Accepting the outcome does **not** tick the
+gate: the criterion in `06_ASSESSMENT.md` is unchanged and unmet.
+
+| Building | Train NMBE | Train CV(RMSE) | Test NMBE | Test CV(RMSE) | G14 |
+|---|---|---|---|---|---|
+| `Fox_education_Claude` (primary) | −0.00% | 11.72% | **+3.10%** | **11.58%** | ✅ PASS |
+| `Bull_education_Luke` | −0.00% | 14.13% | **+1.35%** | **11.14%** | ✅ PASS |
+| `Hog_education_Cathleen` | −0.00% | 28.66% | **−1.58%** | **31.65%** | ❌ FAIL |
+
+Test-year CV(RMSE) against the baselines, all three fitted on **2016** and
+evaluated on 2017 through their stored coefficients:
+
+| Building | Annual mean | Linear regression | **Calibrated RC** | Relative improvement |
+|---|---|---|---|---|
+| `Fox_education_Claude` | 41.00% | 15.71% | **11.58%** | 26.3% |
+| `Bull_education_Luke` | 35.77% | 18.59% | **11.14%** | **40.1%** |
+| `Hog_education_Cathleen` | 68.54% | 40.70% | **31.65%** | 22.2% |
+
+### What passed, and by how much
+
+Two buildings did **better** on the held-out year than on the year they were
+fitted to — Claude 11.72% → 11.58%, Luke 14.13% → 11.14%. That is not a
+paradox and it is not luck: it is what a model with no overfitting looks like
+when the test year happens to be slightly easier. It is also the strongest
+available evidence that the calibration captured something about the buildings
+rather than about 2016's weather.
+
+Luke is the one building meeting every requirement: G14 on both years, and a
+40.1% relative improvement on its best baseline, clearing the ≥30% supporting
+requirement.
+
+### Why Cathleen failed — structure, not overfitting
+
+The mechanical reading of `06_ASSESSMENT.md`'s signature table is "good on
+train, poor on test → overfitting → remove capacity". That reading is **wrong
+here**, and the evidence is the seasonal decomposition on both years:
+
+| Season | Cathleen 2016 NMBE (train) | Cathleen 2017 NMBE (test) |
+|---|---|---|
+| winter (DJF) | **+25.4%** | **+19.8%** |
+| spring (MAM) | **−23.2%** | **−27.8%** |
+| summer (JJA) | +10.9% | +9.4% |
+| autumn (SON) | −14.6% | −13.5% |
+| **annual** | **−0.00%** | **−1.53%** |
+
+The fault is the same size on the training year. Overfitting is a fault that
+appears on data the fit never saw; this one was always there, hidden by an
+annual NMBE that averages a +25% winter against a −23% spring. The prescribed
+actions are opposite — overfitting says *remove* model capacity, structure
+error says *add* it — so the distinction decides what happens next.
+
+Second contributing fact: Cathleen's training fit left only **1.34 points of
+headroom** under the 30% limit. It was never comfortably inside the standard,
+and the ordinary difference between two weather years (+2.99 pp) put it over.
+Reporting 28.66% as a pass without that caveat was optimistic, and L6.9's
+cross-validation would have said so had it been run on this building.
+
+### The same signature on the primary building
+
+Claude's test-year seasonal NMBE runs winter −7.59%, spring −2.78%, **summer
++10.70%**, autumn +2.87%. That is the fold-2 finding
+(`reports/05_fold2_diagnosis.md`) reproducing on data the model has never seen:
+the load-versus-temperature response is too flat, so summer is under-predicted.
+It sits just inside G14 annually and just outside the ±10% NMBE limit in summer
+alone. Predicted before the test set was opened, and confirmed by it.
+
+### Supporting requirements
+
+| Requirement | Status |
+|---|---|
+| Naive baselines computed | ✅ annual mean + linear regression, fitted 2016 |
+| Beats best baseline by ≥30% relative CV(RMSE) | ❌ **Luke only** (40.1%; Claude 26.3%, Cathleen 22.2%) |
+| Morris/Sobol sensitivity performed | ✅ L6.5, Morris, 7 screened → 4 kept (5 with ADR-011) |
+| ≤10 parameters calibrated | ✅ 5 |
+| All parameters within physical bounds | ⚠️ within, but Claude and Cathleen sit ON bounds (see below) |
+| `metrics.py` 100% coverage, known-answer tests | ✅ |
+| Seed fixed, reproducible | ✅ seed 42; the L6.9 re-run reproduced exactly |
+| Run artifact JSON saved | ✅ `reports/calibration_runs/gate_2017_opened.json` |
+| `reports/02_calibration.md` written | ✅ this file |
+
+### The decision, and what it costs — ADR-014
+
+Three options existed. Only two were available.
+
+| Option | Verdict |
+|---|---|
+| (a) Accept 2-of-3, document Cathleen | **Chosen.** Costs the headline, keeps the evidence intact. |
+| (b) Fix the structure error, re-evaluate | Legitimate — and it is M7's first task anyway. But any 2017 number produced *after* a model change is a re-read, not a clean held-out result, and must be labelled as one. |
+| (c) Re-select a third building | **Refused.** With 2017 open, choosing a replacement means choosing the building the test set has already approved. |
+
+Cathleen is kept rather than deleted because it is a negative case reached by
+the **full** process — selected, cleaned, screened, calibrated,
+cross-validated, gated — where `Fox_education_Theodore` was screened out before
+any modelling began. A failure that survives the whole pipeline says more about
+the method's limits than one caught by a filter.
+
+### A note on the selection screen
+
+ADR-012's screen gave Cathleen a weather-explainability ceiling of 17.4%
+against a 30% limit — 42% headroom — and it failed anyway at 31.65%. The screen
+was not wrong. **A ceiling is a lower bound on achievable error, not a
+prediction of success:** it says a perfect weather-driven model could reach
+17.4%, and the fitted model landed 14 points above its own floor. Clearing the
+screen is necessary and not sufficient. Recorded in `config/buildings.yaml`
+under `screen_said`, because that misreading is the one that just cost a
+building.
+
+### Honest summary
+
+A digital twin of `Fox_education_Claude` and `Bull_education_Luke` meets ASHRAE
+Guideline 14's hourly criteria on a held-out year, beating a two-parameter
+linear regression by 26% and 40% respectively — with both buildings scoring
+*better* on the year they had never seen than on the year they were fitted to.
+A third building of the same type, at a different site, does not, and the
+reason is a seasonal structural error that the annual metrics on its training
+year concealed.
+
+**The claim, in the only form the evidence supports:** the methodology
+transferred to two of three buildings attempted, with a measured and explained
+failure on the third. Not "the method transfers to buildings of this type" —
+that sentence is not available, and the third building is why.
+
+---
+
+# Training-year detail (2016)
 
 ## Headline
 

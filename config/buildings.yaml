@@ -39,6 +39,7 @@ generalisation:
   - worst 11-day excursion 0.10x the median day
   - companion meters steam (makes simultaneous heating/cooling detectable)
   - site humid hours 51%
+negative_case:
 - building_id: Hog_education_Cathleen
   site_id: Hog
   primary_use: Education
@@ -46,19 +47,39 @@ generalisation:
   floor_area_m2: 14440.8
   missing_pct_chilledwater: 0.0
   soft_score: 5.25
+  # DIFFERENT IN KIND from Theodore's rejection. Theodore was screened
+  # out BEFORE any calibration, on a criterion that predicted failure.
+  # Cathleen passed the screen, was calibrated, was carried all the way
+  # to the gate, and failed there. It is retained because a negative
+  # case reached by the full process is worth more than one reached by a
+  # filter -- see ADR-014.
+  case_type: failed_at_the_gate
+  rejected_because:
+  - held-out 2017 CV(RMSE) 31.65% > 30% -- ASHRAE G14 hourly limit missed by 1.65
+    points (ADR-014, gate opened 2026-08-13)
+  - seasonal NMBE +25.4% winter / -23.2% spring on the TRAINING year and +19.8% /
+    -27.8% on test -- a structural fault of the same size on both years, hidden by
+    an annual NMBE of -0.00%
+  - training fit left only 1.34 points of headroom under the 30% limit, so an
+    ordinary year-to-year difference of +2.99 pp crossed it
+  train_cvrmse_pct: 28.66
+  test_cvrmse_pct: 31.65
+  test_nmbe_pct: -1.58
   ceiling_cvrmse_pct: 17.4
   stability_ratio: 0.25
   humid_hours_pct: 11.2
   companion_meters:
   - steam
-  reasons:
-  - primary_use=Education (simple occupancy pattern)
-  - chilledwater missing only 0.0% (cleanliness proxy, not a real flatline check yet)
+  # The ADR-012 screen was NOT wrong, and this is the lesson: an
+  # explainability ceiling is a LOWER BOUND on achievable error, never a
+  # prediction of success. Cathleen's ceiling of 17.4% said "a perfect
+  # weather-driven model could reach 17.4%". The fitted model reached
+  # 31.65%, 14 points above its own floor. Clearing the screen is
+  # necessary and not sufficient.
+  screen_said:
   - weather-explainability ceiling 17.4% (G14 limit 30% -- headroom 42%)
   - worst 11-day excursion 0.25x the median day
-  - companion meters steam (makes simultaneous heating/cooling detectable)
   - site humid hours 11%
-negative_case:
 - building_id: Fox_education_Theodore
   site_id: Fox
   primary_use: Education
