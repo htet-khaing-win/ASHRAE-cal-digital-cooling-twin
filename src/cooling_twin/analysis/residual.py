@@ -586,6 +586,490 @@ def decompose_residual(
     return decomposition
 
 
+def linear_residual_slopes(
+    residual_kw: npt.ArrayLike,
+    t_ambient_c: npt.ArrayLike,
+    humidity_ratio_kg_per_kg: npt.ArrayLike,
+) -> dict[str, float]:
+    """Regress the residual on the two drivers the model already has.
+
+    The binned profiles say WHICH driver carries the structure. This says
+    HOW MUCH, in the units the missing term would be written in -- kW per
+    K of outdoor temperature, kW per g/kg of humidity ratio. Those are
+    the numbers that size a fix: a 51.5 kW/K shortfall can be compared
+    directly against the model's own steady-state sensible slope, and a
+    conclusion drawn about whether any admissible parameter set could
+    close it. A ranking cannot be compared to anything.
+
+    Both are reported from ONE multiple regression rather than two
+    separate ones. Dry bulb and humidity ratio are correlated on every
+    site in this project, and two univariate slopes would each carry the
+    other's effect -- they would not sum to the joint response, and
+    quoting them side by side would double-count.
+
+    The intercept is reported beside the slopes, and the mean beside
+    both, because a steep slope on a residual whose mean dominates is a
+    second-order finding presented as the main one.
+
+    Args:
+        residual_kw: Measured minus predicted, kW.
+        t_ambient_c: Outdoor dry bulb, degC.
+        humidity_ratio_kg_per_kg: Outdoor humidity ratio, kg/kg. Reported
+            per g/kg, so the slope is a readable number.
+
+    Returns:
+        Mean, intercept, both slopes, and the marginal correlation behind
+        each slope.
+
+    Raises:
+        ValueError: If the arrays do not align, are empty or non-finite.
+    """
+    residual, temperature = _validated_pair(residual_kw, t_ambient_c)
+    _, humidity = _validated_pair(residual_kw, humidity_ratio_kg_per_kg)
+
+    # The design matrix uses g/kg so the slope is readable; the
+    # correlation is computed on the ORIGINAL kg/kg. Correlation is
+    # scale-invariant in exact arithmetic, but not to the last bit in
+    # floating point, and this function replaced a script-local copy
+    # whose recorded artifact must still reproduce exactly.
+    design = np.column_stack(
+        [np.ones_like(residual), temperature, humidity * _G_PER_KG]
+    )
+    coefficients, *_ = np.linalg.lstsq(design, residual, rcond=None)
+    return {
+        "mean_residual_kw": float(residual.mean()),
+        "intercept_kw": float(coefficients[0]),
+        "slope_kw_per_K": float(coefficients[1]),
+        "slope_kw_per_g_per_kg": float(coefficients[2]),
+        "corr_temperature": float(np.corrcoef(residual, temperature)[0, 1]),
+        "corr_humidity": float(np.corrcoef(residual, humidity)[0, 1]),
+    }
+
+
+@dataclass(frozen=True, eq=False)
+class CurvatureFit:
+    """Whether a residual bends against a driver, and by how much.
+
+    L7.1b found Claude's residual rising at BOTH ends of the outdoor
+    temperature range and falling in the middle. A linear slope cannot
+    express that -- the two arms cancel and it reports the average of a
+    shape it has no way to represent. Two independent statements are
+    made here instead, one parametric and one not, because either alone
+    is arguable:
+
+      * the quadratic term, which says the shape bends and which way;
+      * the three band means, which make no functional assumption at all
+        and which a reviewer can check against the binned profile by eye.
+
+    A U is only claimed when BOTH ends exceed the middle by more than the
+    combined standard error. A quadratic term alone is not enough: fitting
+    a parabola to a straight line with one outlying bin also returns a
+    positive coefficient.
+
+    Attributes:
+        driver: Driver the residual was fitted against.
+        quadratic_kw_per_unit2: Second-order coefficient. Positive is
+            convex (U), negative is concave (inverted U).
+        linear_kw_per_unit: First-order coefficient, at the same fit.
+        intercept_kw: Constant term.
+        vertex: Driver value at the turning point, or None if the fit is
+            effectively straight.
+        r_squared: Share of residual variance the quadratic explains.
+        linear_r_squared: The same for a straight line, so the gain from
+            the curvature term is visible rather than asserted.
+        band_edges: `(lower, upper)` driver values splitting the three
+            bands.
+        band_means_kw: Mean residual in the low, middle and high bands.
+        band_sems_kw: Standard error of each band mean.
+        band_counts: Hours in each band.
+    """
+
+    driver: str
+    quadratic_kw_per_unit2: float
+    linear_kw_per_unit: float
+    intercept_kw: float
+    vertex: float | None
+    r_squared: float
+    linear_r_squared: float
+    band_edges: tuple[float, float]
+    band_means_kw: tuple[float, float, float]
+    band_sems_kw: tuple[float, float, float]
+    band_counts: tuple[int, int, int]
+
+    @property
+    def low_lift_kw(self) -> float:
+        """How far the low band sits above the middle one."""
+        return self.band_means_kw[0] - self.band_means_kw[1]
+
+    @property
+    def high_lift_kw(self) -> float:
+        """How far the high band sits above the middle one."""
+        return self.band_means_kw[2] - self.band_means_kw[1]
+
+    @property
+    def is_u_shaped(self) -> bool:
+        """Both ends above the middle, by more than their combined error."""
+        low_error = self.band_sems_kw[0] + self.band_sems_kw[1]
+        high_error = self.band_sems_kw[2] + self.band_sems_kw[1]
+        return (
+            self.low_lift_kw > U_SHAPE_SIGMA * low_error
+            and self.high_lift_kw > U_SHAPE_SIGMA * high_error
+            and self.quadratic_kw_per_unit2 > 0.0
+        )
+
+
+# How many combined standard errors each arm of a U must clear before the
+# shape is called real. 2.0 is a deliberate margin over the ~1.96 of a
+# conventional 95% interval, and it is applied to the SUM of two standard
+# errors rather than to a pooled one -- the conservative reading of a
+# difference between two means.
+U_SHAPE_SIGMA = 2.0
+
+# Fraction of hours in each of the outer bands. Terciles: equal hours in
+# cold, shoulder and hot, computed on the building's OWN distribution.
+#
+# The obvious alternative is fixed physical thresholds ("below 10 degC is
+# cold"). Rejected: 03_DOMAIN_REFERENCE.md sets no balance-point
+# temperature, so any such number would be invented, and it would not
+# survive contact with this portfolio anyway -- Cathleen runs from -24 to
+# +33 degC and Claude from +4 to +44, so one fixed edge puts most of one
+# building in a band that is empty for the other. Terciles are a
+# statement about each building's own operating range, apply identically
+# to every building, and flatter none of them. Same discipline as
+# `calibration/bounds.py`'s derived internal-gain bound.
+BAND_QUANTILE = 1.0 / 3.0
+
+
+def band_edges_from_quantiles(
+    driver_values: npt.ArrayLike, quantile: float = BAND_QUANTILE
+) -> tuple[float, float]:
+    """Tercile edges of a driver, for splitting low/middle/high bands.
+
+    Computed ONCE, on the training year, and passed to every later call.
+    Recomputing them per year would move the bands with the weather, and
+    a train-versus-test comparison across bands that are not the same
+    bands answers no question at all.
+
+    Args:
+        driver_values: The driver, e.g. outdoor dry bulb.
+        quantile: Fraction of hours in each outer band.
+
+    Returns:
+        `(lower_edge, upper_edge)`.
+
+    Raises:
+        ValueError: If the driver is empty, non-finite, if `quantile` is
+            not in `(0, 0.5)`, or if the two edges coincide.
+    """
+    driver = np.asarray(driver_values, dtype=float)
+    if driver.size == 0:
+        raise ValueError("cannot derive bands from an empty driver")
+    if not np.isfinite(driver).all():
+        raise ValueError("driver must be finite")
+    if not 0.0 < quantile < 0.5:
+        raise ValueError(f"quantile must lie in (0, 0.5), got {quantile}")
+    lower, upper = np.quantile(driver, [quantile, 1.0 - quantile])
+    if lower == upper:
+        raise ValueError(
+            "the two band edges coincide -- this driver does not vary "
+            "enough to split into bands"
+        )
+    return float(lower), float(upper)
+
+
+def fit_residual_curvature(
+    residual_kw: npt.ArrayLike,
+    driver_values: npt.ArrayLike,
+    *,
+    driver: str,
+    band_edges: tuple[float, float] | None = None,
+) -> CurvatureFit:
+    """Test a residual for curvature against one driver.
+
+    Args:
+        residual_kw: Measured minus predicted, kW.
+        driver_values: The driver, aligned element-wise.
+        driver: Driver name, for the report.
+        band_edges: Band edges to use. Pass the TRAINING year's edges
+            when fitting a later year, so both years are scored on the
+            same bands. Derived from this data when omitted.
+
+    Returns:
+        The quadratic fit and the three band means.
+
+    Raises:
+        ValueError: If the inputs do not align, are empty or non-finite,
+            or if a band holds fewer than `MIN_BIN_COUNT` hours.
+    """
+    residual, values = _validated_pair(residual_kw, driver_values)
+    lower, upper = (
+        band_edges_from_quantiles(values) if band_edges is None else band_edges
+    )
+
+    # Centred on the mean so the quadratic and linear terms are not
+    # near-collinear. On a driver running 4 to 44 degC the raw design
+    # matrix has a condition number in the thousands, and the reported
+    # coefficients then depend on the solver's tolerance rather than on
+    # the data. Centring does not change the fitted CURVE, only the basis
+    # it is expressed in -- and the quadratic coefficient, which is what
+    # is being reported, is identical either way.
+    centre = float(values.mean())
+    shifted = values - centre
+    design = np.column_stack([np.ones_like(shifted), shifted, shifted**2])
+    coefficients, *_ = np.linalg.lstsq(design, residual, rcond=None)
+    quadratic = float(coefficients[2])
+
+    total_ss = float(((residual - residual.mean()) ** 2).sum())
+    quadratic_ss = float(((residual - design @ coefficients) ** 2).sum())
+    linear_coefficients, *_ = np.linalg.lstsq(design[:, :2], residual, rcond=None)
+    linear_ss = float(((residual - design[:, :2] @ linear_coefficients) ** 2).sum())
+    r_squared = 0.0 if total_ss == 0.0 else 1.0 - quadratic_ss / total_ss
+    linear_r_squared = 0.0 if total_ss == 0.0 else 1.0 - linear_ss / total_ss
+
+    # Expressed back in the driver's own units, so the turning point can
+    # be compared with a physical temperature -- the calibrated setpoint,
+    # for instance.
+    vertex = None if quadratic == 0.0 else centre - coefficients[1] / (2.0 * quadratic)
+
+    masks = (values < lower, (values >= lower) & (values <= upper), values > upper)
+    counts = tuple(int(mask.sum()) for mask in masks)
+    if min(counts) < MIN_BIN_COUNT:
+        raise ValueError(
+            f"a {driver} band holds only {min(counts)} hours (need "
+            f"{MIN_BIN_COUNT}). Band edges {lower:.2f}/{upper:.2f} do not "
+            "suit this data -- most likely they came from a year whose "
+            "range does not overlap this one."
+        )
+    means = tuple(float(residual[mask].mean()) for mask in masks)
+    sems = tuple(
+        float(residual[mask].std(ddof=1) / np.sqrt(mask.sum())) for mask in masks
+    )
+
+    return CurvatureFit(
+        driver=driver,
+        quadratic_kw_per_unit2=quadratic,
+        linear_kw_per_unit=float(coefficients[1]),
+        intercept_kw=float(coefficients[0]),
+        vertex=None if vertex is None else float(vertex),
+        r_squared=r_squared,
+        linear_r_squared=linear_r_squared,
+        band_edges=(lower, upper),
+        band_means_kw=(means[0], means[1], means[2]),
+        band_sems_kw=(sems[0], sems[1], sems[2]),
+        band_counts=(counts[0], counts[1], counts[2]),
+    )
+
+
+# Lags reported by default, in hours: the previous hour, the same hour
+# yesterday, the same hour last week. Each names a different mechanism --
+# thermal mass, a daily cycle the model does not reproduce, a weekly
+# schedule -- so the three together say more than a single number.
+DEFAULT_ACF_LAGS = (1, 24, 168)
+
+# Lags entering the Ljung-Box statistic. A full week of hourly lags: long
+# enough to catch a weekly cycle, and the conventional choice for hourly
+# data with a daily structure.
+DEFAULT_LJUNG_BOX_LAGS = 168
+
+# Hours per day, for the daily-averaging test. A residual that is pure
+# white noise loses variance in proportion to the averaging window, so
+# 1/24 is the null this test is read against.
+HOURS_PER_DAY = 24
+
+
+@dataclass(frozen=True, eq=False)
+class ResidualDiagnostics:
+    """Is the residual random, or is there a model still inside it? (L7.2)
+
+    Attributes:
+        label: What was tested.
+        n_hours: Hours in the series.
+        acf: Autocorrelation at each reported lag, keyed by lag in hours.
+        ljung_box_q: The Ljung-Box statistic over `ljung_box_lags`.
+        ljung_box_lags: Number of lags in the statistic, its chi-square
+            degrees of freedom.
+        ljung_box_p: The p-value. Read the WARNING below before quoting
+            it.
+        daily_variance_share: Variance of the daily-mean residual divided
+            by variance of the hourly residual.
+        white_noise_variance_share: What that would be for white noise,
+            `1 / 24`. The null the share above is judged against, for the
+            same reason `ResidualProfile` carries a noise floor.
+
+    Warning:
+        The p-value is not the finding and must not be reported as one.
+        At n = 8,760 the Ljung-Box test rejects white noise for
+        autocorrelations far too small to matter, so p is effectively
+        zero for every building energy residual ever measured. It is
+        computed here because its ABSENCE would be conspicuous, and
+        because a p that is NOT tiny would be genuinely surprising and
+        worth investigating. The effect sizes -- the ACF values and the
+        daily variance share -- are what carry the information.
+    """
+
+    label: str
+    n_hours: int
+    acf: Mapping[int, float]
+    ljung_box_q: float
+    ljung_box_lags: int
+    ljung_box_p: float
+    daily_variance_share: float
+    white_noise_variance_share: float
+
+    @property
+    def survives_daily_averaging(self) -> bool:
+        """Whether the error is systematic rather than measurement noise.
+
+        Averaging 24 independent draws cuts variance 24-fold. An error
+        that survives that is not noise -- it is a signal the model has
+        not taken, and it is therefore learnable.
+        """
+        return self.daily_variance_share > MIN_STRUCTURE_RATIO * (
+            self.white_noise_variance_share
+        )
+
+
+def autocorrelation(
+    residual_kw: npt.ArrayLike, lags: tuple[int, ...] = DEFAULT_ACF_LAGS
+) -> dict[int, float]:
+    """Autocorrelation of a residual at the given lags.
+
+    Uses the BIASED estimator -- the sum of lagged products divided by
+    `n` rather than by `n - k`. That is the definition the Ljung-Box
+    statistic is built on, and mixing the two would make the reported
+    correlations disagree with the test computed from them. At the lags
+    and sample sizes here the difference is a fraction of a percent; the
+    consistency matters more than the fraction.
+
+    Args:
+        residual_kw: The residual, in index order. Must be evenly spaced
+            in time -- gaps that were dropped rather than filled will
+            silently shorten a lag.
+        lags: Lags in samples.
+
+    Returns:
+        `{lag: correlation}`.
+
+    Raises:
+        ValueError: If the series is non-finite, or a lag is not a
+            positive integer shorter than the series.
+    """
+    residual = np.asarray(residual_kw, dtype=float)
+    if residual.ndim != 1 or residual.size == 0:
+        raise ValueError("residual must be a non-empty one-dimensional series")
+    if not np.isfinite(residual).all():
+        raise ValueError("residual must be finite")
+
+    centred = residual - residual.mean()
+    denominator = float((centred**2).sum())
+    if denominator == 0.0:
+        raise ValueError(
+            "residual has zero variance; autocorrelation is undefined. A "
+            "perfectly constant residual is a bias, and L7.1's profiles "
+            "are the tool for it."
+        )
+
+    result = {}
+    for lag in lags:
+        if lag < 1 or lag >= residual.size:
+            raise ValueError(
+                f"lag {lag} must be at least 1 and shorter than the "
+                f"series ({residual.size} samples)"
+            )
+        result[lag] = float((centred[lag:] * centred[:-lag]).sum() / denominator)
+    return result
+
+
+def residual_diagnostics(
+    residual_kw: npt.ArrayLike,
+    *,
+    label: str = "",
+    lags: tuple[int, ...] = DEFAULT_ACF_LAGS,
+    ljung_box_lags: int = DEFAULT_LJUNG_BOX_LAGS,
+) -> ResidualDiagnostics:
+    """Test whether a residual is white noise (L7.2).
+
+    Three measurements, deliberately not one:
+
+      1. Autocorrelation at named lags -- how much of this hour's error
+         is predictable from an earlier one, and at which spacing.
+      2. Ljung-Box over a week of lags -- the formal test, kept for
+         completeness and read with the warning on
+         `ResidualDiagnostics`.
+      3. The share of variance surviving daily averaging, against the
+         1/24 a white-noise residual would give. This is the one that
+         decides whether the remaining error is worth modelling: noise
+         averages away, structure does not.
+
+    Args:
+        residual_kw: The residual, in index order, evenly spaced.
+        label: What is being tested, for the log.
+        lags: Lags for the reported autocorrelations.
+        ljung_box_lags: Lags entering the Ljung-Box statistic.
+
+    Returns:
+        The diagnostics.
+
+    Raises:
+        ValueError: If the series is empty or non-finite, or if
+            `ljung_box_lags` is not a positive integer shorter than it.
+    """
+    from scipy.stats import chi2
+
+    residual = np.asarray(residual_kw, dtype=float)
+    n = int(residual.size)
+    if ljung_box_lags < 1 or ljung_box_lags >= n:
+        raise ValueError(
+            f"ljung_box_lags must be at least 1 and shorter than the series "
+            f"({n} samples), got {ljung_box_lags}"
+        )
+
+    reported = autocorrelation(residual, lags)
+    every_lag = autocorrelation(residual, tuple(range(1, ljung_box_lags + 1)))
+
+    # Q = n(n+2) * sum_k rho_k^2 / (n - k).
+    # Degrees of freedom are the lag count, NOT lags minus fitted
+    # parameters: the usual correction applies when the residual comes
+    # from an ARMA fit ON THIS SERIES. Here it comes from a physical
+    # model fitted to the load, which has consumed no autocorrelation
+    # structure, so subtracting its 5 parameters would be borrowed
+    # arithmetic from a different situation.
+    statistic = float(
+        n * (n + 2) * sum(rho**2 / (n - lag) for lag, rho in every_lag.items())
+    )
+    p_value = float(chi2.sf(statistic, ljung_box_lags))
+
+    # Trailing partial day dropped rather than averaged over fewer hours,
+    # which would give that one point a larger variance and inflate the
+    # share this test reports.
+    whole_days = n // HOURS_PER_DAY
+    daily = residual[: whole_days * HOURS_PER_DAY].reshape(whole_days, HOURS_PER_DAY)
+    daily_share = float(daily.mean(axis=1).var() / residual.var())
+
+    diagnostics = ResidualDiagnostics(
+        label=label,
+        n_hours=n,
+        acf=MappingProxyType(dict(reported)),
+        ljung_box_q=statistic,
+        ljung_box_lags=ljung_box_lags,
+        ljung_box_p=p_value,
+        daily_variance_share=daily_share,
+        white_noise_variance_share=1.0 / HOURS_PER_DAY,
+    )
+    logger.info(
+        "%s: ACF %s; Ljung-Box Q=%.0f (%d lags, p=%.3g); daily variance "
+        "share %.3f against a white-noise %.3f",
+        label or "residual",
+        {lag: round(value, 3) for lag, value in reported.items()},
+        statistic,
+        ljung_box_lags,
+        p_value,
+        daily_share,
+        1.0 / HOURS_PER_DAY,
+    )
+    return diagnostics
+
+
 def _demo() -> None:
     """Decompose a residual whose missing term is known by construction.
 

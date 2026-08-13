@@ -27,7 +27,12 @@ from cooling_twin.analysis.residual import (
     MIN_STRUCTURE_RATIO,
     Binning,
     ResidualProfile,
+    autocorrelation,
+    band_edges_from_quantiles,
     decompose_residual,
+    fit_residual_curvature,
+    linear_residual_slopes,
+    residual_diagnostics,
     residual_profile,
 )
 
@@ -593,3 +598,374 @@ def test_profile_to_frame_round_trips_the_numbers() -> None:
     assert list(frame.index) == list(profile.centres)
     assert frame["mean residual kW"].to_numpy() == pytest.approx(profile.means)
     assert int(frame["hours"].sum()) == len(index)
+
+
+# ---------------------------------------------------------------------
+# slopes -- the profile's finding, in the units a fix is written in
+# ---------------------------------------------------------------------
+
+
+def test_slopes_recover_an_exactly_known_plane() -> None:
+    """Residual built to lie exactly on 200 + 40*T + 15*w_g. No noise.
+
+    Known-answer, in the L6.2 style: OLS on data that lies exactly on a
+    plane has an exact solution, so a wrong design matrix (missing
+    intercept, swapped columns, humidity left in kg/kg) cannot hide
+    inside a tolerance.
+    """
+    rng = set_seed()
+    n = 2000
+    temperature = rng.uniform(5.0, 45.0, n)
+    humidity_g = rng.uniform(2.0, 18.0, n)
+    residual = 200.0 + 40.0 * temperature + 15.0 * humidity_g
+
+    slopes = linear_residual_slopes(residual, temperature, humidity_g / 1000.0)
+
+    assert slopes["intercept_kw"] == pytest.approx(200.0, abs=1e-6)
+    assert slopes["slope_kw_per_K"] == pytest.approx(40.0, abs=1e-9)
+    assert slopes["slope_kw_per_g_per_kg"] == pytest.approx(15.0, abs=1e-9)
+    assert slopes["mean_residual_kw"] == pytest.approx(float(residual.mean()))
+
+
+def test_slopes_are_joint_not_two_univariate_fits() -> None:
+    """With correlated drivers, the joint fit must recover the truth.
+
+    Humidity here is a deterministic function of temperature plus a
+    little spread. A univariate slope on temperature would absorb the
+    humidity term and read far above 40; the multiple regression must
+    not. This is why the two slopes come from one design matrix.
+    """
+    rng = set_seed()
+    n = 5000
+    temperature = rng.uniform(5.0, 45.0, n)
+    humidity_g = 0.3 * temperature + rng.uniform(-1.0, 1.0, n)
+    residual = 40.0 * temperature + 15.0 * humidity_g
+
+    slopes = linear_residual_slopes(residual, temperature, humidity_g / 1000.0)
+    univariate = float(
+        np.polyfit(temperature, residual, 1)[0]
+    )  # the mistake being ruled out
+
+    assert slopes["slope_kw_per_K"] == pytest.approx(40.0, abs=1e-6)
+    assert slopes["slope_kw_per_g_per_kg"] == pytest.approx(15.0, abs=1e-6)
+    assert univariate > 44.0  # carries 0.3 * 15 = 4.5 kW/K of humidity
+
+
+def test_slopes_report_correlations_beside_the_coefficients() -> None:
+    """Correlation is scale-free, so g/kg and kg/kg must agree."""
+    rng = set_seed()
+    n = 1000
+    temperature = rng.uniform(5.0, 45.0, n)
+    humidity = rng.uniform(0.002, 0.018, n)
+    residual = 30.0 * temperature + rng.normal(0.0, 50.0, n)
+
+    slopes = linear_residual_slopes(residual, temperature, humidity)
+
+    assert slopes["corr_temperature"] == pytest.approx(
+        float(np.corrcoef(residual, temperature)[0, 1])
+    )
+    assert slopes["corr_humidity"] == pytest.approx(
+        float(np.corrcoef(residual, humidity)[0, 1])
+    )
+
+
+def test_slopes_reject_misaligned_or_non_finite_input() -> None:
+    """Same validation as the profiles -- one helper, one set of rules."""
+    with pytest.raises(ValueError, match="align element-wise"):
+        linear_residual_slopes(np.zeros(100), np.zeros(99), np.zeros(100))
+    with pytest.raises(ValueError, match="must both be finite"):
+        linear_residual_slopes(
+            np.zeros(100), np.zeros(100), np.full(100, np.nan)
+        )
+
+
+# ---------------------------------------------------------------------
+# curvature -- the U-shape found on real data at L7.1b
+# ---------------------------------------------------------------------
+
+
+def _parabola(n: int = 6000, curvature: float = 2.0) -> tuple[np.ndarray, np.ndarray]:
+    """A residual lying exactly on `curvature * (T - 20)^2 - 400`."""
+    rng = set_seed()
+    temperature = rng.uniform(0.0, 40.0, n)
+    residual = curvature * (temperature - 20.0) ** 2 - 400.0
+    return residual, temperature
+
+
+def test_a_known_parabola_is_recovered_exactly() -> None:
+    """Known-answer: the quadratic coefficient and the vertex."""
+    residual, temperature = _parabola(curvature=2.0)
+
+    fit = fit_residual_curvature(residual, temperature, driver="outdoor_dry_bulb")
+
+    assert fit.quadratic_kw_per_unit2 == pytest.approx(2.0, abs=1e-9)
+    assert fit.vertex == pytest.approx(20.0, abs=1e-6)
+    assert fit.r_squared == pytest.approx(1.0)
+    assert fit.is_u_shaped
+
+
+def test_the_quadratic_term_is_invariant_to_centring() -> None:
+    """Centring changes the basis, not the curve.
+
+    The implementation centres the driver to keep the design matrix well
+    conditioned. That is only legitimate if the reported second-order
+    coefficient is unchanged by it, so the claim is tested rather than
+    asserted: shifting the driver by 100 units must not move it.
+    """
+    residual, temperature = _parabola(curvature=1.5)
+
+    here = fit_residual_curvature(residual, temperature, driver="d")
+    shifted = fit_residual_curvature(residual, temperature + 100.0, driver="d")
+
+    assert shifted.quadratic_kw_per_unit2 == pytest.approx(
+        here.quadratic_kw_per_unit2, rel=1e-9
+    )
+    assert shifted.vertex == pytest.approx(here.vertex + 100.0, rel=1e-9)
+
+
+def test_a_straight_line_is_not_called_u_shaped() -> None:
+    """The failure mode this verdict exists to avoid.
+
+    A pure slope has one band above the middle and one below. Calling
+    that a U would turn every ordinary bias into a structural finding.
+    """
+    rng = set_seed()
+    temperature = rng.uniform(0.0, 40.0, 6000)
+    residual = 30.0 * temperature + rng.normal(0.0, 50.0, 6000)
+
+    fit = fit_residual_curvature(residual, temperature, driver="d")
+
+    assert not fit.is_u_shaped
+    assert fit.low_lift_kw < 0.0  # the cold band sits BELOW the middle
+    assert fit.high_lift_kw > 0.0
+    assert fit.r_squared == pytest.approx(fit.linear_r_squared, abs=1e-3)
+
+
+def test_an_inverted_u_is_not_called_u_shaped() -> None:
+    """Concave curvature is a real finding, but it is a different one."""
+    residual, temperature = _parabola(curvature=-2.0)
+
+    fit = fit_residual_curvature(residual, temperature, driver="d")
+
+    assert fit.quadratic_kw_per_unit2 == pytest.approx(-2.0, abs=1e-9)
+    assert not fit.is_u_shaped
+    assert fit.low_lift_kw < 0.0
+    assert fit.high_lift_kw < 0.0
+
+
+def test_noise_alone_is_not_called_u_shaped() -> None:
+    """Both arms must clear their combined standard error."""
+    rng = set_seed()
+    temperature = rng.uniform(0.0, 40.0, 8760)
+    residual = rng.normal(0.0, 300.0, 8760)
+
+    fit = fit_residual_curvature(residual, temperature, driver="d")
+
+    assert not fit.is_u_shaped
+    assert abs(fit.r_squared) < 0.01
+
+
+def test_curvature_beats_a_straight_line_on_a_parabola() -> None:
+    """The gain from the quadratic term is reported, not assumed."""
+    residual, temperature = _parabola(curvature=2.0)
+
+    fit = fit_residual_curvature(residual, temperature, driver="d")
+
+    assert fit.r_squared > 0.99
+    # A straight line through a symmetric parabola explains almost
+    # nothing -- the two arms cancel, exactly as they do on real data.
+    assert fit.linear_r_squared < 0.05
+
+
+def test_band_edges_are_terciles_and_reusable_across_years() -> None:
+    """Edges derived once, then applied to a different distribution."""
+    rng = set_seed()
+    train = rng.uniform(0.0, 30.0, 8760)
+    edges = band_edges_from_quantiles(train)
+
+    assert edges[0] == pytest.approx(10.0, abs=0.5)
+    assert edges[1] == pytest.approx(20.0, abs=0.5)
+
+    # A warmer year, scored on the TRAINING year's bands: the band counts
+    # must now be uneven, which is the point -- the bands did not move.
+    warmer = train + 5.0
+    fit = fit_residual_curvature(
+        rng.normal(0.0, 10.0, 8760), warmer, driver="d", band_edges=edges
+    )
+
+    assert fit.band_edges == edges
+    assert fit.band_counts[0] < fit.band_counts[2]
+    assert sum(fit.band_counts) == 8760
+
+
+@pytest.mark.parametrize("bad", [0.0, 0.5, 0.9, -0.1])
+def test_band_quantile_outside_the_open_interval_raises(bad: float) -> None:
+    """A quantile of 0.5 leaves no middle band at all."""
+    with pytest.raises(ValueError, match=r"quantile must lie in \(0, 0.5\)"):
+        band_edges_from_quantiles(np.linspace(0.0, 40.0, 1000), quantile=bad)
+
+
+def test_bands_from_a_non_overlapping_year_raise() -> None:
+    """A band that catches no hours is an error, not an empty mean."""
+    rng = set_seed()
+    with pytest.raises(ValueError, match="band holds only"):
+        fit_residual_curvature(
+            rng.normal(0.0, 10.0, 1000),
+            rng.uniform(30.0, 40.0, 1000),
+            driver="d",
+            band_edges=(0.0, 10.0),
+        )
+
+
+def test_a_constant_driver_cannot_be_banded() -> None:
+    """Coinciding edges would put every hour in one band."""
+    with pytest.raises(ValueError, match="band edges coincide"):
+        band_edges_from_quantiles(np.full(1000, 20.0))
+
+
+# ---------------------------------------------------------------------
+# L7.2 -- is the residual random?
+# ---------------------------------------------------------------------
+
+
+def test_autocorrelation_of_white_noise_is_near_zero() -> None:
+    """The null case, and the scale everything else is read against."""
+    rng = set_seed()
+    residual = rng.normal(0.0, 100.0, 20000)
+
+    acf = autocorrelation(residual, lags=(1, 24, 168))
+
+    for value in acf.values():
+        assert abs(value) < 0.05
+
+
+def test_autocorrelation_of_a_pure_sine_is_known_by_construction() -> None:
+    """A 24-hour cycle, against the exact value of the BIASED estimator.
+
+    For a pure sinusoid the estimator this module uses returns
+    `cos(2*pi*k/period) * (1 - k/n)` exactly -- the cosine from the
+    signal, the `(1 - k/n)` from dividing by `n` instead of by the
+    `n - k` products actually summed. Pinning the shrinkage rather than
+    tolerating it is deliberate: an unbiased estimator would return the
+    cosine alone, pass a loose "approximately 1.0" assertion, and
+    silently disagree with the Ljung-Box statistic computed from it.
+    """
+    hours = np.arange(24 * 400, dtype=float)
+    residual = np.sin(2.0 * np.pi * hours / 24.0)
+    n = residual.size
+
+    acf = autocorrelation(residual, lags=(6, 12, 24))
+
+    assert acf[24] == pytest.approx(1.0 * (1 - 24 / n), abs=1e-6)
+    assert acf[12] == pytest.approx(-1.0 * (1 - 12 / n), abs=1e-6)
+    assert acf[6] == pytest.approx(0.0, abs=1e-3)
+
+
+def test_autocorrelation_of_an_ar1_process_recovers_its_coefficient() -> None:
+    """An AR(1) with phi = 0.9 must read rho(1) ~ 0.9 and rho(2) ~ 0.81."""
+    rng = set_seed()
+    n, phi = 200000, 0.9
+    noise = rng.normal(0.0, 1.0, n)
+    residual = np.zeros(n)
+    for index in range(1, n):
+        residual[index] = phi * residual[index - 1] + noise[index]
+
+    acf = autocorrelation(residual[1000:], lags=(1, 2, 3))
+
+    assert acf[1] == pytest.approx(phi, abs=0.01)
+    assert acf[2] == pytest.approx(phi**2, abs=0.02)
+    assert acf[3] == pytest.approx(phi**3, abs=0.03)
+
+
+def test_white_noise_loses_variance_to_daily_averaging() -> None:
+    """The 1/24 null: averaging 24 independent draws cuts variance 24x."""
+    rng = set_seed()
+    diagnostics = residual_diagnostics(rng.normal(0.0, 100.0, 24 * 400))
+
+    assert diagnostics.daily_variance_share == pytest.approx(1.0 / 24.0, abs=0.01)
+    assert diagnostics.white_noise_variance_share == pytest.approx(1.0 / 24.0)
+    assert not diagnostics.survives_daily_averaging
+
+
+def test_a_slow_drift_survives_daily_averaging() -> None:
+    """The signature that says the remaining error is learnable."""
+    rng = set_seed()
+    hours = np.arange(24 * 400, dtype=float)
+    seasonal = 500.0 * np.sin(2.0 * np.pi * hours / (24.0 * 365.0))
+    diagnostics = residual_diagnostics(seasonal + rng.normal(0.0, 50.0, hours.size))
+
+    assert diagnostics.daily_variance_share > 0.9
+    assert diagnostics.survives_daily_averaging
+
+
+def test_ljung_box_does_not_reject_white_noise() -> None:
+    """The test must be capable of NOT firing, or it measures nothing."""
+    rng = set_seed()
+    diagnostics = residual_diagnostics(
+        rng.normal(0.0, 100.0, 20000), ljung_box_lags=24
+    )
+
+    assert diagnostics.ljung_box_p > 0.01
+    assert diagnostics.ljung_box_lags == 24
+
+
+def test_ljung_box_rejects_an_autocorrelated_series() -> None:
+    """And it must fire on structure, with the statistic far above df."""
+    rng = set_seed()
+    n = 20000
+    noise = rng.normal(0.0, 1.0, n)
+    residual = np.zeros(n)
+    for index in range(1, n):
+        residual[index] = 0.8 * residual[index - 1] + noise[index]
+
+    diagnostics = residual_diagnostics(residual, ljung_box_lags=24)
+
+    assert diagnostics.ljung_box_p < 1e-10
+    assert diagnostics.ljung_box_q > 100.0 * diagnostics.ljung_box_lags
+
+
+def test_diagnostics_reject_invalid_lags() -> None:
+    """A lag longer than the series would silently compare nothing."""
+    rng = set_seed()
+    residual = rng.normal(0.0, 1.0, 500)
+    with pytest.raises(ValueError, match="shorter than the series"):
+        residual_diagnostics(residual, ljung_box_lags=500)
+    with pytest.raises(ValueError, match="shorter than the series"):
+        autocorrelation(residual, lags=(1, 600))
+    with pytest.raises(ValueError, match="at least 1"):
+        autocorrelation(residual, lags=(0,))
+
+
+def test_a_constant_residual_has_undefined_autocorrelation() -> None:
+    """Zero variance is a bias, and the profiles are the tool for it."""
+    with pytest.raises(ValueError, match="zero variance"):
+        autocorrelation(np.full(1000, 42.0))
+
+
+@pytest.mark.parametrize(
+    ("values", "match"),
+    [
+        (np.array([]), "empty driver"),
+        (np.array([1.0, np.nan, 3.0]), "driver must be finite"),
+    ],
+)
+def test_band_edges_reject_unusable_drivers(values: np.ndarray, match: str) -> None:
+    """Bands derived from missing data would move silently between runs."""
+    with pytest.raises(ValueError, match=match):
+        band_edges_from_quantiles(values)
+
+
+@pytest.mark.parametrize(
+    ("series", "match"),
+    [
+        (np.array([]), "non-empty one-dimensional"),
+        (np.zeros((10, 2)), "non-empty one-dimensional"),
+        (np.array([1.0, np.nan, 3.0, 4.0]), "residual must be finite"),
+    ],
+)
+def test_autocorrelation_rejects_unusable_series(
+    series: np.ndarray, match: str
+) -> None:
+    """A NaN would poison every lag; a 2-D array would lag the wrong axis."""
+    with pytest.raises(ValueError, match=match):
+        autocorrelation(series, lags=(1,))
