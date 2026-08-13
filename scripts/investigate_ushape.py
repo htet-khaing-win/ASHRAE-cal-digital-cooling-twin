@@ -78,6 +78,7 @@ from cooling_twin.analysis.residual import (  # noqa: E402
     autocorrelation,
     band_edges_from_quantiles,
     decompose_residual,
+    effective_sample_size,
     fit_residual_curvature,
     residual_diagnostics,
 )
@@ -261,12 +262,29 @@ def investigate(
 
     for year, series in series_by_year.items():
         is_reread = year != train_year
+        # L7.2: an hourly residual is not n independent measurements.
+        # Measured on the TIME-ORDERED series, then applied to the band
+        # standard errors, which are otherwise too small by 7 to 13x.
+        ratio = (
+            effective_sample_size(series["residual_kw"])
+            / series["residual_kw"].size
+        )
+        logger.info(
+            "%s %d: effective sample size %.0f of %d hours (standard "
+            "errors inflated %.1fx)",
+            building_id,
+            year,
+            ratio * series["residual_kw"].size,
+            series["residual_kw"].size,
+            (1.0 / ratio) ** 0.5,
+        )
         year_fits = {
             driver: fit_residual_curvature(
                 series["residual_kw"],
                 _driver_values(series, driver),
                 driver=driver,
                 band_edges=edges[driver],
+                effective_sample_ratio=ratio,
             )
             for driver, _unit in INVESTIGATED
         }
@@ -323,6 +341,7 @@ def _fit_record(fit: CurvatureFit) -> dict[str, Any]:
         "r_squared": fit.r_squared,
         "linear_r_squared": fit.linear_r_squared,
         "band_edges": list(fit.band_edges),
+        "effective_sample_ratio": fit.effective_sample_ratio,
         "band_means_kw": list(fit.band_means_kw),
         "band_sems_kw": list(fit.band_sems_kw),
         "band_counts": list(fit.band_counts),

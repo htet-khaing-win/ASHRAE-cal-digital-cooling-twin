@@ -30,8 +30,10 @@ from cooling_twin.analysis.residual import (
     autocorrelation,
     band_edges_from_quantiles,
     decompose_residual,
+    effective_sample_size,
     fit_residual_curvature,
     linear_residual_slopes,
+    matched_band_split,
     residual_diagnostics,
     residual_profile,
 )
@@ -969,3 +971,293 @@ def test_autocorrelation_rejects_unusable_series(
     """A NaN would poison every lag; a 2-D array would lag the wrong axis."""
     with pytest.raises(ValueError, match=match):
         autocorrelation(series, lags=(1,))
+
+
+# ---------------------------------------------------------------------
+# L7.2 -- n is not n when the data is autocorrelated
+# ---------------------------------------------------------------------
+
+
+def test_white_noise_is_worth_its_full_sample_size() -> None:
+    """The null: independent draws lose nothing."""
+    rng = set_seed()
+    n = 40000
+    assert effective_sample_size(rng.normal(0.0, 1.0, n)) == pytest.approx(
+        n, rel=0.1
+    )
+
+
+def test_ar1_effective_size_matches_its_closed_form() -> None:
+    """Known-answer: for AR(1), the inflation is (1+phi)/(1-phi).
+
+    phi = 0.5 gives an inflation of exactly 3, so 60,000 correlated
+    samples are worth 20,000 independent ones. Derivable on paper --
+    sum_k phi^k = phi/(1-phi), and 1 + 2*phi/(1-phi) = (1+phi)/(1-phi).
+    """
+    rng = set_seed()
+    n, phi = 60000, 0.5
+    noise = rng.normal(0.0, 1.0, n)
+    series = np.zeros(n)
+    for index in range(1, n):
+        series[index] = phi * series[index - 1] + noise[index]
+
+    n_eff = effective_sample_size(series[1000:], max_lag=200)
+
+    assert n_eff == pytest.approx((n - 1000) * (1 - phi) / (1 + phi), rel=0.2)
+
+
+def test_long_memory_costs_far_more_than_ar1_would_suggest() -> None:
+    """The case that motivated the estimator choice.
+
+    A slow cycle stays correlated for hundreds of lags. The AR(1) form
+    reads only rho(1) and would report a mild correction; the summed
+    form sees the whole tail. This is Claude's residual in miniature.
+    """
+    rng = set_seed()
+    hours = np.arange(24 * 365, dtype=float)
+    # Heavy noise on top of a slow cycle: the noise drags rho(1) down to
+    # an unremarkable value while the cycle keeps the tail positive for
+    # hundreds of lags. That combination -- modest rho(1), long memory --
+    # is where reading only the first lag goes most badly wrong, and it
+    # is the shape of every residual measured on this project.
+    series = 100.0 * np.sin(2.0 * np.pi * hours / (24.0 * 60.0)) + rng.normal(
+        0.0, 60.0, hours.size
+    )
+
+    acf = autocorrelation(series, (1, 168))
+    ar1_estimate = series.size * (1 - acf[1]) / (1 + acf[1])
+    n_eff = effective_sample_size(series)
+
+    assert acf[1] < 0.6  # rho(1) alone looks mild
+    assert acf[168] > 0.3  # but a week later it is still strongly correlated
+    assert ar1_estimate > 10.0 * n_eff  # so AR(1) overstates by an order
+    assert n_eff < 200.0
+
+
+def test_effective_size_warns_when_the_sum_is_truncated(
+    caplog: pytest.LogCaptureFixture,
+) -> None:
+    """A truncated sum returns an UPPER bound and must say so."""
+    hours = np.arange(24 * 365, dtype=float)
+    series = np.sin(2.0 * np.pi * hours / (24.0 * 400.0))  # never turns negative
+
+    with caplog.at_level(logging.WARNING, logger="cooling_twin.analysis.residual"):
+        effective_sample_size(series, max_lag=100)
+
+    assert "UPPER BOUND" in caplog.text
+
+
+def test_effective_size_never_exceeds_n_or_falls_below_one() -> None:
+    """Correlation only ever costs information; it cannot create it."""
+    rng = set_seed()
+    series = rng.normal(0.0, 1.0, 5000)
+    assert 1.0 <= effective_sample_size(series) <= series.size
+
+
+def test_effective_size_rejects_an_impossible_max_lag() -> None:
+    """A lag longer than the series would summarise nothing."""
+    rng = set_seed()
+    with pytest.raises(ValueError, match="shorter than the series"):
+        effective_sample_size(rng.normal(0.0, 1.0, 100), max_lag=100)
+
+
+def test_the_correction_inflates_band_standard_errors_exactly() -> None:
+    """A quarter of the sample size doubles every standard error."""
+    residual, temperature = _parabola(curvature=2.0)
+    rng = set_seed()
+    residual = residual + rng.normal(0.0, 100.0, residual.size)
+
+    plain = fit_residual_curvature(residual, temperature, driver="d")
+    corrected = fit_residual_curvature(
+        residual, temperature, driver="d", effective_sample_ratio=0.25
+    )
+
+    assert corrected.effective_sample_ratio == 0.25
+    for before, after in zip(plain.band_sems_kw, corrected.band_sems_kw, strict=True):
+        assert after == pytest.approx(2.0 * before)
+    # The means are untouched -- only the confidence in them changes.
+    assert corrected.band_means_kw == pytest.approx(plain.band_means_kw)
+
+
+def test_the_correction_can_overturn_a_u_verdict() -> None:
+    """It must be capable of changing an answer, or it is decoration.
+
+    A marginal U that clears its arms on the uncorrected standard errors
+    must stop clearing them once the sample is known to be worth far
+    less. If no ratio can flip the verdict, the correction is not doing
+    anything and the test would be worthless.
+    """
+    rng = set_seed()
+    n = 9000
+    temperature = rng.uniform(0.0, 40.0, n)
+    # A shallow parabola buried in heavy noise: real, but marginal.
+    residual = 0.35 * (temperature - 20.0) ** 2 + rng.normal(0.0, 900.0, n)
+
+    assert fit_residual_curvature(residual, temperature, driver="d").is_u_shaped
+    assert not fit_residual_curvature(
+        residual, temperature, driver="d", effective_sample_ratio=0.002
+    ).is_u_shaped
+
+
+@pytest.mark.parametrize("ratio", [0.0, -0.5, 1.5])
+def test_an_impossible_effective_sample_ratio_raises(ratio: float) -> None:
+    """n_eff / n cannot exceed 1 or reach 0."""
+    residual, temperature = _parabola()
+    with pytest.raises(ValueError, match=r"must lie in \(0, 1\]"):
+        fit_residual_curvature(
+            residual, temperature, driver="d", effective_sample_ratio=ratio
+        )
+
+
+# ---------------------------------------------------------------------
+# matched-band split -- holding the confounder still
+# ---------------------------------------------------------------------
+
+
+def _confounded(
+    n: int = 12000, probe_effect: float = 0.0
+) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
+    """A probe that tracks the control, with a tunable effect of its own.
+
+    Both the residual and the probe fall with temperature, so they
+    correlate strongly whether or not the probe does anything. That is
+    the trap the matched split exists to escape.
+    """
+    rng = set_seed()
+    temperature = rng.uniform(-20.0, 35.0, n)
+    probe = -3.0 * temperature + rng.normal(0.0, 5.0, n)
+    residual = (
+        -20.0 * temperature + probe_effect * probe + rng.normal(0.0, 30.0, n)
+    )
+    return residual, temperature, probe
+
+
+def test_a_probe_with_no_effect_of_its_own_reads_flat() -> None:
+    """The critical negative case.
+
+    The probe here correlates with the residual at better than 0.9 and
+    causes exactly none of it -- both are driven by temperature. A raw
+    correlation would call this a finding; the matched split must not.
+    """
+    residual, temperature, probe = _confounded(probe_effect=0.0)
+
+    assert np.corrcoef(residual, probe)[0, 1] > 0.9  # the trap
+
+    split = matched_band_split(
+        residual, temperature, probe, control="t", probe="p", control_width=2.5
+    )
+
+    assert not split.probe_raises_residual
+    assert abs(split.weighted_difference_kw) < 10.0
+
+
+def test_a_probe_with_a_real_effect_is_recovered() -> None:
+    """Same confounding, but the probe now genuinely lifts the residual."""
+    residual, temperature, probe = _confounded(probe_effect=2.0)
+
+    split = matched_band_split(
+        residual, temperature, probe, control="t", probe="p", control_width=2.5
+    )
+
+    assert split.probe_raises_residual
+    # Within a bin the probe's spread is the +-5 noise, so the median
+    # split separates halves about 8 units apart; at 2 kW per unit the
+    # difference lands well clear of zero and of its own error.
+    assert split.weighted_difference_kw > 4.0 * split.weighted_difference_sem_kw
+
+
+def test_the_split_covers_the_control_range_it_was_given() -> None:
+    """Bins are the control's, so their centres must span its range."""
+    residual, temperature, probe = _confounded(probe_effect=1.0)
+
+    split = matched_band_split(
+        residual, temperature, probe, control="t", probe="p", control_width=2.5
+    )
+
+    assert split.centres.min() < -15.0
+    assert split.centres.max() > 30.0
+    assert np.all(split.counts_low >= MIN_BIN_COUNT)
+    assert np.all(split.counts_high >= MIN_BIN_COUNT)
+    assert split.differences == pytest.approx(split.means_high - split.means_low)
+
+
+def test_the_split_is_invariant_to_the_probe_scale() -> None:
+    """Units may be wrong (Q8), so only the probe's ORDER may matter."""
+    residual, temperature, probe = _confounded(probe_effect=1.5)
+
+    plain = matched_band_split(
+        residual, temperature, probe, control="t", probe="p", control_width=2.5
+    )
+    rescaled = matched_band_split(
+        residual,
+        temperature,
+        probe * 1000.0 + 7.0,
+        control="t",
+        probe="p",
+        control_width=2.5,
+    )
+
+    assert rescaled.weighted_difference_kw == pytest.approx(
+        plain.weighted_difference_kw
+    )
+
+
+def test_a_tied_probe_cannot_manufacture_a_difference() -> None:
+    """A meter stuck at one value splits to nothing, not to noise."""
+    rng = set_seed()
+    n = 6000
+    temperature = rng.uniform(0.0, 30.0, n)
+    residual = rng.normal(0.0, 50.0, n)
+    stuck = np.full(n, 42.0)
+
+    with pytest.raises(ValueError, match="both sides of its"):
+        matched_band_split(
+            residual, temperature, stuck, control="t", probe="p", control_width=2.5
+        )
+
+
+def test_the_split_applies_the_effective_sample_correction() -> None:
+    """A quarter of the sample doubles the standard error."""
+    residual, temperature, probe = _confounded(probe_effect=1.0)
+
+    plain = matched_band_split(
+        residual, temperature, probe, control="t", probe="p", control_width=2.5
+    )
+    corrected = matched_band_split(
+        residual,
+        temperature,
+        probe,
+        control="t",
+        probe="p",
+        control_width=2.5,
+        effective_sample_ratio=0.25,
+    )
+
+    assert corrected.weighted_difference_sem_kw == pytest.approx(
+        2.0 * plain.weighted_difference_sem_kw
+    )
+    assert corrected.weighted_difference_kw == pytest.approx(
+        plain.weighted_difference_kw
+    )
+
+
+def test_the_split_rejects_impossible_arguments() -> None:
+    """Same validation vocabulary as the rest of the module."""
+    residual, temperature, probe = _confounded()
+    with pytest.raises(ValueError, match="control_width must be > 0"):
+        matched_band_split(
+            residual, temperature, probe, control="t", probe="p", control_width=0.0
+        )
+    with pytest.raises(ValueError, match=r"must lie in \(0, 1\]"):
+        matched_band_split(
+            residual,
+            temperature,
+            probe,
+            control="t",
+            probe="p",
+            effective_sample_ratio=0.0,
+        )
+    with pytest.raises(ValueError, match="align element-wise"):
+        matched_band_split(
+            residual, temperature[:-1], probe, control="t", probe="p"
+        )

@@ -680,8 +680,13 @@ class CurvatureFit:
         band_edges: `(lower, upper)` driver values splitting the three
             bands.
         band_means_kw: Mean residual in the low, middle and high bands.
-        band_sems_kw: Standard error of each band mean.
+        band_sems_kw: Standard error of each band mean, ALREADY inflated
+            by `effective_sample_ratio`.
         band_counts: Hours in each band.
+        effective_sample_ratio: `n_eff / n` used to inflate the standard
+            errors. 1.0 means no correction was applied -- correct for
+            independent data and WRONG for an hourly residual, which is
+            why it is recorded rather than assumed.
     """
 
     driver: str
@@ -695,6 +700,7 @@ class CurvatureFit:
     band_means_kw: tuple[float, float, float]
     band_sems_kw: tuple[float, float, float]
     band_counts: tuple[int, int, int]
+    effective_sample_ratio: float = 1.0
 
     @property
     def low_lift_kw(self) -> float:
@@ -783,6 +789,7 @@ def fit_residual_curvature(
     *,
     driver: str,
     band_edges: tuple[float, float] | None = None,
+    effective_sample_ratio: float = 1.0,
 ) -> CurvatureFit:
     """Test a residual for curvature against one driver.
 
@@ -793,15 +800,31 @@ def fit_residual_curvature(
         band_edges: Band edges to use. Pass the TRAINING year's edges
             when fitting a later year, so both years are scored on the
             same bands. Derived from this data when omitted.
+        effective_sample_ratio: `n_eff / n` from
+            `effective_sample_size()`, which inflates the band standard
+            errors by `sqrt(1 / ratio)`. Defaults to 1.0 -- no
+            correction -- because this function cannot know whether it
+            was handed a time series or a scatter of independent draws,
+            and silently assuming the former would break the only cases
+            where the right answer is known by construction. For an
+            hourly residual, PASS IT: on this project's buildings the
+            uncorrected standard errors are too small by 7 to 13 times.
 
     Returns:
         The quadratic fit and the three band means.
 
     Raises:
         ValueError: If the inputs do not align, are empty or non-finite,
-            or if a band holds fewer than `MIN_BIN_COUNT` hours.
+            if a band holds fewer than `MIN_BIN_COUNT` hours, or if
+            `effective_sample_ratio` is outside `(0, 1]`.
     """
     residual, values = _validated_pair(residual_kw, driver_values)
+    if not 0.0 < effective_sample_ratio <= 1.0:
+        raise ValueError(
+            f"effective_sample_ratio must lie in (0, 1], got "
+            f"{effective_sample_ratio}. It is n_eff / n, so it cannot "
+            "exceed 1 -- correlation only ever costs information."
+        )
     lower, upper = (
         band_edges_from_quantiles(values) if band_edges is None else band_edges
     )
@@ -841,8 +864,10 @@ def fit_residual_curvature(
             "range does not overlap this one."
         )
     means = tuple(float(residual[mask].mean()) for mask in masks)
+    inflation = float(np.sqrt(1.0 / effective_sample_ratio))
     sems = tuple(
-        float(residual[mask].std(ddof=1) / np.sqrt(mask.sum())) for mask in masks
+        float(residual[mask].std(ddof=1) / np.sqrt(mask.sum()) * inflation)
+        for mask in masks
     )
 
     return CurvatureFit(
@@ -857,6 +882,7 @@ def fit_residual_curvature(
         band_means_kw=(means[0], means[1], means[2]),
         band_sems_kw=(sems[0], sems[1], sems[2]),
         band_counts=(counts[0], counts[1], counts[2]),
+        effective_sample_ratio=effective_sample_ratio,
     )
 
 
@@ -978,6 +1004,308 @@ def autocorrelation(
             )
         result[lag] = float((centred[lag:] * centred[:-lag]).sum() / denominator)
     return result
+
+
+@dataclass(frozen=True, eq=False)
+class MatchedSplit:
+    """Does a probe raise the residual once a confounder is held fixed?
+
+    The question "is the winter residual caused by reheat?" cannot be
+    answered by correlating the residual with a heating meter: both rise
+    as it gets colder, so they correlate whether or not one causes the
+    other. The confounder has to be held still first.
+
+    So: bin on the CONTROL (outdoor temperature), and inside each bin
+    split the hours at the median of the PROBE (the heating meter). Hours
+    in the same bin are at nearly the same outdoor temperature, so a
+    difference between the two halves is a difference the control cannot
+    explain. This is the design L6.7b used to keep the humidity
+    hypothesis alive and kill the schedule one; it is written down here
+    so the next use is the same test rather than a similar one.
+
+    The probe enters ONLY through a median split, so nothing depends on
+    its units or its scale. That matters on this project: Q8 established
+    that the Fox hot-water meter's magnitudes are wrong, and the same
+    caution applies to any companion meter until proven otherwise. A
+    rank-based split stays valid under any monotone unit error.
+
+    Within each bin the control's own linear trend is removed from the
+    residual before the split, because binning narrows a confounder
+    without holding it still -- see the comment in `matched_band_split`.
+
+    Attributes:
+        control: Name of the confounder held fixed.
+        probe: Name of the series being tested.
+        centres: Mean control value in each retained bin.
+        counts_low: Hours in the low-probe half of each bin.
+        counts_high: Hours in the high-probe half of each bin.
+        means_low: Mean residual of the low-probe half, kW, after the
+            within-bin control trend is removed.
+        means_high: The same for the high-probe half.
+        differences: `means_high - means_low`, kW.
+        weighted_difference_kw: Hours-weighted mean of `differences`.
+        weighted_difference_sem_kw: Its standard error, already inflated
+            by `effective_sample_ratio`.
+        effective_sample_ratio: `n_eff / n` applied. See
+            `effective_sample_size`.
+    """
+
+    control: str
+    probe: str
+    centres: npt.NDArray[np.float64]
+    counts_low: npt.NDArray[np.int64]
+    counts_high: npt.NDArray[np.int64]
+    means_low: npt.NDArray[np.float64]
+    means_high: npt.NDArray[np.float64]
+    differences: npt.NDArray[np.float64]
+    weighted_difference_kw: float
+    weighted_difference_sem_kw: float
+    effective_sample_ratio: float
+
+    @property
+    def probe_raises_residual(self) -> bool:
+        """Whether the high-probe half sits above the low-probe half.
+
+        Two standard errors, on the SAME margin `CurvatureFit` uses, so
+        the two verdicts in this module cannot mean different things by
+        the word "significant".
+        """
+        return self.weighted_difference_kw > U_SHAPE_SIGMA * (
+            self.weighted_difference_sem_kw
+        )
+
+    def to_frame(self) -> pd.DataFrame:
+        """One row per control bin, for the report."""
+        return pd.DataFrame(
+            {
+                self.control: self.centres,
+                "hours low": self.counts_low,
+                "hours high": self.counts_high,
+                f"residual, low {self.probe}": self.means_low,
+                f"residual, high {self.probe}": self.means_high,
+                "difference kW": self.differences,
+            }
+        ).set_index(self.control)
+
+
+def matched_band_split(
+    residual_kw: npt.ArrayLike,
+    control_values: npt.ArrayLike,
+    probe_values: npt.ArrayLike,
+    *,
+    control: str,
+    probe: str,
+    control_width: float = TEMPERATURE_BIN_WIDTH_K,
+    min_bin_count: int = MIN_BIN_COUNT,
+    effective_sample_ratio: float = 1.0,
+) -> MatchedSplit:
+    """Split the residual by a probe, at matched values of a control.
+
+    Args:
+        residual_kw: Measured minus predicted, kW.
+        control_values: The confounder to hold fixed, e.g. outdoor dry
+            bulb. Binned at `control_width`.
+        probe_values: The series under test, e.g. a heating meter. Used
+            only for its ORDER within each bin -- units are irrelevant
+            and may be wrong.
+        control: Control name, for the report.
+        probe: Probe name, for the report.
+        control_width: Bin width in the control's units. Narrow enough
+            that hours in a bin really are comparable, wide enough that
+            each half clears `min_bin_count`.
+        min_bin_count: Minimum hours required in EACH half of a bin for
+            that bin to be retained.
+        effective_sample_ratio: `n_eff / n`, inflating the standard
+            error. See `fit_residual_curvature` for why this is an
+            explicit argument rather than a silent correction.
+
+    Returns:
+        The per-bin split and its hours-weighted summary.
+
+    Raises:
+        ValueError: If the inputs do not align, are empty or non-finite,
+            if `effective_sample_ratio` is outside `(0, 1]`, or if no
+            bin has enough hours on both sides of its median.
+    """
+    residual, control_array = _validated_pair(residual_kw, control_values)
+    _, probe_array = _validated_pair(residual_kw, probe_values)
+    if not 0.0 < effective_sample_ratio <= 1.0:
+        raise ValueError(
+            f"effective_sample_ratio must lie in (0, 1], got {effective_sample_ratio}"
+        )
+    if control_width <= 0.0:
+        raise ValueError(f"control_width must be > 0, got {control_width}")
+
+    codes = np.floor(control_array / control_width).astype(np.int64)
+    rows = []
+    for code in np.unique(codes):
+        in_bin = codes == code
+        if in_bin.sum() < 2 * min_bin_count:
+            continue
+        probe_in_bin = probe_array[in_bin]
+        # Strictly above the median on one side, at-or-below on the
+        # other. A tied probe (a meter reading the same value for many
+        # hours) then lands entirely in the low half rather than being
+        # split arbitrarily, which keeps the comparison honest instead
+        # of manufacturing a difference out of tie-breaking order.
+        threshold = float(np.median(probe_in_bin))
+        high = probe_in_bin > threshold
+        low = ~high
+        if high.sum() < min_bin_count or low.sum() < min_bin_count:
+            continue
+
+        # Remove the control's own linear trend WITHIN the bin before
+        # splitting. Binning alone does not hold the control still, it
+        # only narrows it: inside a 2.5 K bin the temperature still moves
+        # 2.5 K, and a probe that tracks temperature therefore still
+        # sorts hours by temperature after the split. The leakage scales
+        # with bin width times the control's slope, so it is largest
+        # exactly where the confounding is strongest -- which is where
+        # this test is being relied on. A within-bin detrend removes the
+        # linear part of it exactly. Verified by
+        # test_a_probe_with_no_effect_of_its_own_reads_flat, which FAILS
+        # without these four lines.
+        control_in_bin = control_array[in_bin]
+        design = np.column_stack([np.ones_like(control_in_bin), control_in_bin])
+        coefficients, *_ = np.linalg.lstsq(design, residual[in_bin], rcond=None)
+        residual_in_bin = residual[in_bin] - design @ coefficients
+
+        mean_low = float(residual_in_bin[low].mean())
+        mean_high = float(residual_in_bin[high].mean())
+        variance = (
+            residual_in_bin[low].var(ddof=1) / low.sum()
+            + residual_in_bin[high].var(ddof=1) / high.sum()
+        )
+        rows.append(
+            (
+                float(control_array[in_bin].mean()),
+                int(low.sum()),
+                int(high.sum()),
+                mean_low,
+                mean_high,
+                mean_high - mean_low,
+                float(variance),
+            )
+        )
+
+    if not rows:
+        raise ValueError(
+            f"no {control} bin of width {control_width} holds {min_bin_count} "
+            f"hours on both sides of its {probe} median. Widen the bins, or "
+            "accept that this comparison cannot be made on this data."
+        )
+
+    centres, low_counts, high_counts, low_means, high_means, differences, variances = (
+        np.array(column) for column in zip(*rows, strict=True)
+    )
+    weights = low_counts + high_counts
+    weighted = float((weights * differences).sum() / weights.sum())
+    inflation = float(np.sqrt(1.0 / effective_sample_ratio))
+    sem = (
+        float(np.sqrt((weights**2 * variances).sum()) / weights.sum()) * inflation
+    )
+
+    split = MatchedSplit(
+        control=control,
+        probe=probe,
+        centres=centres,
+        counts_low=low_counts.astype(np.int64),
+        counts_high=high_counts.astype(np.int64),
+        means_low=low_means,
+        means_high=high_means,
+        differences=differences,
+        weighted_difference_kw=weighted,
+        weighted_difference_sem_kw=sem,
+        effective_sample_ratio=effective_sample_ratio,
+    )
+    logger.info(
+        "%s at matched %s: high half runs %+.1f kW (+/- %.1f) against the low "
+        "half across %d bins -- %s",
+        probe,
+        control,
+        weighted,
+        sem,
+        centres.size,
+        "RAISES the residual" if split.probe_raises_residual else "no clear effect",
+    )
+    return split
+
+
+def effective_sample_size(
+    residual_kw: npt.ArrayLike, *, max_lag: int = DEFAULT_LJUNG_BOX_LAGS
+) -> float:
+    """How many INDEPENDENT observations a correlated series is worth.
+
+    8,760 hourly residuals are not 8,760 measurements. When this hour's
+    error is 0.83 correlated with the last one, most of those rows are
+    repeating information already present, and any standard error
+    computed as `s / sqrt(n)` is too small -- by a factor of three on
+    Claude and nearly eight on Cathleen. Every band mean, confidence
+    interval and significance claim made on a residual is wrong by that
+    factor unless it is corrected.
+
+    The estimator is the variance-inflation factor for a MEAN, which is
+    the quantity actually needed here:
+
+        n_eff = n / (1 + 2 * sum_k rho_k)
+
+    summed to the first non-positive autocorrelation (the initial
+    positive sequence), capped at `max_lag`. The simpler AR(1) form
+    `n * (1 - rho_1) / (1 + rho_1)` is NOT used, because these residuals
+    are nothing like AR(1): Claude's rho(1) of 0.826 would imply
+    rho(24) = 0.826^24 = 0.010, and the measured value is 0.598. A
+    long-memory series scored by an AR(1) correction gets an
+    optimistically LARGE effective sample size, which is the direction
+    that matters -- it would leave the standard errors still too small
+    while appearing to have addressed the problem.
+
+    Args:
+        residual_kw: The residual, in index order, evenly spaced.
+        max_lag: Where the sum is truncated if the autocorrelation has
+            not gone non-positive by then.
+
+    Returns:
+        The effective sample size, at least 1.0 and at most `n`.
+
+    Raises:
+        ValueError: If the series is empty or non-finite, or `max_lag`
+            is not a positive integer shorter than it.
+    """
+    residual = np.asarray(residual_kw, dtype=float)
+    n = int(residual.size)
+    if max_lag < 1 or max_lag >= n:
+        raise ValueError(
+            f"max_lag must be at least 1 and shorter than the series "
+            f"({n} samples), got {max_lag}"
+        )
+
+    acf = autocorrelation(residual, tuple(range(1, max_lag + 1)))
+    total = 0.0
+    truncated_early = False
+    for lag in range(1, max_lag + 1):
+        if acf[lag] <= 0.0:
+            truncated_early = True
+            break
+        total += acf[lag]
+
+    if not truncated_early:
+        # The sum was cut off while the correlations were still positive,
+        # so the true inflation is LARGER than this and the returned
+        # figure is an upper bound on the effective sample size. Said
+        # plainly because the failure mode is silent: a number that is
+        # optimistic in exactly the direction the caller is trying to
+        # guard against.
+        logger.warning(
+            "autocorrelation was still positive (%.3f) at the %d-lag "
+            "truncation, so the effective sample size returned is an "
+            "UPPER BOUND -- the real one is smaller and every standard "
+            "error derived from it is still optimistic.",
+            acf[max_lag],
+            max_lag,
+        )
+
+    inflation = 1.0 + 2.0 * total
+    return float(min(max(n / inflation, 1.0), n))
 
 
 def residual_diagnostics(
@@ -1134,6 +1462,40 @@ def _demo() -> None:
         "term: occupied hours are also warm hours on this site, so the schedule\n"
         "signal leaks into every driver correlated with it. Marginal profiles\n"
         "localise an error; separating confounded drivers is L7.2 and L7.3."
+    )
+
+    print("\n--- 4. L7.2: is what is left random? ---")
+    structured = residual_diagnostics(
+        decomposition.residual_kw, label="residual WITH the schedule left in"
+    )
+    # The same model with the schedule term restored: the residual is
+    # then the measurement noise alone, which is what "done" looks like.
+    finished = residual_diagnostics(
+        measured - (weather_term + schedule_term), label="residual with NOTHING left"
+    )
+    for name, diagnostics in (
+        ("schedule left in", structured),
+        ("nothing left    ", finished),
+    ):
+        print(
+            f"  {name}  rho(1) {diagnostics.acf[1]:+.3f}  "
+            f"rho(24) {diagnostics.acf[24]:+.3f}  "
+            f"daily var share {diagnostics.daily_variance_share:.3f} "
+            f"(white noise {diagnostics.white_noise_variance_share:.3f})  "
+            f"LB p {diagnostics.ljung_box_p:.3f}  "
+            f"survives: {diagnostics.survives_daily_averaging}"
+        )
+    print(
+        f"\n  effective sample size, schedule left in: "
+        f"{effective_sample_size(decomposition.residual_kw):.0f} of {hours}"
+    )
+    print(
+        "\nLjung-Box does its job here: ~0 for the structured residual, ~0.98 for\n"
+        "the finished one. What it CANNOT do is say how much structure there is.\n"
+        "On this project's real buildings it returns 0 for all six building-years,\n"
+        "including the one whose residual is a third the size of the others. It is\n"
+        "a yes/no that saturates immediately, so the daily variance share and the\n"
+        "autocorrelations are what carry the information."
     )
 
 
