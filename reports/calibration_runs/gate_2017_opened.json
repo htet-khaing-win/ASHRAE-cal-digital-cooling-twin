@@ -1,0 +1,165 @@
+{
+  "opened_utc": "2026-08-13T10:29:46+00:00",
+  "test_year": 2017,
+  "interval": "hourly",
+  "primary_gate_passed": false,
+  "beats_baseline_requirement_all": false,
+  "failure_signatures": [
+    "Hog_education_Cathleen: good on train (28.66%), poor on test (31.65%) -- OVERFITTING signature. Action: fewer parameters, lower model order, regularise."
+  ],
+  "buildings": [
+    {
+      "building_id": "Fox_education_Claude",
+      "role": "primary",
+      "calibration_artifact": "calibration_20260812T200947+0000_seed42.json",
+      "parameters": {
+        "ua_envelope_w_per_m2k": 2.9973828046043622,
+        "r_internal_ratio": 18.573243233800437,
+        "internal_gain_w_per_m2": 372.04631062335807,
+        "vent_flow_kg_per_s": 179.60298605068022,
+        "t_setpoint_c": 24.82903860341174
+      },
+      "train_year": 2016,
+      "train_hours": 8782,
+      "test_hours": 8741,
+      "test_mean_kw": 7177.243243347443,
+      "train": {
+        "nmbe_pct": -4.4057202408895775e-06,
+        "cvrmse_pct": 11.722183917855155,
+        "passed": true,
+        "meets_stretch_target": true
+      },
+      "test": {
+        "nmbe_pct": 3.1020356714130055,
+        "cvrmse_pct": 11.581245428716082,
+        "passed": true,
+        "meets_stretch_target": true
+      },
+      "baselines_on_test": {
+        "annual mean": {
+          "nmbe_pct": 4.105981789729516,
+          "cvrmse_pct": 41.000659349402156,
+          "passed": false,
+          "meets_stretch_target": false
+        },
+        "linear regression": {
+          "nmbe_pct": 3.0298216030001606,
+          "cvrmse_pct": 15.710223500867784,
+          "passed": true,
+          "meets_stretch_target": true
+        }
+      },
+      "relative_improvement_pct": 26.28210904780336,
+      "beats_baseline_requirement": false,
+      "seasonal_test_nmbe_pct": {
+        "winter (DJF)": -7.59,
+        "spring (MAM)": -2.78,
+        "summer (JJA)": 10.7,
+        "autumn (SON)": 2.87
+      },
+      "degradation_cvrmse_pp": -0.1409384891390726
+    },
+    {
+      "building_id": "Bull_education_Luke",
+      "role": "generalisation",
+      "calibration_artifact": "calibration_20260812T201111+0000_seed42.json",
+      "parameters": {
+        "ua_envelope_w_per_m2k": 1.2239957984466936,
+        "r_internal_ratio": 3.6507075552439883,
+        "internal_gain_w_per_m2": 151.52315360017207,
+        "vent_flow_kg_per_s": 56.37268746509123,
+        "t_setpoint_c": 24.264059146861424
+      },
+      "train_year": 2016,
+      "train_hours": 8572,
+      "test_hours": 8607,
+      "test_mean_kw": 2646.584719443476,
+      "train": {
+        "nmbe_pct": -0.0009913483866431257,
+        "cvrmse_pct": 14.126025867737917,
+        "passed": true,
+        "meets_stretch_target": true
+      },
+      "test": {
+        "nmbe_pct": 1.3500169909270527,
+        "cvrmse_pct": 11.141895560580371,
+        "passed": true,
+        "meets_stretch_target": true
+      },
+      "baselines_on_test": {
+        "annual mean": {
+          "nmbe_pct": 0.17773796260908098,
+          "cvrmse_pct": 35.77134330354453,
+          "passed": false,
+          "meets_stretch_target": false
+        },
+        "linear regression": {
+          "nmbe_pct": -2.330778978423918,
+          "cvrmse_pct": 18.59465389980654,
+          "passed": true,
+          "meets_stretch_target": true
+        }
+      },
+      "relative_improvement_pct": 40.080113237836116,
+      "beats_baseline_requirement": true,
+      "seasonal_test_nmbe_pct": {
+        "winter (DJF)": -1.43,
+        "spring (MAM)": 3.27,
+        "summer (JJA)": -0.34,
+        "autumn (SON)": 3.43
+      },
+      "degradation_cvrmse_pp": -2.984130307157546
+    },
+    {
+      "building_id": "Hog_education_Cathleen",
+      "role": "generalisation",
+      "calibration_artifact": "calibration_20260812T201251+0000_seed42.json",
+      "parameters": {
+        "ua_envelope_w_per_m2k": 0.33562233506931527,
+        "r_internal_ratio": 11.647275499152027,
+        "internal_gain_w_per_m2": 109.17889305503873,
+        "vent_flow_kg_per_s": 40.85661959700261,
+        "t_setpoint_c": 21.782053733224338
+      },
+      "train_year": 2016,
+      "train_hours": 8782,
+      "test_hours": 8758,
+      "test_mean_kw": 1056.5915327586206,
+      "train": {
+        "nmbe_pct": -0.00045520745158113426,
+        "cvrmse_pct": 28.663707374458486,
+        "passed": true,
+        "meets_stretch_target": false
+      },
+      "test": {
+        "nmbe_pct": -1.5832149501447457,
+        "cvrmse_pct": 31.65007293319317,
+        "passed": false,
+        "meets_stretch_target": false
+      },
+      "baselines_on_test": {
+        "annual mean": {
+          "nmbe_pct": -6.198387102946522,
+          "cvrmse_pct": 68.54056503388315,
+          "passed": false,
+          "meets_stretch_target": false
+        },
+        "linear regression": {
+          "nmbe_pct": -3.0555733484143395,
+          "cvrmse_pct": 40.69801015004369,
+          "passed": false,
+          "meets_stretch_target": false
+        }
+      },
+      "relative_improvement_pct": 22.231890904476593,
+      "beats_baseline_requirement": false,
+      "seasonal_test_nmbe_pct": {
+        "winter (DJF)": 19.78,
+        "spring (MAM)": -27.79,
+        "summer (JJA)": 9.37,
+        "autumn (SON)": -13.53
+      },
+      "degradation_cvrmse_pp": 2.9863655587346827
+    }
+  ]
+}
