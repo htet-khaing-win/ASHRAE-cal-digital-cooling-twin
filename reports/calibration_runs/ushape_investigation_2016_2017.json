@@ -1,0 +1,753 @@
+{
+  "generated_utc": "2026-08-13T14:20:11+00:00",
+  "train_year": 2016,
+  "test_year": 2017,
+  "test_year_status": "RE-READ of an already-opened held-out year (ADR-002; opened at L6.10 on 2026-08-13). Not a held-out result. No model, parameter or bound decision was taken from it -- it answers only whether the 2016 shape is also present on 2017. Log this access in 07_PROGRESS.md.",
+  "band_definition": "Terciles of the TRAINING year's driver, reused unchanged for the test year.",
+  "buildings": [
+    {
+      "building_id": "Fox_education_Claude",
+      "role": "primary",
+      "calibration_artifact": "calibration_20260812T200947+0000_seed42.json",
+      "parameters": {
+        "ua_envelope_w_per_m2k": 2.9973828046043622,
+        "r_internal_ratio": 18.573243233800437,
+        "internal_gain_w_per_m2": 372.04631062335807,
+        "vent_flow_kg_per_s": 179.60298605068022,
+        "t_setpoint_c": 24.82903860341174
+      },
+      "band_edges_from_year": 2016,
+      "band_edges": {
+        "outdoor_dry_bulb": [
+          20.6,
+          29.4
+        ],
+        "humidity_ratio": [
+          3.7630754244325115,
+          6.315529370076071
+        ],
+        "predicted_load": [
+          5695.183736337738,
+          8056.407061823458
+        ]
+      },
+      "years": {
+        "2016": {
+          "is_reread_of_held_out_year": false,
+          "hours": 8782,
+          "cvrmse_pct": 11.722183917855155,
+          "nmbe_pct": -4.4057202408895775e-06,
+          "passed": true,
+          "curvature": {
+            "outdoor_dry_bulb": {
+              "quadratic_kw_per_unit2": 2.748148991936432,
+              "linear_kw_per_unit": 44.552344033771206,
+              "vertex": 16.83665935493604,
+              "r_squared": 0.3298898489688735,
+              "linear_r_squared": 0.2339330429776736,
+              "band_edges": [
+                20.6,
+                29.4
+              ],
+              "band_means_kw": [
+                -395.02214078576344,
+                -220.58857683908676,
+                617.0695711985253
+              ],
+              "band_sems_kw": [
+                8.512019546482236,
+                11.031183796431424,
+                16.545024720715602
+              ],
+              "band_counts": [
+                2883,
+                2986,
+                2913
+              ],
+              "low_lift_kw": -174.43356394667668,
+              "high_lift_kw": 837.658148037612,
+              "is_u_shaped": false
+            },
+            "humidity_ratio": {
+              "quadratic_kw_per_unit2": 1.2445259830938369,
+              "linear_kw_per_unit": 134.3532841724904,
+              "vertex": -48.23255965007681,
+              "r_squared": 0.3150384919363509,
+              "linear_r_squared": 0.3146460753219512,
+              "band_edges": [
+                3.7630754244325115,
+                6.315529370076071
+              ],
+              "band_means_kw": [
+                -356.7726528853044,
+                -236.15057285652796,
+                592.9205762670234
+              ],
+              "band_sems_kw": [
+                12.644273355105947,
+                9.337027239887856,
+                15.406111086849709
+              ],
+              "band_counts": [
+                2925,
+                2930,
+                2927
+              ],
+              "low_lift_kw": -120.62208002877645,
+              "high_lift_kw": 829.0711491235513,
+              "is_u_shaped": false
+            },
+            "predicted_load": {
+              "quadratic_kw_per_unit2": 5.6258482450222136e-05,
+              "linear_kw_per_unit": 0.1914792439458282,
+              "vertex": 5180.79986320086,
+              "r_squared": 0.4364942018477227,
+              "linear_r_squared": 0.29294728848765894,
+              "band_edges": [
+                5695.183736337738,
+                8056.407061823458
+              ],
+              "band_means_kw": [
+                -395.42294030009714,
+                -288.06420079381314,
+                683.584648020876
+              ],
+              "band_sems_kw": [
+                8.41132689805997,
+                9.658726248443747,
+                16.169455082561978
+              ],
+              "band_counts": [
+                2927,
+                2928,
+                2927
+              ],
+              "low_lift_kw": -107.358739506284,
+              "high_lift_kw": 971.6488488146891,
+              "is_u_shaped": false
+            }
+          },
+          "diagnostics": {
+            "acf": {
+              "1": 0.8262744117465963,
+              "24": 0.5979185841093099,
+              "168": 0.5568102456309273
+            },
+            "ljung_box_q": 347466.96570961236,
+            "ljung_box_lags": 168,
+            "ljung_box_p": 0.0,
+            "daily_variance_share": 0.584141762038163,
+            "white_noise_variance_share": 0.041666666666666664,
+            "survives_daily_averaging": true
+          }
+        },
+        "2017": {
+          "is_reread_of_held_out_year": true,
+          "hours": 8741,
+          "cvrmse_pct": 11.581245428716082,
+          "nmbe_pct": 3.1020356714130055,
+          "passed": true,
+          "curvature": {
+            "outdoor_dry_bulb": {
+              "quadratic_kw_per_unit2": 1.5173863967162902,
+              "linear_kw_per_unit": 49.71075760136429,
+              "vertex": 8.831566576203354,
+              "r_squared": 0.3470606531443,
+              "linear_r_squared": 0.31823517157783465,
+              "band_edges": [
+                20.6,
+                29.4
+              ],
+              "band_means_kw": [
+                -263.1568166296161,
+                53.34984332669076,
+                822.2652789945524
+              ],
+              "band_sems_kw": [
+                7.502395992609116,
+                12.250496964785647,
+                14.825430023897207
+              ],
+              "band_counts": [
+                2886,
+                2744,
+                3111
+              ],
+              "low_lift_kw": -316.50665995630686,
+              "high_lift_kw": 768.9154356678616,
+              "is_u_shaped": false
+            },
+            "humidity_ratio": {
+              "quadratic_kw_per_unit2": 9.69937756113049,
+              "linear_kw_per_unit": 126.32013315925192,
+              "vertex": -0.87474321530018,
+              "r_squared": 0.49327756783850873,
+              "linear_r_squared": 0.46490782772285744,
+              "band_edges": [
+                3.7630754244325115,
+                6.315529370076071
+              ],
+              "band_means_kw": [
+                -87.8521822513136,
+                -62.83390094335807,
+                908.9487463392463
+              ],
+              "band_sems_kw": [
+                8.946719398733542,
+                7.930746436443384,
+                19.015178060079084
+              ],
+              "band_counts": [
+                2694,
+                3411,
+                2636
+              ],
+              "low_lift_kw": -25.018281307955526,
+              "high_lift_kw": 971.7826472826044,
+              "is_u_shaped": false
+            },
+            "predicted_load": {
+              "quadratic_kw_per_unit2": 4.935526131383261e-05,
+              "linear_kw_per_unit": 0.22320346731099652,
+              "vertex": 4693.537716604182,
+              "r_squared": 0.5596060726220985,
+              "linear_r_squared": 0.44771390231181085,
+              "band_edges": [
+                5695.183736337738,
+                8056.407061823458
+              ],
+              "band_means_kw": [
+                -259.4723983371914,
+                -50.928591413649755,
+                937.2649827235341
+              ],
+              "band_sems_kw": [
+                7.4237642404048305,
+                8.26803647766421,
+                15.301331195237486
+              ],
+              "band_counts": [
+                2944,
+                2757,
+                3040
+              ],
+              "low_lift_kw": -208.54380692354164,
+              "high_lift_kw": 988.1935741371839,
+              "is_u_shaped": false
+            }
+          },
+          "diagnostics": {
+            "acf": {
+              "1": 0.8639582337518291,
+              "24": 0.7995302412352615,
+              "168": 0.7033988156349
+            },
+            "ljung_box_q": 747126.3604676632,
+            "ljung_box_lags": 168,
+            "ljung_box_p": 0.0,
+            "daily_variance_share": 0.7850478065522056,
+            "white_noise_variance_share": 0.041666666666666664,
+            "survives_daily_averaging": true
+          }
+        }
+      },
+      "u_shape_on_both_years": false
+    },
+    {
+      "building_id": "Bull_education_Luke",
+      "role": "generalisation",
+      "calibration_artifact": "calibration_20260812T201111+0000_seed42.json",
+      "parameters": {
+        "ua_envelope_w_per_m2k": 1.2239957984466936,
+        "r_internal_ratio": 3.6507075552439883,
+        "internal_gain_w_per_m2": 151.52315360017207,
+        "vent_flow_kg_per_s": 56.37268746509123,
+        "t_setpoint_c": 24.264059146861424
+      },
+      "band_edges_from_year": 2016,
+      "band_edges": {
+        "outdoor_dry_bulb": [
+          18.3,
+          25.6
+        ],
+        "humidity_ratio": [
+          9.14938090353272,
+          15.273844040319924
+        ],
+        "predicted_load": [
+          2075.3256660417023,
+          3346.984660758303
+        ]
+      },
+      "years": {
+        "2016": {
+          "is_reread_of_held_out_year": false,
+          "hours": 8572,
+          "cvrmse_pct": 14.126025867737917,
+          "nmbe_pct": -0.0009913483866431257,
+          "passed": true,
+          "curvature": {
+            "outdoor_dry_bulb": {
+              "quadratic_kw_per_unit2": -0.15865797954830851,
+              "linear_kw_per_unit": -1.2306321198113312,
+              "vertex": 17.440679006047812,
+              "r_squared": 0.0014004374683754817,
+              "linear_r_squared": 0.0002452812977633556,
+              "band_edges": [
+                18.3,
+                25.6
+              ],
+              "band_means_kw": [
+                -15.397895356229586,
+                28.587612498745223,
+                -19.839321917258847
+              ],
+              "band_sems_kw": [
+                7.445985204267351,
+                6.677410017483053,
+                6.736504274449537
+              ],
+              "band_counts": [
+                2727,
+                3257,
+                2588
+              ],
+              "low_lift_kw": -43.98550785497481,
+              "high_lift_kw": -48.42693441600407,
+              "is_u_shaped": false
+            },
+            "humidity_ratio": {
+              "quadratic_kw_per_unit2": -2.945194344251317,
+              "linear_kw_per_unit": 6.172622730217769,
+              "vertex": 12.678354423793598,
+              "r_squared": 0.05135375641917406,
+              "linear_r_squared": 0.02016660397180481,
+              "band_edges": [
+                9.14938090353272,
+                15.273844040319924
+              ],
+              "band_means_kw": [
+                -126.51114234390387,
+                121.60030481573087,
+                4.707912453118122
+              ],
+              "band_sems_kw": [
+                7.143580731218998,
+                6.702175002616853,
+                6.280373817169304
+              ],
+              "band_counts": [
+                2857,
+                2860,
+                2855
+              ],
+              "low_lift_kw": -248.11144715963474,
+              "high_lift_kw": -116.89239236261274,
+              "is_u_shaped": false
+            },
+            "predicted_load": {
+              "quadratic_kw_per_unit2": -2.8392822439255935e-05,
+              "linear_kw_per_unit": 0.012429034907655859,
+              "vertex": 2860.7838091345534,
+              "r_squared": 0.005713876684972141,
+              "linear_r_squared": 0.0015723040375826836,
+              "band_edges": [
+                2075.3256660417023,
+                3346.984660758303
+              ],
+              "band_means_kw": [
+                -56.08451939084,
+                53.00294477340504,
+                2.9844885850008924
+              ],
+              "band_sems_kw": [
+                7.237498918119119,
+                7.368489381496534,
+                6.117537001536298
+              ],
+              "band_counts": [
+                2857,
+                2858,
+                2857
+              ],
+              "low_lift_kw": -109.08746416424503,
+              "high_lift_kw": -50.01845618840415,
+              "is_u_shaped": false
+            }
+          },
+          "diagnostics": {
+            "acf": {
+              "1": 0.5903853975031095,
+              "24": 0.30221363064429463,
+              "168": 0.15547700585049978
+            },
+            "ljung_box_q": 46365.08210797077,
+            "ljung_box_lags": 168,
+            "ljung_box_p": 0.0,
+            "daily_variance_share": 0.33765686338059,
+            "white_noise_variance_share": 0.041666666666666664,
+            "survives_daily_averaging": true
+          }
+        },
+        "2017": {
+          "is_reread_of_held_out_year": true,
+          "hours": 8607,
+          "cvrmse_pct": 11.141895560580371,
+          "nmbe_pct": 1.3500169909270527,
+          "passed": true,
+          "curvature": {
+            "outdoor_dry_bulb": {
+              "quadratic_kw_per_unit2": 0.2267861025878115,
+              "linear_kw_per_unit": 1.1146267273762944,
+              "vertex": 19.44531302702817,
+              "r_squared": 0.0043319706773492506,
+              "linear_r_squared": 8.225680736639873e-05,
+              "band_edges": [
+                18.3,
+                25.6
+              ],
+              "band_means_kw": [
+                8.42375740600713,
+                54.87869252997353,
+                36.61707673631237
+              ],
+              "band_sems_kw": [
+                6.179650768109818,
+                4.876726943545446,
+                5.497556720694981
+              ],
+              "band_counts": [
+                2444,
+                3345,
+                2818
+              ],
+              "low_lift_kw": -46.45493512396639,
+              "high_lift_kw": -18.261615793661157,
+              "is_u_shaped": false
+            },
+            "humidity_ratio": {
+              "quadratic_kw_per_unit2": -3.4573322369036212,
+              "linear_kw_per_unit": 5.444794297016795,
+              "vertex": 11.883736704877764,
+              "r_squared": 0.07720733501432964,
+              "linear_r_squared": 0.027308524015834723,
+              "band_edges": [
+                9.14938090353272,
+                15.273844040319924
+              ],
+              "band_means_kw": [
+                -81.10231705490195,
+                148.1019139021567,
+                7.06909370663231
+              ],
+              "band_sems_kw": [
+                5.568481805639135,
+                4.117280962397442,
+                6.101742709058001
+              ],
+              "band_counts": [
+                3017,
+                3634,
+                1956
+              ],
+              "low_lift_kw": -229.20423095705866,
+              "high_lift_kw": -141.03282019552438,
+              "is_u_shaped": false
+            },
+            "predicted_load": {
+              "quadratic_kw_per_unit2": -1.3890770855975315e-05,
+              "linear_kw_per_unit": 0.01423001703261706,
+              "vertex": 3123.087339751923,
+              "r_squared": 0.004089347278727451,
+              "linear_r_squared": 0.002865425735857907,
+              "band_edges": [
+                2075.3256660417023,
+                3346.984660758303
+              ],
+              "band_means_kw": [
+                -27.970178111594112,
+                98.57365650630777,
+                12.915810727506093
+              ],
+              "band_sems_kw": [
+                5.997820389128768,
+                4.715237562165039,
+                5.543001330787634
+              ],
+              "band_counts": [
+                2656,
+                3558,
+                2393
+              ],
+              "low_lift_kw": -126.54383461790188,
+              "high_lift_kw": -85.65784577880167,
+              "is_u_shaped": false
+            }
+          },
+          "diagnostics": {
+            "acf": {
+              "1": 0.6745568626126107,
+              "24": 0.3616515738920461,
+              "168": 0.1957280403511541
+            },
+            "ljung_box_q": 52339.0637183942,
+            "ljung_box_lags": 168,
+            "ljung_box_p": 0.0,
+            "daily_variance_share": 0.41319675262559913,
+            "white_noise_variance_share": 0.041666666666666664,
+            "survives_daily_averaging": true
+          }
+        }
+      },
+      "u_shape_on_both_years": false
+    },
+    {
+      "building_id": "Hog_education_Cathleen",
+      "role": "negative_case",
+      "calibration_artifact": "calibration_20260812T201251+0000_seed42.json",
+      "parameters": {
+        "ua_envelope_w_per_m2k": 0.33562233506931527,
+        "r_internal_ratio": 11.647275499152027,
+        "internal_gain_w_per_m2": 109.17889305503873,
+        "vent_flow_kg_per_s": 40.85661959700261,
+        "t_setpoint_c": 21.782053733224338
+      },
+      "band_edges_from_year": 2016,
+      "band_edges": {
+        "outdoor_dry_bulb": [
+          3.3,
+          17.8
+        ],
+        "humidity_ratio": [
+          3.4068105615766835,
+          7.822327274382222
+        ],
+        "predicted_load": [
+          745.2075105501627,
+          1435.8309191658916
+        ]
+      },
+      "years": {
+        "2016": {
+          "is_reread_of_held_out_year": false,
+          "hours": 8782,
+          "cvrmse_pct": 28.663707374458486,
+          "nmbe_pct": -0.00045520745158113426,
+          "passed": true,
+          "curvature": {
+            "outdoor_dry_bulb": {
+              "quadratic_kw_per_unit2": 1.220187427555799,
+              "linear_kw_per_unit": 8.00086431908306,
+              "vertex": 6.603287388649574,
+              "r_squared": 0.4446921246829718,
+              "linear_r_squared": 0.002527362836354907,
+              "band_edges": [
+                3.3,
+                17.8
+              ],
+              "band_means_kw": [
+                75.46733578145992,
+                -278.65090384774004,
+                224.082534106722
+              ],
+              "band_sems_kw": [
+                4.687388272059822,
+                3.8471366034008088,
+                4.8293617491471
+              ],
+              "band_counts": [
+                2833,
+                3077,
+                2872
+              ],
+              "low_lift_kw": 354.11823962919993,
+              "high_lift_kw": 502.73343795446203,
+              "is_u_shaped": true
+            },
+            "humidity_ratio": {
+              "quadratic_kw_per_unit2": 8.596242499505642,
+              "linear_kw_per_unit": 1.5284646038072989,
+              "vertex": 6.058574361653747,
+              "r_squared": 0.3485290518583726,
+              "linear_r_squared": 0.10950116990764669,
+              "band_edges": [
+                3.4068105615766835,
+                7.822327274382222
+              ],
+              "band_means_kw": [
+                45.45207287030034,
+                -263.38947664338065,
+                218.01207359218813
+              ],
+              "band_sems_kw": [
+                5.1312302500401366,
+                3.5619813974694856,
+                5.1302453334386895
+              ],
+              "band_counts": [
+                2927,
+                2928,
+                2927
+              ],
+              "low_lift_kw": 308.841549513681,
+              "high_lift_kw": 481.4015502355688,
+              "is_u_shaped": true
+            },
+            "predicted_load": {
+              "quadratic_kw_per_unit2": 0.00041439662034865876,
+              "linear_kw_per_unit": 0.042009038635535484,
+              "vertex": 1071.3937982543341,
+              "r_squared": 0.4244287280211414,
+              "linear_r_squared": 0.03729365355688985,
+              "band_edges": [
+                745.2075105501627,
+                1435.8309191658916
+              ],
+              "band_means_kw": [
+                64.79661947418937,
+                -301.8879993392501,
+                237.17920257883748
+              ],
+              "band_sems_kw": [
+                4.674765130512048,
+                3.335594022832217,
+                4.605140178934231
+              ],
+              "band_counts": [
+                2927,
+                2928,
+                2927
+              ],
+              "low_lift_kw": 366.68461881343944,
+              "high_lift_kw": 539.0672019180876,
+              "is_u_shaped": true
+            }
+          },
+          "diagnostics": {
+            "acf": {
+              "1": 0.9656272552963072,
+              "24": 0.7006545579959859,
+              "168": 0.4828997709065677
+            },
+            "ljung_box_q": 428369.0417707928,
+            "ljung_box_lags": 168,
+            "ljung_box_p": 0.0,
+            "daily_variance_share": 0.7955444951646491,
+            "white_noise_variance_share": 0.041666666666666664,
+            "survives_daily_averaging": true
+          }
+        },
+        "2017": {
+          "is_reread_of_held_out_year": true,
+          "hours": 8758,
+          "cvrmse_pct": 31.65007293319317,
+          "nmbe_pct": -1.5832149501447457,
+          "passed": false,
+          "curvature": {
+            "outdoor_dry_bulb": {
+              "quadratic_kw_per_unit2": 1.3585973931157471,
+              "linear_kw_per_unit": 4.481401673336873,
+              "vertex": 7.590094629950333,
+              "r_squared": 0.4805568615259842,
+              "linear_r_squared": 0.002543981526635486,
+              "band_edges": [
+                3.3,
+                17.8
+              ],
+              "band_means_kw": [
+                112.53055456421005,
+                -312.4248467818562,
+                212.90859206565435
+              ],
+              "band_sems_kw": [
+                4.480649936997273,
+                3.572598489043376,
+                5.506419017492263
+              ],
+              "band_counts": [
+                2937,
+                3267,
+                2554
+              ],
+              "low_lift_kw": 424.95540134606625,
+              "high_lift_kw": 525.3334388475106,
+              "is_u_shaped": true
+            },
+            "humidity_ratio": {
+              "quadratic_kw_per_unit2": 12.699155580239758,
+              "linear_kw_per_unit": -15.919606433500554,
+              "vertex": 6.395514337352267,
+              "r_squared": 0.3964789679250629,
+              "linear_r_squared": 0.03340385693131975,
+              "band_edges": [
+                3.4068105615766835,
+                7.822327274382222
+              ],
+              "band_means_kw": [
+                76.67473733073354,
+                -280.20379786159435,
+                164.48087106179344
+              ],
+              "band_sems_kw": [
+                4.919434784018978,
+                4.0207129060970885,
+                6.219620215460962
+              ],
+              "band_counts": [
+                3108,
+                2955,
+                2695
+              ],
+              "low_lift_kw": 356.8785351923279,
+              "high_lift_kw": 444.6846689233878,
+              "is_u_shaped": true
+            },
+            "predicted_load": {
+              "quadratic_kw_per_unit2": 0.000559433952707758,
+              "linear_kw_per_unit": -0.022569947799809913,
+              "vertex": 1093.4822267454451,
+              "r_squared": 0.520970183771063,
+              "linear_r_squared": 0.005709265799267671,
+              "band_edges": [
+                745.2075105501627,
+                1435.8309191658916
+              ],
+              "band_means_kw": [
+                99.79304260179582,
+                -330.2526673211547,
+                222.41385783217297
+              ],
+              "band_sems_kw": [
+                4.487159619497264,
+                3.291242626979714,
+                5.289674657315825
+              ],
+              "band_counts": [
+                3049,
+                3113,
+                2596
+              ],
+              "low_lift_kw": 430.04570992295055,
+              "high_lift_kw": 552.6665251533277,
+              "is_u_shaped": true
+            }
+          },
+          "diagnostics": {
+            "acf": {
+              "1": 0.9608498640169403,
+              "24": 0.6674446894975301,
+              "168": 0.42245500735352853
+            },
+            "ljung_box_q": 259446.60524730704,
+            "ljung_box_lags": 168,
+            "ljung_box_p": 0.0,
+            "daily_variance_share": 0.7452638026928307,
+            "white_noise_variance_share": 0.041666666666666664,
+            "survives_daily_averaging": true
+          }
+        }
+      },
+      "u_shape_on_both_years": true
+    }
+  ]
+}
