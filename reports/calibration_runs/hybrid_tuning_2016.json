@@ -1,0 +1,151 @@
+{
+  "year": 2016,
+  "decision_rule": {
+    "min_ml_share_gain_pct": 1.0,
+    "max_gap_widening_pct": 0.0,
+    "registered": "before the first run, in code"
+  },
+  "note": "Written by sweep_trial_budget.py at the PRE-REGISTERED budget of 50 trials, not at whichever budget scored best. Identical to running tune_residual_model.py --n-trials 50 -- see the prefix equivalence in tests/test_trial_budget_prefix.py.",
+  "buildings": [
+    {
+      "building_id": "Fox_education_Claude",
+      "role": "primary",
+      "calibration_artifact": "calibration_20260812T200947+0000_seed42.json",
+      "year": 2016,
+      "n_trials": 50,
+      "n_outer_folds": 5,
+      "n_inner_folds": 3,
+      "hours_scored": 6479,
+      "default_ml_pct": 3.3167498460300067,
+      "nested_ml_pct": 2.454038948120091,
+      "nested_physics_pct": 90.57109157556079,
+      "ml_share_gain_pct": -0.8627108979099156,
+      "memorisation_gap_pct": 3.7757001636923415,
+      "gap_widening_pct": 0.7619764210628754,
+      "default_cvrmse_pct": 9.089036697232372,
+      "nested_cvrmse_pct": 9.709315033420593,
+      "worth_keeping": false,
+      "deployment_params": {
+        "max_depth": 3,
+        "max_leaf_nodes": 43,
+        "min_samples_leaf": 10,
+        "learning_rate": 0.02217641507327909,
+        "max_iter": 600,
+        "l2_regularization": 0.008262983571057052
+      },
+      "per_outer_fold_params": [
+        {
+          "max_depth": 8,
+          "max_leaf_nodes": 37,
+          "min_samples_leaf": 196,
+          "learning_rate": 0.24012137829197924,
+          "max_iter": 700,
+          "l2_regularization": 0.21567944175137702
+        },
+        {
+          "max_depth": 5,
+          "max_leaf_nodes": 19,
+          "min_samples_leaf": 198,
+          "learning_rate": 0.0100576368275944,
+          "max_iter": 100,
+          "l2_regularization": 0.009126704124098415
+        },
+        {
+          "max_depth": 3,
+          "max_leaf_nodes": 17,
+          "min_samples_leaf": 111,
+          "learning_rate": 0.08962717626942573,
+          "max_iter": 200,
+          "l2_regularization": 0.004198896529704677
+        },
+        {
+          "max_depth": 8,
+          "max_leaf_nodes": 22,
+          "min_samples_leaf": 25,
+          "learning_rate": 0.012104498413280877,
+          "max_iter": 600,
+          "l2_regularization": 0.4861064586906043
+        },
+        {
+          "max_depth": 2,
+          "max_leaf_nodes": 48,
+          "min_samples_leaf": 17,
+          "learning_rate": 0.10797047276845782,
+          "max_iter": 400,
+          "l2_regularization": 0.47816755039028846
+        }
+      ],
+      "param_distance_from_previous_budget": 0.0
+    },
+    {
+      "building_id": "Bull_education_Luke",
+      "role": "generalisation",
+      "calibration_artifact": "calibration_20260812T201111+0000_seed42.json",
+      "year": 2016,
+      "n_trials": 50,
+      "n_outer_folds": 5,
+      "n_inner_folds": 3,
+      "hours_scored": 6304,
+      "default_ml_pct": 1.0805813582059507,
+      "nested_ml_pct": 0.7528456668042095,
+      "nested_physics_pct": 86.70960956511065,
+      "ml_share_gain_pct": -0.3277356914017412,
+      "memorisation_gap_pct": 5.655026102346198,
+      "gap_widening_pct": -0.09997048480521009,
+      "default_cvrmse_pct": 11.799122684008871,
+      "nested_cvrmse_pct": 11.95643008656078,
+      "worth_keeping": false,
+      "deployment_params": {
+        "max_depth": 4,
+        "max_leaf_nodes": 32,
+        "min_samples_leaf": 198,
+        "learning_rate": 0.04405410076681074,
+        "max_iter": 800,
+        "l2_regularization": 2.2612483700668817
+      },
+      "per_outer_fold_params": [
+        {
+          "max_depth": 4,
+          "max_leaf_nodes": 8,
+          "min_samples_leaf": 13,
+          "learning_rate": 0.018182500762239658,
+          "max_iter": 600,
+          "l2_regularization": 0.025490084268125473
+        },
+        {
+          "max_depth": 7,
+          "max_leaf_nodes": 46,
+          "min_samples_leaf": 106,
+          "learning_rate": 0.021665562818517104,
+          "max_iter": 200,
+          "l2_regularization": 0.003871596455877138
+        },
+        {
+          "max_depth": 7,
+          "max_leaf_nodes": 49,
+          "min_samples_leaf": 149,
+          "learning_rate": 0.013329024659382245,
+          "max_iter": 600,
+          "l2_regularization": 0.14702327619983563
+        },
+        {
+          "max_depth": 2,
+          "max_leaf_nodes": 19,
+          "min_samples_leaf": 10,
+          "learning_rate": 0.06669188275893419,
+          "max_iter": 200,
+          "l2_regularization": 4.696007773891899
+        },
+        {
+          "max_depth": 4,
+          "max_leaf_nodes": 63,
+          "min_samples_leaf": 105,
+          "learning_rate": 0.07462562294654565,
+          "max_iter": 200,
+          "l2_regularization": 2.146095279952113
+        }
+      ],
+      "param_distance_from_previous_budget": 0.5189117040159653
+    }
+  ]
+}

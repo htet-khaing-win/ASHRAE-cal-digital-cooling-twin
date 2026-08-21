@@ -1,0 +1,138 @@
+{
+  "year": 2016,
+  "note": "Training year only (ADR-002). Physics parameters read frozen; the optimiser is not imported. Every ML share labelled out_of_fold is measured on hours the residual model was not fitted on.",
+  "buildings": [
+    {
+      "building_id": "Fox_education_Claude",
+      "role": "primary",
+      "calibration_artifact": "calibration_20260812T200947+0000_seed42.json",
+      "year": 2016,
+      "hours_total": 8782,
+      "hours_scored": 6479,
+      "scored_fraction": 0.7377590526076064,
+      "n_folds": 5,
+      "embargo_hours": 168,
+      "features": [
+        "outdoor_dry_bulb_c",
+        "outdoor_dry_bulb_24h_mean_c",
+        "humidity_ratio_g_per_kg",
+        "hour_sin",
+        "hour_cos",
+        "is_weekend"
+      ],
+      "out_of_fold": {
+        "physics_pct": 90.57109157556079,
+        "ml_pct": 3.3167498460300067,
+        "unexplained_pct": 6.112158578409211
+      },
+      "in_sample": {
+        "physics_pct": 90.57109157556079,
+        "ml_pct": 6.330473588659473,
+        "unexplained_pct": 3.0984348357797447
+      },
+      "memorisation_gap_pct": 3.013723742629466,
+      "physics_cvrmse_pct": 11.288890464241549,
+      "hybrid_cvrmse_pct": 9.089036697232372,
+      "physics_nmbe_pct": 1.3926660620589628,
+      "hybrid_nmbe_pct": 2.764503659468167,
+      "cvrmse_improvement_pct": 19.486890886020973,
+      "clipped_fraction": 0.0,
+      "fold_ml_pct": [
+        11.95138179059764,
+        2.8678712825294,
+        38.13700506822461,
+        0.11533160953086494,
+        -3.1259957107487533
+      ],
+      "n_folds_harmed": 1,
+      "daily_variance_share_before": 0.551141040434205,
+      "daily_variance_share_after": 0.27206483197124404,
+      "white_noise_variance_share": 0.041666666666666664,
+      "acf_before": {
+        "1": 0.8195225368436322,
+        "24": 0.5524913353726691,
+        "168": 0.48881085412234404
+      },
+      "acf_after": {
+        "1": 0.6929177644973259,
+        "24": 0.22321238336570592,
+        "168": 0.14970233818497647
+      },
+      "permutation_importance_kw": {
+        "humidity_ratio_g_per_kg": 35.129179411004756,
+        "hour_cos": 32.12609248906219,
+        "outdoor_dry_bulb_24h_mean_c": 25.452249522709664,
+        "outdoor_dry_bulb_c": 20.911498531548773,
+        "hour_sin": 6.383378053872141,
+        "is_weekend": 1.973163599739222
+      },
+      "ml_dominates": false
+    },
+    {
+      "building_id": "Bull_education_Luke",
+      "role": "generalisation",
+      "calibration_artifact": "calibration_20260812T201111+0000_seed42.json",
+      "year": 2016,
+      "hours_total": 8572,
+      "hours_scored": 6304,
+      "scored_fraction": 0.7354176388240784,
+      "n_folds": 5,
+      "embargo_hours": 168,
+      "features": [
+        "outdoor_dry_bulb_c",
+        "outdoor_dry_bulb_24h_mean_c",
+        "humidity_ratio_g_per_kg",
+        "hour_sin",
+        "hour_cos",
+        "is_weekend"
+      ],
+      "out_of_fold": {
+        "physics_pct": 86.70960956511065,
+        "ml_pct": 1.0805813582059507,
+        "unexplained_pct": 12.20980907668339
+      },
+      "in_sample": {
+        "physics_pct": 86.70960956511065,
+        "ml_pct": 6.835577945357358,
+        "unexplained_pct": 6.4548124895319825
+      },
+      "memorisation_gap_pct": 5.754996587151408,
+      "physics_cvrmse_pct": 12.310172823893934,
+      "hybrid_cvrmse_pct": 11.799122684008871,
+      "physics_nmbe_pct": 0.847961024959764,
+      "hybrid_nmbe_pct": 0.47130276811676375,
+      "cvrmse_improvement_pct": 4.151445696140991,
+      "clipped_fraction": 0.0,
+      "fold_ml_pct": [
+        5.944661312430369,
+        -1.0709684966914919,
+        -19.644324133575324,
+        5.472300971161178,
+        -0.9881181411352317
+      ],
+      "n_folds_harmed": 3,
+      "daily_variance_share_before": 0.351858296364133,
+      "daily_variance_share_after": 0.35446232172775394,
+      "white_noise_variance_share": 0.041666666666666664,
+      "acf_before": {
+        "1": 0.6849595317759124,
+        "24": 0.34737647138218863,
+        "168": 0.19650634723731053
+      },
+      "acf_after": {
+        "1": 0.633793666079892,
+        "24": 0.38575867304021294,
+        "168": 0.22414537042097277
+      },
+      "permutation_importance_kw": {
+        "outdoor_dry_bulb_c": 66.9843388894673,
+        "outdoor_dry_bulb_24h_mean_c": 66.37385596358929,
+        "humidity_ratio_g_per_kg": 49.09691967383529,
+        "hour_sin": 13.491077768632184,
+        "hour_cos": 10.416072921014337,
+        "is_weekend": 4.847027664742851
+      },
+      "ml_dominates": false
+    }
+  ]
+}

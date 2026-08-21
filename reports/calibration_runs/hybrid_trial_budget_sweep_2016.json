@@ -1,0 +1,868 @@
+{
+  "year": 2016,
+  "budgets": [
+    25,
+    50,
+    75,
+    100,
+    200,
+    300
+  ],
+  "seed": 42,
+  "purpose": "STABILITY DIAGNOSTIC. Do the chosen hyperparameters settle as the search budget grows? The budget is NOT selected from these results -- that would be tuning the tuner, and the reported score would become the maximum of len(budgets) draws. The pre-registered budget remains tune_residual_model.DEFAULT_N_TRIALS = 50.",
+  "equivalence_note": "One Optuna study per tuning pass, run to max(budgets), with the running best read off at each budget. Exactly equal to separate studies because TPESampler(seed) is sequential and the objective is deterministic -- see tests/test_trial_budget_prefix.py.",
+  "records": [
+    {
+      "building_id": "Fox_education_Claude",
+      "role": "primary",
+      "calibration_artifact": "calibration_20260812T200947+0000_seed42.json",
+      "year": 2016,
+      "n_trials": 25,
+      "n_outer_folds": 5,
+      "n_inner_folds": 3,
+      "hours_scored": 6479,
+      "default_ml_pct": 3.3167498460300067,
+      "nested_ml_pct": 3.0700539523240584,
+      "nested_physics_pct": 90.57109157556079,
+      "ml_share_gain_pct": -0.24669589370594824,
+      "memorisation_gap_pct": 3.159685159488374,
+      "gap_widening_pct": 0.14596141685890807,
+      "default_cvrmse_pct": 9.089036697232372,
+      "nested_cvrmse_pct": 9.27064590012175,
+      "worth_keeping": false,
+      "deployment_params": {
+        "max_depth": 3,
+        "max_leaf_nodes": 43,
+        "min_samples_leaf": 10,
+        "learning_rate": 0.02217641507327909,
+        "max_iter": 600,
+        "l2_regularization": 0.008262983571057052
+      },
+      "per_outer_fold_params": [
+        {
+          "max_depth": 7,
+          "max_leaf_nodes": 16,
+          "min_samples_leaf": 198,
+          "learning_rate": 0.1750604092840294,
+          "max_iter": 700,
+          "l2_regularization": 0.40263518532783593
+        },
+        {
+          "max_depth": 5,
+          "max_leaf_nodes": 14,
+          "min_samples_leaf": 85,
+          "learning_rate": 0.010006087644718824,
+          "max_iter": 200,
+          "l2_regularization": 0.006848178613095083
+        },
+        {
+          "max_depth": 3,
+          "max_leaf_nodes": 17,
+          "min_samples_leaf": 111,
+          "learning_rate": 0.08962717626942573,
+          "max_iter": 200,
+          "l2_regularization": 0.004198896529704677
+        },
+        {
+          "max_depth": 8,
+          "max_leaf_nodes": 22,
+          "min_samples_leaf": 33,
+          "learning_rate": 0.010368280137472605,
+          "max_iter": 600,
+          "l2_regularization": 0.6226279276154977
+        },
+        {
+          "max_depth": 2,
+          "max_leaf_nodes": 29,
+          "min_samples_leaf": 20,
+          "learning_rate": 0.07972329038941539,
+          "max_iter": 400,
+          "l2_regularization": 0.13319751466656066
+        }
+      ],
+      "param_distance_from_previous_budget": NaN,
+      "per_fold_param_distance_from_previous_budget": NaN
+    },
+    {
+      "building_id": "Fox_education_Claude",
+      "role": "primary",
+      "calibration_artifact": "calibration_20260812T200947+0000_seed42.json",
+      "year": 2016,
+      "n_trials": 50,
+      "n_outer_folds": 5,
+      "n_inner_folds": 3,
+      "hours_scored": 6479,
+      "default_ml_pct": 3.3167498460300067,
+      "nested_ml_pct": 2.454038948120091,
+      "nested_physics_pct": 90.57109157556079,
+      "ml_share_gain_pct": -0.8627108979099156,
+      "memorisation_gap_pct": 3.7757001636923415,
+      "gap_widening_pct": 0.7619764210628754,
+      "default_cvrmse_pct": 9.089036697232372,
+      "nested_cvrmse_pct": 9.709315033420593,
+      "worth_keeping": false,
+      "deployment_params": {
+        "max_depth": 3,
+        "max_leaf_nodes": 43,
+        "min_samples_leaf": 10,
+        "learning_rate": 0.02217641507327909,
+        "max_iter": 600,
+        "l2_regularization": 0.008262983571057052
+      },
+      "per_outer_fold_params": [
+        {
+          "max_depth": 8,
+          "max_leaf_nodes": 37,
+          "min_samples_leaf": 196,
+          "learning_rate": 0.24012137829197924,
+          "max_iter": 700,
+          "l2_regularization": 0.21567944175137702
+        },
+        {
+          "max_depth": 5,
+          "max_leaf_nodes": 19,
+          "min_samples_leaf": 198,
+          "learning_rate": 0.0100576368275944,
+          "max_iter": 100,
+          "l2_regularization": 0.009126704124098415
+        },
+        {
+          "max_depth": 3,
+          "max_leaf_nodes": 17,
+          "min_samples_leaf": 111,
+          "learning_rate": 0.08962717626942573,
+          "max_iter": 200,
+          "l2_regularization": 0.004198896529704677
+        },
+        {
+          "max_depth": 8,
+          "max_leaf_nodes": 22,
+          "min_samples_leaf": 25,
+          "learning_rate": 0.012104498413280877,
+          "max_iter": 600,
+          "l2_regularization": 0.4861064586906043
+        },
+        {
+          "max_depth": 2,
+          "max_leaf_nodes": 48,
+          "min_samples_leaf": 17,
+          "learning_rate": 0.10797047276845782,
+          "max_iter": 400,
+          "l2_regularization": 0.47816755039028846
+        }
+      ],
+      "param_distance_from_previous_budget": 0.0,
+      "per_fold_param_distance_from_previous_budget": 0.2267591704577981
+    },
+    {
+      "building_id": "Fox_education_Claude",
+      "role": "primary",
+      "calibration_artifact": "calibration_20260812T200947+0000_seed42.json",
+      "year": 2016,
+      "n_trials": 75,
+      "n_outer_folds": 5,
+      "n_inner_folds": 3,
+      "hours_scored": 6479,
+      "default_ml_pct": 3.3167498460300067,
+      "nested_ml_pct": 3.0058249796767584,
+      "nested_physics_pct": 90.57109157556079,
+      "ml_share_gain_pct": -0.31092486635324823,
+      "memorisation_gap_pct": 2.7238560817062614,
+      "gap_widening_pct": -0.2898676609232047,
+      "default_cvrmse_pct": 9.089036697232372,
+      "nested_cvrmse_pct": 9.317348337492982,
+      "worth_keeping": false,
+      "deployment_params": {
+        "max_depth": 3,
+        "max_leaf_nodes": 51,
+        "min_samples_leaf": 10,
+        "learning_rate": 0.01240991594524814,
+        "max_iter": 400,
+        "l2_regularization": 0.34618550340022564
+      },
+      "per_outer_fold_params": [
+        {
+          "max_depth": 8,
+          "max_leaf_nodes": 37,
+          "min_samples_leaf": 196,
+          "learning_rate": 0.24012137829197924,
+          "max_iter": 700,
+          "l2_regularization": 0.21567944175137702
+        },
+        {
+          "max_depth": 5,
+          "max_leaf_nodes": 7,
+          "min_samples_leaf": 31,
+          "learning_rate": 0.014459052625281901,
+          "max_iter": 100,
+          "l2_regularization": 0.06349239544977378
+        },
+        {
+          "max_depth": 3,
+          "max_leaf_nodes": 17,
+          "min_samples_leaf": 111,
+          "learning_rate": 0.08962717626942573,
+          "max_iter": 200,
+          "l2_regularization": 0.004198896529704677
+        },
+        {
+          "max_depth": 8,
+          "max_leaf_nodes": 22,
+          "min_samples_leaf": 25,
+          "learning_rate": 0.012104498413280877,
+          "max_iter": 600,
+          "l2_regularization": 0.4861064586906043
+        },
+        {
+          "max_depth": 2,
+          "max_leaf_nodes": 18,
+          "min_samples_leaf": 16,
+          "learning_rate": 0.08978416650538322,
+          "max_iter": 500,
+          "l2_regularization": 0.5141414454702702
+        }
+      ],
+      "param_distance_from_previous_budget": 0.8032802338830836,
+      "per_fold_param_distance_from_previous_budget": 0.22346509579548962
+    },
+    {
+      "building_id": "Fox_education_Claude",
+      "role": "primary",
+      "calibration_artifact": "calibration_20260812T200947+0000_seed42.json",
+      "year": 2016,
+      "n_trials": 100,
+      "n_outer_folds": 5,
+      "n_inner_folds": 3,
+      "hours_scored": 6479,
+      "default_ml_pct": 3.3167498460300067,
+      "nested_ml_pct": 3.002129851378092,
+      "nested_physics_pct": 90.57109157556079,
+      "ml_share_gain_pct": -0.3146199946519146,
+      "memorisation_gap_pct": 3.0076317843940026,
+      "gap_widening_pct": -0.0060919582354634905,
+      "default_cvrmse_pct": 9.089036697232372,
+      "nested_cvrmse_pct": 9.320028035460819,
+      "worth_keeping": false,
+      "deployment_params": {
+        "max_depth": 3,
+        "max_leaf_nodes": 33,
+        "min_samples_leaf": 10,
+        "learning_rate": 0.019378794228602222,
+        "max_iter": 500,
+        "l2_regularization": 0.008094364284507516
+      },
+      "per_outer_fold_params": [
+        {
+          "max_depth": 8,
+          "max_leaf_nodes": 37,
+          "min_samples_leaf": 196,
+          "learning_rate": 0.24012137829197924,
+          "max_iter": 700,
+          "l2_regularization": 0.21567944175137702
+        },
+        {
+          "max_depth": 5,
+          "max_leaf_nodes": 7,
+          "min_samples_leaf": 31,
+          "learning_rate": 0.014459052625281901,
+          "max_iter": 100,
+          "l2_regularization": 0.06349239544977378
+        },
+        {
+          "max_depth": 3,
+          "max_leaf_nodes": 17,
+          "min_samples_leaf": 111,
+          "learning_rate": 0.08962717626942573,
+          "max_iter": 200,
+          "l2_regularization": 0.004198896529704677
+        },
+        {
+          "max_depth": 8,
+          "max_leaf_nodes": 22,
+          "min_samples_leaf": 25,
+          "learning_rate": 0.012104498413280877,
+          "max_iter": 600,
+          "l2_regularization": 0.4861064586906043
+        },
+        {
+          "max_depth": 2,
+          "max_leaf_nodes": 38,
+          "min_samples_leaf": 15,
+          "learning_rate": 0.10391252324944535,
+          "max_iter": 500,
+          "l2_regularization": 0.7438238984814249
+        }
+      ],
+      "param_distance_from_previous_budget": 0.8144680581065039,
+      "per_fold_param_distance_from_previous_budget": 0.044239986774371645
+    },
+    {
+      "building_id": "Fox_education_Claude",
+      "role": "primary",
+      "calibration_artifact": "calibration_20260812T200947+0000_seed42.json",
+      "year": 2016,
+      "n_trials": 200,
+      "n_outer_folds": 5,
+      "n_inner_folds": 3,
+      "hours_scored": 6479,
+      "default_ml_pct": 3.3167498460300067,
+      "nested_ml_pct": 3.044068309536798,
+      "nested_physics_pct": 90.57109157556079,
+      "ml_share_gain_pct": -0.2726815364932085,
+      "memorisation_gap_pct": 2.949510560612114,
+      "gap_widening_pct": -0.06421318201735193,
+      "default_cvrmse_pct": 9.089036697232372,
+      "nested_cvrmse_pct": 9.289568968768991,
+      "worth_keeping": false,
+      "deployment_params": {
+        "max_depth": 3,
+        "max_leaf_nodes": 34,
+        "min_samples_leaf": 11,
+        "learning_rate": 0.016744059636186942,
+        "max_iter": 600,
+        "l2_regularization": 0.17173132778442302
+      },
+      "per_outer_fold_params": [
+        {
+          "max_depth": 8,
+          "max_leaf_nodes": 35,
+          "min_samples_leaf": 200,
+          "learning_rate": 0.013836688474605813,
+          "max_iter": 700,
+          "l2_regularization": 0.40651966480471124
+        },
+        {
+          "max_depth": 7,
+          "max_leaf_nodes": 38,
+          "min_samples_leaf": 77,
+          "learning_rate": 0.013206368632012811,
+          "max_iter": 100,
+          "l2_regularization": 4.001034394685955
+        },
+        {
+          "max_depth": 8,
+          "max_leaf_nodes": 63,
+          "min_samples_leaf": 119,
+          "learning_rate": 0.014961056744762505,
+          "max_iter": 800,
+          "l2_regularization": 0.002325073389152142
+        },
+        {
+          "max_depth": 8,
+          "max_leaf_nodes": 14,
+          "min_samples_leaf": 26,
+          "learning_rate": 0.012732165466881254,
+          "max_iter": 700,
+          "l2_regularization": 0.00431134339962573
+        },
+        {
+          "max_depth": 2,
+          "max_leaf_nodes": 9,
+          "min_samples_leaf": 12,
+          "learning_rate": 0.047542151934996335,
+          "max_iter": 400,
+          "l2_regularization": 0.5339223872830019
+        }
+      ],
+      "param_distance_from_previous_budget": 0.5876770231661366,
+      "per_fold_param_distance_from_previous_budget": 0.921233079885894
+    },
+    {
+      "building_id": "Fox_education_Claude",
+      "role": "primary",
+      "calibration_artifact": "calibration_20260812T200947+0000_seed42.json",
+      "year": 2016,
+      "n_trials": 300,
+      "n_outer_folds": 5,
+      "n_inner_folds": 3,
+      "hours_scored": 6479,
+      "default_ml_pct": 3.3167498460300067,
+      "nested_ml_pct": 3.0373315000013212,
+      "nested_physics_pct": 90.57109157556079,
+      "ml_share_gain_pct": -0.2794183460286854,
+      "memorisation_gap_pct": 2.956247370147591,
+      "gap_widening_pct": -0.05747637248187498,
+      "default_cvrmse_pct": 9.089036697232372,
+      "nested_cvrmse_pct": 9.294468508647899,
+      "worth_keeping": false,
+      "deployment_params": {
+        "max_depth": 3,
+        "max_leaf_nodes": 34,
+        "min_samples_leaf": 11,
+        "learning_rate": 0.016744059636186942,
+        "max_iter": 600,
+        "l2_regularization": 0.17173132778442302
+      },
+      "per_outer_fold_params": [
+        {
+          "max_depth": 4,
+          "max_leaf_nodes": 52,
+          "min_samples_leaf": 197,
+          "learning_rate": 0.010052081139301245,
+          "max_iter": 700,
+          "l2_regularization": 9.335477235360477
+        },
+        {
+          "max_depth": 7,
+          "max_leaf_nodes": 46,
+          "min_samples_leaf": 77,
+          "learning_rate": 0.012726756051201497,
+          "max_iter": 100,
+          "l2_regularization": 4.496319713875948
+        },
+        {
+          "max_depth": 8,
+          "max_leaf_nodes": 63,
+          "min_samples_leaf": 119,
+          "learning_rate": 0.014961056744762505,
+          "max_iter": 800,
+          "l2_regularization": 0.002325073389152142
+        },
+        {
+          "max_depth": 8,
+          "max_leaf_nodes": 14,
+          "min_samples_leaf": 26,
+          "learning_rate": 0.012732165466881254,
+          "max_iter": 700,
+          "l2_regularization": 0.00431134339962573
+        },
+        {
+          "max_depth": 2,
+          "max_leaf_nodes": 22,
+          "min_samples_leaf": 12,
+          "learning_rate": 0.045247455805002786,
+          "max_iter": 400,
+          "l2_regularization": 0.9471448842015655
+        }
+      ],
+      "param_distance_from_previous_budget": 0.0,
+      "per_fold_param_distance_from_previous_budget": 0.20752473460145895
+    },
+    {
+      "building_id": "Bull_education_Luke",
+      "role": "generalisation",
+      "calibration_artifact": "calibration_20260812T201111+0000_seed42.json",
+      "year": 2016,
+      "n_trials": 25,
+      "n_outer_folds": 5,
+      "n_inner_folds": 3,
+      "hours_scored": 6304,
+      "default_ml_pct": 1.0805813582059507,
+      "nested_ml_pct": 0.7376109730251061,
+      "nested_physics_pct": 86.70960956511065,
+      "ml_share_gain_pct": -0.34297038518084455,
+      "memorisation_gap_pct": 7.447720057391022,
+      "gap_widening_pct": 1.6927234702396143,
+      "default_cvrmse_pct": 11.799122684008871,
+      "nested_cvrmse_pct": 11.963692164322307,
+      "worth_keeping": false,
+      "deployment_params": {
+        "max_depth": 5,
+        "max_leaf_nodes": 10,
+        "min_samples_leaf": 183,
+        "learning_rate": 0.13962563737015762,
+        "max_iter": 800,
+        "l2_regularization": 3.7958531426706403
+      },
+      "per_outer_fold_params": [
+        {
+          "max_depth": 7,
+          "max_leaf_nodes": 17,
+          "min_samples_leaf": 10,
+          "learning_rate": 0.01199827825791901,
+          "max_iter": 400,
+          "l2_regularization": 0.0012172251685364946
+        },
+        {
+          "max_depth": 4,
+          "max_leaf_nodes": 36,
+          "min_samples_leaf": 78,
+          "learning_rate": 0.05609130898653028,
+          "max_iter": 100,
+          "l2_regularization": 0.10135100550414498
+        },
+        {
+          "max_depth": 4,
+          "max_leaf_nodes": 7,
+          "min_samples_leaf": 92,
+          "learning_rate": 0.010458361070578832,
+          "max_iter": 400,
+          "l2_regularization": 0.02656836893415813
+        },
+        {
+          "max_depth": 3,
+          "max_leaf_nodes": 19,
+          "min_samples_leaf": 31,
+          "learning_rate": 0.01045620158227822,
+          "max_iter": 500,
+          "l2_regularization": 0.3959502985566621
+        },
+        {
+          "max_depth": 3,
+          "max_leaf_nodes": 21,
+          "min_samples_leaf": 110,
+          "learning_rate": 0.03713701386336449,
+          "max_iter": 600,
+          "l2_regularization": 0.005482920437509683
+        }
+      ],
+      "param_distance_from_previous_budget": NaN,
+      "per_fold_param_distance_from_previous_budget": NaN
+    },
+    {
+      "building_id": "Bull_education_Luke",
+      "role": "generalisation",
+      "calibration_artifact": "calibration_20260812T201111+0000_seed42.json",
+      "year": 2016,
+      "n_trials": 50,
+      "n_outer_folds": 5,
+      "n_inner_folds": 3,
+      "hours_scored": 6304,
+      "default_ml_pct": 1.0805813582059507,
+      "nested_ml_pct": 0.7528456668042095,
+      "nested_physics_pct": 86.70960956511065,
+      "ml_share_gain_pct": -0.3277356914017412,
+      "memorisation_gap_pct": 5.655026102346198,
+      "gap_widening_pct": -0.09997048480521009,
+      "default_cvrmse_pct": 11.799122684008871,
+      "nested_cvrmse_pct": 11.95643008656078,
+      "worth_keeping": false,
+      "deployment_params": {
+        "max_depth": 4,
+        "max_leaf_nodes": 32,
+        "min_samples_leaf": 198,
+        "learning_rate": 0.04405410076681074,
+        "max_iter": 800,
+        "l2_regularization": 2.2612483700668817
+      },
+      "per_outer_fold_params": [
+        {
+          "max_depth": 4,
+          "max_leaf_nodes": 8,
+          "min_samples_leaf": 13,
+          "learning_rate": 0.018182500762239658,
+          "max_iter": 600,
+          "l2_regularization": 0.025490084268125473
+        },
+        {
+          "max_depth": 7,
+          "max_leaf_nodes": 46,
+          "min_samples_leaf": 106,
+          "learning_rate": 0.021665562818517104,
+          "max_iter": 200,
+          "l2_regularization": 0.003871596455877138
+        },
+        {
+          "max_depth": 7,
+          "max_leaf_nodes": 49,
+          "min_samples_leaf": 149,
+          "learning_rate": 0.013329024659382245,
+          "max_iter": 600,
+          "l2_regularization": 0.14702327619983563
+        },
+        {
+          "max_depth": 2,
+          "max_leaf_nodes": 19,
+          "min_samples_leaf": 10,
+          "learning_rate": 0.06669188275893419,
+          "max_iter": 200,
+          "l2_regularization": 4.696007773891899
+        },
+        {
+          "max_depth": 4,
+          "max_leaf_nodes": 63,
+          "min_samples_leaf": 105,
+          "learning_rate": 0.07462562294654565,
+          "max_iter": 200,
+          "l2_regularization": 2.146095279952113
+        }
+      ],
+      "param_distance_from_previous_budget": 0.5189117040159653,
+      "per_fold_param_distance_from_previous_budget": 1.0918401331565886
+    },
+    {
+      "building_id": "Bull_education_Luke",
+      "role": "generalisation",
+      "calibration_artifact": "calibration_20260812T201111+0000_seed42.json",
+      "year": 2016,
+      "n_trials": 75,
+      "n_outer_folds": 5,
+      "n_inner_folds": 3,
+      "hours_scored": 6304,
+      "default_ml_pct": 1.0805813582059507,
+      "nested_ml_pct": 0.7626307104451461,
+      "nested_physics_pct": 86.70960956511065,
+      "ml_share_gain_pct": -0.3179506477608046,
+      "memorisation_gap_pct": 5.6452410587052615,
+      "gap_widening_pct": -0.10975552844614622,
+      "default_cvrmse_pct": 11.799122684008871,
+      "nested_cvrmse_pct": 11.95176342221122,
+      "worth_keeping": false,
+      "deployment_params": {
+        "max_depth": 4,
+        "max_leaf_nodes": 32,
+        "min_samples_leaf": 198,
+        "learning_rate": 0.04405410076681074,
+        "max_iter": 800,
+        "l2_regularization": 2.2612483700668817
+      },
+      "per_outer_fold_params": [
+        {
+          "max_depth": 5,
+          "max_leaf_nodes": 8,
+          "min_samples_leaf": 13,
+          "learning_rate": 0.018761496588461598,
+          "max_iter": 600,
+          "l2_regularization": 0.06670707017175771
+        },
+        {
+          "max_depth": 7,
+          "max_leaf_nodes": 36,
+          "min_samples_leaf": 111,
+          "learning_rate": 0.01267879627655723,
+          "max_iter": 500,
+          "l2_regularization": 0.011387041125439451
+        },
+        {
+          "max_depth": 8,
+          "max_leaf_nodes": 43,
+          "min_samples_leaf": 111,
+          "learning_rate": 0.010022265575648519,
+          "max_iter": 600,
+          "l2_regularization": 1.1664488642738375
+        },
+        {
+          "max_depth": 2,
+          "max_leaf_nodes": 9,
+          "min_samples_leaf": 19,
+          "learning_rate": 0.10230934723667186,
+          "max_iter": 200,
+          "l2_regularization": 2.519316417844429
+        },
+        {
+          "max_depth": 4,
+          "max_leaf_nodes": 63,
+          "min_samples_leaf": 105,
+          "learning_rate": 0.07462562294654565,
+          "max_iter": 200,
+          "l2_regularization": 2.146095279952113
+        }
+      ],
+      "param_distance_from_previous_budget": 0.0,
+      "per_fold_param_distance_from_previous_budget": 0.3337683960540652
+    },
+    {
+      "building_id": "Bull_education_Luke",
+      "role": "generalisation",
+      "calibration_artifact": "calibration_20260812T201111+0000_seed42.json",
+      "year": 2016,
+      "n_trials": 100,
+      "n_outer_folds": 5,
+      "n_inner_folds": 3,
+      "hours_scored": 6304,
+      "default_ml_pct": 1.0805813582059507,
+      "nested_ml_pct": 1.0704287104714643,
+      "nested_physics_pct": 86.70960956511065,
+      "ml_share_gain_pct": -0.01015264773448643,
+      "memorisation_gap_pct": 5.337443058678943,
+      "gap_widening_pct": -0.41755352847246474,
+      "default_cvrmse_pct": 11.799122684008871,
+      "nested_cvrmse_pct": 11.80402724244549,
+      "worth_keeping": false,
+      "deployment_params": {
+        "max_depth": 4,
+        "max_leaf_nodes": 32,
+        "min_samples_leaf": 198,
+        "learning_rate": 0.04405410076681074,
+        "max_iter": 800,
+        "l2_regularization": 2.2612483700668817
+      },
+      "per_outer_fold_params": [
+        {
+          "max_depth": 5,
+          "max_leaf_nodes": 7,
+          "min_samples_leaf": 12,
+          "learning_rate": 0.01863466488449728,
+          "max_iter": 600,
+          "l2_regularization": 4.861622651379682
+        },
+        {
+          "max_depth": 8,
+          "max_leaf_nodes": 31,
+          "min_samples_leaf": 111,
+          "learning_rate": 0.014528697437660738,
+          "max_iter": 600,
+          "l2_regularization": 0.002338562404024858
+        },
+        {
+          "max_depth": 8,
+          "max_leaf_nodes": 43,
+          "min_samples_leaf": 111,
+          "learning_rate": 0.010022265575648519,
+          "max_iter": 600,
+          "l2_regularization": 1.1664488642738375
+        },
+        {
+          "max_depth": 2,
+          "max_leaf_nodes": 9,
+          "min_samples_leaf": 19,
+          "learning_rate": 0.10230934723667186,
+          "max_iter": 200,
+          "l2_regularization": 2.519316417844429
+        },
+        {
+          "max_depth": 4,
+          "max_leaf_nodes": 21,
+          "min_samples_leaf": 186,
+          "learning_rate": 0.02035184590173631,
+          "max_iter": 700,
+          "l2_regularization": 0.02574897816300805
+        }
+      ],
+      "param_distance_from_previous_budget": 0.0,
+      "per_fold_param_distance_from_previous_budget": 0.5537806142013117
+    },
+    {
+      "building_id": "Bull_education_Luke",
+      "role": "generalisation",
+      "calibration_artifact": "calibration_20260812T201111+0000_seed42.json",
+      "year": 2016,
+      "n_trials": 200,
+      "n_outer_folds": 5,
+      "n_inner_folds": 3,
+      "hours_scored": 6304,
+      "default_ml_pct": 1.0805813582059507,
+      "nested_ml_pct": 1.164888524434909,
+      "nested_physics_pct": 86.70960956511065,
+      "ml_share_gain_pct": 0.08430716622895829,
+      "memorisation_gap_pct": 5.393035525160525,
+      "gap_widening_pct": -0.3619610619908826,
+      "default_cvrmse_pct": 11.799122684008871,
+      "nested_cvrmse_pct": 11.75831640679221,
+      "worth_keeping": false,
+      "deployment_params": {
+        "max_depth": 3,
+        "max_leaf_nodes": 26,
+        "min_samples_leaf": 192,
+        "learning_rate": 0.29997896922668366,
+        "max_iter": 200,
+        "l2_regularization": 0.5774237998216945
+      },
+      "per_outer_fold_params": [
+        {
+          "max_depth": 5,
+          "max_leaf_nodes": 7,
+          "min_samples_leaf": 12,
+          "learning_rate": 0.02578284234180809,
+          "max_iter": 700,
+          "l2_regularization": 7.126587225079029
+        },
+        {
+          "max_depth": 7,
+          "max_leaf_nodes": 34,
+          "min_samples_leaf": 112,
+          "learning_rate": 0.014931495204745715,
+          "max_iter": 500,
+          "l2_regularization": 0.04099785427996059
+        },
+        {
+          "max_depth": 8,
+          "max_leaf_nodes": 24,
+          "min_samples_leaf": 106,
+          "learning_rate": 0.01575362111191441,
+          "max_iter": 400,
+          "l2_regularization": 2.3295604310170837
+        },
+        {
+          "max_depth": 2,
+          "max_leaf_nodes": 9,
+          "min_samples_leaf": 19,
+          "learning_rate": 0.10230934723667186,
+          "max_iter": 200,
+          "l2_regularization": 2.519316417844429
+        },
+        {
+          "max_depth": 4,
+          "max_leaf_nodes": 26,
+          "min_samples_leaf": 186,
+          "learning_rate": 0.027108665451168284,
+          "max_iter": 500,
+          "l2_regularization": 0.03727452023234908
+        }
+      ],
+      "param_distance_from_previous_budget": 0.7536334636880868,
+      "per_fold_param_distance_from_previous_budget": 0.24735280580200705
+    },
+    {
+      "building_id": "Bull_education_Luke",
+      "role": "generalisation",
+      "calibration_artifact": "calibration_20260812T201111+0000_seed42.json",
+      "year": 2016,
+      "n_trials": 300,
+      "n_outer_folds": 5,
+      "n_inner_folds": 3,
+      "hours_scored": 6304,
+      "default_ml_pct": 1.0805813582059507,
+      "nested_ml_pct": 1.1205178578075663,
+      "nested_physics_pct": 86.70960956511065,
+      "ml_share_gain_pct": 0.039936499601615605,
+      "memorisation_gap_pct": 5.267260169002604,
+      "gap_widening_pct": -0.48773641814880353,
+      "default_cvrmse_pct": 11.799122684008871,
+      "nested_cvrmse_pct": 11.779810276819122,
+      "worth_keeping": false,
+      "deployment_params": {
+        "max_depth": 3,
+        "max_leaf_nodes": 29,
+        "min_samples_leaf": 191,
+        "learning_rate": 0.2421820463223885,
+        "max_iter": 200,
+        "l2_regularization": 0.9329079935674286
+      },
+      "per_outer_fold_params": [
+        {
+          "max_depth": 5,
+          "max_leaf_nodes": 7,
+          "min_samples_leaf": 12,
+          "learning_rate": 0.02578284234180809,
+          "max_iter": 700,
+          "l2_regularization": 7.126587225079029
+        },
+        {
+          "max_depth": 7,
+          "max_leaf_nodes": 33,
+          "min_samples_leaf": 111,
+          "learning_rate": 0.013065556805747022,
+          "max_iter": 600,
+          "l2_regularization": 0.0024547377918224954
+        },
+        {
+          "max_depth": 8,
+          "max_leaf_nodes": 19,
+          "min_samples_leaf": 113,
+          "learning_rate": 0.013104227891045822,
+          "max_iter": 400,
+          "l2_regularization": 0.15746248808401078
+        },
+        {
+          "max_depth": 2,
+          "max_leaf_nodes": 9,
+          "min_samples_leaf": 19,
+          "learning_rate": 0.10230934723667186,
+          "max_iter": 200,
+          "l2_regularization": 2.519316417844429
+        },
+        {
+          "max_depth": 4,
+          "max_leaf_nodes": 47,
+          "min_samples_leaf": 180,
+          "learning_rate": 0.07068368201763345,
+          "max_iter": 200,
+          "l2_regularization": 0.0038074648629514013
+        }
+      ],
+      "param_distance_from_previous_budget": 0.1346956669666105,
+      "per_fold_param_distance_from_previous_budget": 0.36094365926886235
+    }
+  ]
+}

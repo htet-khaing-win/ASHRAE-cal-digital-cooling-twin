@@ -1,0 +1,83 @@
+{
+  "reread_utc": "2026-08-13T201727+0000",
+  "test_year": 2017,
+  "train_year": 2016,
+  "is_gate_result": false,
+  "note": "RE-READ. ADR-002's single clean opening was spent at L6.10 on the physics model. The hybrid never sees test-year data -- physics parameters frozen from the training year, residual model fitted on the training year alone -- but its feature set was chosen after L7.1/L7.2 had read 2017. Timestamped rather than overwritten so re-reads accumulate visibly instead of replacing one another.",
+  "buildings": [
+    {
+      "building_id": "Fox_education_Claude",
+      "role": "primary",
+      "reread": true,
+      "not_a_gate_number": "ADR-002's single clean opening was spent at L6.10 on the physics model. The hybrid's feature set was chosen after L7.1/L7.2 had read 2017. This is an analyst-mediated leak, not a data leak.",
+      "calibration_artifact": "calibration_20260812T200947+0000_seed42.json",
+      "hyperparameters": "hybrid.default_model_factory",
+      "train_year": 2016,
+      "test_year": 2017,
+      "test_hours": 8741,
+      "within_year_out_of_fold": {
+        "ml_pct": 3.3167498460300067,
+        "physics_pct": 90.57109157556079,
+        "unexplained_pct": 6.112158578409211,
+        "hours_scored": 6479
+      },
+      "across_year_reread": {
+        "ml_pct": 4.638153215019957,
+        "physics_pct": 91.94423085549799,
+        "unexplained_pct": 3.4176159294820567
+      },
+      "ml_share_retained_pct": 139.84030844447338,
+      "physics_cvrmse_pct": 11.581245428716082,
+      "hybrid_cvrmse_pct": 7.543334854838946,
+      "physics_nmbe_pct": 3.1020356714130055,
+      "hybrid_nmbe_pct": 3.27918357933076,
+      "clipped_fraction": 0.0,
+      "extrapolation_census": {
+        "outdoor_dry_bulb_c": 0.0004576135453609427,
+        "outdoor_dry_bulb_24h_mean_c": 0.003088891431186363,
+        "humidity_ratio_g_per_kg": 0.001716050795103535,
+        "any": 0.005262555771650841
+      },
+      "daily_variance_share_before": 0.7850478065522056,
+      "daily_variance_share_after": 0.42182301725643234,
+      "white_noise_variance_share": 0.041666666666666664
+    },
+    {
+      "building_id": "Bull_education_Luke",
+      "role": "generalisation",
+      "reread": true,
+      "not_a_gate_number": "ADR-002's single clean opening was spent at L6.10 on the physics model. The hybrid's feature set was chosen after L7.1/L7.2 had read 2017. This is an analyst-mediated leak, not a data leak.",
+      "calibration_artifact": "calibration_20260812T201111+0000_seed42.json",
+      "hyperparameters": "hybrid.default_model_factory",
+      "train_year": 2016,
+      "test_year": 2017,
+      "test_hours": 8607,
+      "within_year_out_of_fold": {
+        "ml_pct": 1.0805813582059507,
+        "physics_pct": 86.70960956511065,
+        "unexplained_pct": 12.20980907668339,
+        "hours_scored": 6304
+      },
+      "across_year_reread": {
+        "ml_pct": 2.513564356021958,
+        "physics_pct": 90.30257375470725,
+        "unexplained_pct": 7.1838618892707915
+      },
+      "ml_share_retained_pct": 232.61222645883285,
+      "physics_cvrmse_pct": 11.141895560580371,
+      "hybrid_cvrmse_pct": 9.589806138299968,
+      "physics_nmbe_pct": 1.3500169909270527,
+      "hybrid_nmbe_pct": 1.2200991279997435,
+      "clipped_fraction": 0.0,
+      "extrapolation_census": {
+        "outdoor_dry_bulb_c": 0.0020913210177762286,
+        "outdoor_dry_bulb_24h_mean_c": 0.008132915069129778,
+        "humidity_ratio_g_per_kg": 0.000464738003950273,
+        "any": 0.008830022075055188
+      },
+      "daily_variance_share_before": 0.41319675262559913,
+      "daily_variance_share_after": 0.34176154846536255,
+      "white_noise_variance_share": 0.041666666666666664
+    }
+  ]
+}
