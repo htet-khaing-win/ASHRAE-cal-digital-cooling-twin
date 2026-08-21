@@ -1,0 +1,154 @@
+{
+  "year": 2016,
+  "authorised_by": "ADR-015",
+  "note": "A BASELINE in L6.4's family, scored through the same ashrae_g14_pass(). Changes no model, parameter or bound. Training year only.",
+  "buildings": [
+    {
+      "building_id": "Fox_education_Claude",
+      "role": "primary",
+      "calibration_artifact": "calibration_20260812T200947+0000_seed42.json",
+      "year": 2016,
+      "hours": 8782,
+      "mean_load_kw": 6882.5806570257355,
+      "calibrated_rc": {
+        "n_params": 5,
+        "cvrmse_pct": 11.722183917855155,
+        "nmbe_pct": -4.4057202408895775e-06,
+        "passed": true
+      },
+      "baselines": {
+        "annual mean": {
+          "n_params": 1,
+          "cvrmse_pct": 40.750702768117165,
+          "nmbe_pct": 2.6197132984374455e-14,
+          "passed": false,
+          "change_point_degC": null,
+          "coefficients": [
+            6882.580657025733
+          ]
+        },
+        "linear regression": {
+          "n_params": 2,
+          "cvrmse_pct": 14.759411683835728,
+          "nmbe_pct": 2.003538336838602e-14,
+          "passed": true,
+          "change_point_degC": null,
+          "coefficients": [
+            -269.72354269996924,
+            286.7512190714396
+          ]
+        },
+        "change-point (3P cooling)": {
+          "n_params": 3,
+          "cvrmse_pct": 14.195247432167188,
+          "nmbe_pct": -1.4257569727264108e-14,
+          "passed": true,
+          "change_point_degC": 12.8,
+          "coefficients": [
+            3045.434589579265,
+            307.41302716826806
+          ]
+        }
+      },
+      "change_point_vs_rc_pct": -21.09729323172518
+    },
+    {
+      "building_id": "Bull_education_Luke",
+      "role": "generalisation",
+      "calibration_artifact": "calibration_20260812T201111+0000_seed42.json",
+      "year": 2016,
+      "hours": 8572,
+      "mean_load_kw": 2641.881280214652,
+      "calibrated_rc": {
+        "n_params": 5,
+        "cvrmse_pct": 14.126025867737917,
+        "nmbe_pct": -0.0009913483866431257,
+        "passed": true
+      },
+      "baselines": {
+        "annual mean": {
+          "n_params": 1,
+          "cvrmse_pct": 40.10801368589836,
+          "nmbe_pct": 6.169452096820481e-15,
+          "passed": false,
+          "change_point_degC": null,
+          "coefficients": [
+            2641.881280214652
+          ]
+        },
+        "linear regression": {
+          "n_params": 2,
+          "cvrmse_pct": 20.884544402199595,
+          "nmbe_pct": 2.3652325947151147e-14,
+          "passed": true,
+          "change_point_degC": null,
+          "coefficients": [
+            218.10729024602162,
+            113.69114514750316
+          ]
+        },
+        "change-point (3P cooling)": {
+          "n_params": 3,
+          "cvrmse_pct": 20.526533529777502,
+          "nmbe_pct": -4.6281690327210016e-14,
+          "passed": true,
+          "change_point_degC": 7.8,
+          "coefficients": [
+            979.3142219129638,
+            121.11444663216409
+          ]
+        }
+      },
+      "change_point_vs_rc_pct": -45.31003781224518
+    },
+    {
+      "building_id": "Hog_education_Cathleen",
+      "role": "negative_case",
+      "calibration_artifact": "calibration_20260812T201251+0000_seed42.json",
+      "year": 2016,
+      "hours": 8782,
+      "mean_load_kw": 1122.0756881348211,
+      "calibrated_rc": {
+        "n_params": 5,
+        "cvrmse_pct": 28.663707374458486,
+        "nmbe_pct": -0.00045520745158113426,
+        "passed": true
+      },
+      "baselines": {
+        "annual mean": {
+          "n_params": 1,
+          "cvrmse_pct": 69.091731960016,
+          "nmbe_pct": -9.452223895745237e-15,
+          "passed": false,
+          "change_point_degC": null,
+          "coefficients": [
+            1122.0756881348213
+          ]
+        },
+        "linear regression": {
+          "n_params": 2,
+          "cvrmse_pct": 38.854380922038025,
+          "nmbe_pct": -1.6543275802954797e-14,
+          "passed": false,
+          "change_point_degC": null,
+          "coefficients": [
+            611.31469215791,
+            51.68690199913387
+          ]
+        },
+        "change-point (3P cooling)": {
+          "n_params": 3,
+          "cvrmse_pct": 24.280851622847223,
+          "nmbe_pct": -2.924947967032604e-14,
+          "passed": true,
+          "change_point_degC": 8.3,
+          "coefficients": [
+            479.9749540670527,
+            105.30369541623678
+          ]
+        }
+      },
+      "change_point_vs_rc_pct": 15.290610158533493
+    }
+  ]
+}

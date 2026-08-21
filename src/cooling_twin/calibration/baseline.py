@@ -65,6 +65,7 @@ class BaselineFit:
     name: str
     coefficients: npt.NDArray[np.float64]
     n_params: int
+    change_point: float | None = None
 
     def predict(self, features: npt.ArrayLike) -> npt.NDArray[np.float64]:
         """Predict the target for the given feature rows.
@@ -84,7 +85,21 @@ class BaselineFit:
             ValueError: If the number of feature columns does not match
                 the columns this baseline was fitted on.
         """
-        design = _design_matrix(features, n_slopes=self.n_params - 1)
+        x = np.asarray(features, dtype=float)
+        if self.change_point is not None:
+            # 3P: the feature is the EXCESS above the change point, so
+            # the model is flat below it. Applied here rather than by the
+            # caller so that a change-point fit predicts through the same
+            # `.predict()` as every other baseline -- the property this
+            # whole module exists to preserve.
+            x = np.maximum(0.0, x - self.change_point)
+        # Width comes from the COEFFICIENT count, not from `n_params`.
+        # The two are equal for the OLS baselines but not for the
+        # change-point fit, whose breakpoint is a fitted parameter that
+        # does not appear in the design matrix. Counting it in n_params
+        # is what keeps `cvrmse`'s n - p denominator honest; excluding it
+        # here is what keeps the matrix the right shape.
+        design = _design_matrix(x, n_slopes=len(self.coefficients) - 1)
         return np.asarray(design @ self.coefficients, dtype=float)
 
 
@@ -259,6 +274,138 @@ def fit_linear_regression(
     design = _design_matrix(features, n_slopes=n_slopes)
     y = _validated_target(measured, n_rows=design.shape[0])
     return _fit_ols(design, y, name=name)
+
+
+# Candidate change points are quantiles of the building's OWN outdoor
+# temperature, from the 5th to the 95th percentile in 1-point steps. A
+# fixed degC grid was rejected for the same reason fixed band edges were
+# (L7.1c): this portfolio runs from -24 to +44 degC, so one grid either
+# misses a building's range entirely or wastes most of its candidates.
+CHANGE_POINT_QUANTILES = np.arange(0.05, 0.96, 0.01)
+
+# Hours that must lie above a candidate change point before it is
+# considered. Below this the sloped segment is fitted on a handful of
+# points, and the search will happily put the breakpoint in the extreme
+# tail where two outliers define the slope.
+MIN_SEGMENT_HOURS = 200
+
+
+def fit_change_point(
+    t_ambient_c: npt.ArrayLike,
+    measured: npt.ArrayLike,
+    name: str = "change-point (3P cooling)",
+) -> BaselineFit:
+    """Fit the ASHRAE/IMT three-parameter cooling change-point model.
+
+        load = base + slope * max(0, T - T_cp)
+
+    This is the standard inverse model for a load with a floor: flat
+    below the change point, rising linearly above it. It is the shape
+    utility-bill analysis has used for decades, and it is added here
+    because it is the shape `Hog_education_Cathleen`'s data actually has
+    -- a weather-insensitive base load through winter, rising with
+    temperature in summer. The RC model cannot express that: its only
+    constant term competes against a large negative deltaT term in cold
+    weather, so it clips at zero instead (Q10, ADR-015).
+
+    Scoring a 3-parameter change-point model against a 5-parameter
+    physics model is the sharpest available statement of the finding. It
+    is a BASELINE, not a change to the twin -- ADR-015 authorises it on
+    the training year only.
+
+    T_cp is found by grid search rather than by gradient descent: the
+    sum of squares is piecewise-smooth in the breakpoint with flat
+    stretches between data points, so a gradient method stalls, and the
+    grid is cheap (91 candidates, one `lstsq` each). This is also what
+    the reference implementations do.
+
+    Args:
+        t_ambient_c: Outdoor dry-bulb temperature from the training
+            period.
+        measured: Target values, aligned with `t_ambient_c`.
+        name: Label for the resulting `BaselineFit`.
+
+    Returns:
+        A `BaselineFit` with `n_params = 3` -- base, slope AND the
+        breakpoint, which is fitted and must be counted. Under-counting
+        it would flatter the baseline against the model it is being
+        compared with, which is the one direction of error this module
+        must not make.
+
+    Raises:
+        ValueError: If the arrays are misaligned, empty or non-finite,
+            or if no candidate breakpoint leaves `MIN_SEGMENT_HOURS`
+            hours above it.
+    """
+    temperature = np.asarray(t_ambient_c, dtype=float)
+    if temperature.ndim != 1:
+        raise ValueError(
+            f"t_ambient_c must be 1-dimensional, got {temperature.ndim} dimensions"
+        )
+    if temperature.size == 0:
+        raise ValueError("t_ambient_c must contain at least one point")
+    if not np.all(np.isfinite(temperature)):
+        raise ValueError("t_ambient_c must be finite -- clean NaN in M3, not here")
+    y = _validated_target(measured, n_rows=temperature.size)
+
+    candidates = np.unique(np.quantile(temperature, CHANGE_POINT_QUANTILES))
+    best: tuple[float, float, npt.NDArray[np.float64]] | None = None
+    for candidate in candidates:
+        above = temperature > candidate
+        if above.sum() < MIN_SEGMENT_HOURS:
+            continue
+        excess = np.maximum(0.0, temperature - candidate)
+        design = np.column_stack([np.ones_like(excess), excess])
+        coefficients, *_ = np.linalg.lstsq(design, y, rcond=None)
+        sum_of_squares = float(((y - design @ coefficients) ** 2).sum())
+        if best is None or sum_of_squares < best[0]:
+            best = (sum_of_squares, float(candidate), coefficients)
+
+    if best is None:
+        raise ValueError(
+            f"no candidate change point leaves {MIN_SEGMENT_HOURS} hours above "
+            "it -- this temperature series is too short or too narrow for a "
+            "change-point model."
+        )
+
+    _sse, change_point, coefficients = best
+    if coefficients[1] <= 0.0:
+        # A cooling change-point model with a non-positive slope is
+        # describing a heating load, or a meter that is not measuring
+        # what it is assumed to. Fitted and returned either way -- the
+        # caller is comparing baselines, not accepting one -- but never
+        # silently.
+        logger.warning(
+            "%s: fitted slope is %.2f kW/K, not positive. A cooling "
+            "change-point model that slopes DOWN with temperature is a "
+            "statement about the meter, not about the building.",
+            name,
+            coefficients[1],
+        )
+    if change_point <= candidates[0] or change_point >= candidates[-1]:
+        logger.warning(
+            "%s: change point %.1f degC sits on the edge of the searched "
+            "range [%.1f, %.1f]. The data does not support a breakpoint -- "
+            "this fit has degenerated towards a straight line or a constant.",
+            name,
+            change_point,
+            candidates[0],
+            candidates[-1],
+        )
+
+    logger.info(
+        "%s: base %.1f kW, slope %.2f kW/K above %.1f degC",
+        name,
+        coefficients[0],
+        coefficients[1],
+        change_point,
+    )
+    return BaselineFit(
+        name=name,
+        coefficients=np.asarray(coefficients, dtype=float),
+        n_params=3,
+        change_point=change_point,
+    )
 
 
 def relative_cvrmse_improvement_pct(

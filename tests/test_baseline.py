@@ -10,14 +10,18 @@ to hide a wrong design matrix behind.
 
 from __future__ import annotations
 
+import logging
+
 import numpy as np
 import pytest
 
+from cooling_twin import set_seed
 from cooling_twin.calibration.baseline import (
     MIN_RELATIVE_IMPROVEMENT_PCT,
     BaselineFit,
     beats_baseline,
     fit_annual_mean,
+    fit_change_point,
     fit_linear_regression,
     relative_cvrmse_improvement_pct,
 )
@@ -263,3 +267,147 @@ def test_baseline_fit_can_be_constructed_directly() -> None:
     fit = BaselineFit(name="hand-built", coefficients=np.array([10.0, 2.0]), n_params=2)
 
     assert fit.predict([1.0, 2.0]) == pytest.approx([12.0, 14.0])
+
+
+# ---------------------------------------------------------------------
+# 3P change-point baseline (ADR-015)
+# ---------------------------------------------------------------------
+
+
+def test_change_point_recovers_a_known_breakpoint() -> None:
+    """Known-answer: load = 500 + 40 * max(0, T - 18), no noise.
+
+    Built to lie EXACTLY on the model, so the fit has an exact answer
+    and a wrong design matrix cannot hide inside a tolerance -- the same
+    construction the OLS baselines in this file use.
+    """
+    rng = set_seed()
+    temperature = rng.uniform(-10.0, 40.0, 8760)
+    load = 500.0 + 40.0 * np.maximum(0.0, temperature - 18.0)
+
+    fit = fit_change_point(temperature, load)
+
+    assert fit.n_params == 3
+    assert fit.change_point == pytest.approx(18.0, abs=0.5)
+    assert fit.coefficients[0] == pytest.approx(500.0, abs=5.0)
+    assert fit.coefficients[1] == pytest.approx(40.0, abs=0.5)
+    assert fit.predict(temperature) == pytest.approx(load, abs=10.0)
+
+
+def test_change_point_is_flat_below_the_breakpoint() -> None:
+    """The property the RC model cannot express: a floor."""
+    rng = set_seed()
+    temperature = rng.uniform(-10.0, 40.0, 8760)
+    load = 500.0 + 40.0 * np.maximum(0.0, temperature - 18.0)
+
+    fit = fit_change_point(temperature, load)
+    cold = fit.predict(np.array([-20.0, -10.0, 0.0, 10.0]))
+
+    assert cold == pytest.approx(cold[0])  # identical at every cold point
+    assert cold[0] == pytest.approx(500.0, abs=5.0)
+
+
+def test_change_point_counts_its_breakpoint_as_a_parameter() -> None:
+    """p = 3, not 2. Under-counting flatters the baseline.
+
+    The breakpoint is fitted from the data, so it costs a degree of
+    freedom in `cvrmse`'s n - p denominator. It does not appear in the
+    design matrix, which is why the coefficient array is shorter than
+    `n_params` -- the one place in this module where they differ.
+    """
+    rng = set_seed()
+    temperature = rng.uniform(-10.0, 40.0, 3000)
+    load = 300.0 + 25.0 * np.maximum(0.0, temperature - 15.0)
+
+    fit = fit_change_point(temperature, load)
+
+    assert fit.n_params == 3
+    assert fit.coefficients.size == 2
+    assert fit.predict(temperature).shape == (3000,)
+
+
+def test_change_point_beats_a_straight_line_on_a_floored_load() -> None:
+    """The comparison ADR-015 authorised this baseline to make."""
+    rng = set_seed()
+    temperature = rng.uniform(-20.0, 35.0, 8760)
+    load = 450.0 + 45.0 * np.maximum(0.0, temperature - 12.0) + rng.normal(
+        0.0, 40.0, 8760
+    )
+
+    change_point = fit_change_point(temperature, load)
+    straight = fit_linear_regression(temperature, load)
+
+    assert cvrmse(load, change_point.predict(temperature), n_params=3) < cvrmse(
+        load, straight.predict(temperature), n_params=2
+    )
+
+
+def test_change_point_warns_when_it_degenerates(
+    caplog: pytest.LogCaptureFixture,
+) -> None:
+    """A purely linear load has no breakpoint, and must say so."""
+    rng = set_seed()
+    temperature = rng.uniform(-10.0, 40.0, 8760)
+    load = 100.0 + 30.0 * temperature + rng.normal(0.0, 20.0, 8760)
+
+    with caplog.at_level(logging.WARNING, logger="cooling_twin.calibration.baseline"):
+        fit_change_point(temperature, load)
+
+    assert "degenerated" in caplog.text
+
+
+def test_change_point_warns_on_a_negative_slope(
+    caplog: pytest.LogCaptureFixture,
+) -> None:
+    """A cooling model sloping down with temperature is a meter finding."""
+    rng = set_seed()
+    temperature = rng.uniform(-10.0, 40.0, 8760)
+    load = 2000.0 - 30.0 * np.maximum(0.0, temperature - 10.0)
+
+    with caplog.at_level(logging.WARNING, logger="cooling_twin.calibration.baseline"):
+        fit_change_point(temperature, load)
+
+    assert "not positive" in caplog.text
+
+
+def test_change_point_rejects_a_series_too_short_to_split() -> None:
+    """No candidate can leave MIN_SEGMENT_HOURS above it."""
+    rng = set_seed()
+    temperature = rng.uniform(0.0, 30.0, 100)
+    with pytest.raises(ValueError, match="no candidate change point"):
+        fit_change_point(temperature, rng.normal(1000.0, 50.0, 100))
+
+
+@pytest.mark.parametrize(
+    ("temperature", "load", "match"),
+    [
+        (np.zeros((10, 2)), np.zeros(10), "1-dimensional"),
+        (np.array([]), np.array([]), "at least one point"),
+        (np.array([1.0, np.nan, 3.0]), np.zeros(3), "must be finite"),
+    ],
+)
+def test_change_point_rejects_unusable_input(
+    temperature: np.ndarray, load: np.ndarray, match: str
+) -> None:
+    """Same validation vocabulary as the other baselines."""
+    with pytest.raises(ValueError, match=match):
+        fit_change_point(temperature, load)
+
+
+def test_existing_baselines_are_unchanged_by_the_new_field() -> None:
+    """`change_point` defaults to None and must not alter old fits.
+
+    The predict() path was generalised to support the 3P model; this
+    pins that the two OLS baselines still predict exactly as before.
+    """
+    rng = set_seed()
+    temperature = rng.uniform(0.0, 30.0, 500)
+    load = 3.0 + 2.0 * temperature
+
+    mean_fit = fit_annual_mean(load)
+    regression = fit_linear_regression(temperature, load)
+
+    assert mean_fit.change_point is None
+    assert regression.change_point is None
+    assert mean_fit.predict(temperature) == pytest.approx(load.mean())
+    assert regression.predict(temperature) == pytest.approx(load)

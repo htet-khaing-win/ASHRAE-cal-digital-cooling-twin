@@ -1,0 +1,134 @@
+{
+  "year": 2016,
+  "question": "Q11",
+  "note": "Training year only. Parameters read frozen; the optimiser is not imported. Latent activity is recomputed from the same expression rc.inverse_cooling_load uses.",
+  "buildings": [
+    {
+      "building_id": "Fox_education_Claude",
+      "role": "primary",
+      "calibration_artifact": "calibration_20260812T200947+0000_seed42.json",
+      "year": 2016,
+      "hours": 8782,
+      "turning_point_degC": 16.18456464379961,
+      "vent_flow_kg_per_s": 179.60298605068022,
+      "effective_sample_ratio": 0.0061720003262457305,
+      "latent": {
+        "supply_humidity_ratio_g_per_kg": 9.2,
+        "hours_latent_active_pct": 16.772944659530857,
+        "latent_mean_kw_when_active": 1046.2798026568241,
+        "latent_mean_kw_over_year": 175.4919322834778,
+        "latent_share_of_predicted_pct": 2.5497982995238058,
+        "outdoor_humidity_p50_g_per_kg": 4.8027408513424446,
+        "outdoor_humidity_p95_g_per_kg": 12.375238471389032
+      },
+      "regions": [
+        {
+          "region": "whole year",
+          "hours": 8782,
+          "weighted_difference_kw": 431.7621439604075,
+          "weighted_difference_sem_kw": 157.15998448609363,
+          "humid_hours_run_higher": true,
+          "bins": 16
+        },
+        {
+          "region": "upper arm (>= 16.2 degC)",
+          "hours": 7000,
+          "weighted_difference_kw": 553.3411421002751,
+          "weighted_difference_sem_kw": 191.0857142266276,
+          "humid_hours_run_higher": true,
+          "bins": 12
+        },
+        {
+          "region": "lower region (< 16.2 degC)",
+          "hours": 1782,
+          "weighted_difference_kw": -59.09858105722765,
+          "weighted_difference_sem_kw": 184.40909078003062,
+          "humid_hours_run_higher": false,
+          "bins": 5
+        }
+      ]
+    },
+    {
+      "building_id": "Bull_education_Luke",
+      "role": "generalisation",
+      "calibration_artifact": "calibration_20260812T201111+0000_seed42.json",
+      "year": 2016,
+      "hours": 8572,
+      "turning_point_degC": 38.14814814814813,
+      "vent_flow_kg_per_s": 56.37268746509123,
+      "effective_sample_ratio": 0.017945027573061576,
+      "latent": {
+        "supply_humidity_ratio_g_per_kg": 9.2,
+        "hours_latent_active_pct": 65.98226784881008,
+        "latent_mean_kw_when_active": 774.0177989238925,
+        "latent_mean_kw_over_year": 510.714497283427,
+        "latent_share_of_predicted_pct": 19.331278856154043,
+        "outdoor_humidity_p50_g_per_kg": 12.241882947790579,
+        "outdoor_humidity_p95_g_per_kg": 18.68665464320951
+      },
+      "regions": [
+        {
+          "region": "whole year",
+          "hours": 8572,
+          "weighted_difference_kw": 92.34726346458528,
+          "weighted_difference_sem_kw": 58.13747314082316,
+          "humid_hours_run_higher": false,
+          "bins": 15
+        },
+        {
+          "region": "lower region (< 38.1 degC)",
+          "hours": 8559,
+          "weighted_difference_kw": 92.34726346458528,
+          "weighted_difference_sem_kw": 58.13747314082316,
+          "humid_hours_run_higher": false,
+          "bins": 15
+        }
+      ]
+    },
+    {
+      "building_id": "Hog_education_Cathleen",
+      "role": "negative_case",
+      "calibration_artifact": "calibration_20260812T201251+0000_seed42.json",
+      "year": 2016,
+      "hours": 8782,
+      "turning_point_degC": 8.610213776722151,
+      "vent_flow_kg_per_s": 40.85661959700261,
+      "effective_sample_ratio": 0.005630553294791714,
+      "latent": {
+        "supply_humidity_ratio_g_per_kg": 9.2,
+        "hours_latent_active_pct": 25.666135276702345,
+        "latent_mean_kw_when_active": 298.00803245671415,
+        "latent_mean_kw_over_year": 76.48714474577929,
+        "latent_share_of_predicted_pct": 6.816545227671143,
+        "outdoor_humidity_p50_g_per_kg": 5.009796957003109,
+        "outdoor_humidity_p95_g_per_kg": 14.14175729257626
+      },
+      "regions": [
+        {
+          "region": "whole year",
+          "hours": 8782,
+          "weighted_difference_kw": 114.68844100840289,
+          "weighted_difference_sem_kw": 44.4434608993012,
+          "humid_hours_run_higher": true,
+          "bins": 22
+        },
+        {
+          "region": "upper arm (>= 8.6 degC)",
+          "hours": 4928,
+          "weighted_difference_kw": 191.76838999296717,
+          "weighted_difference_sem_kw": 73.08869548625746,
+          "humid_hours_run_higher": true,
+          "bins": 10
+        },
+        {
+          "region": "lower region (< 8.6 degC)",
+          "hours": 3854,
+          "weighted_difference_kw": 16.333057893545888,
+          "weighted_difference_sem_kw": 38.549130956312716,
+          "humid_hours_run_higher": false,
+          "bins": 13
+        }
+      ]
+    }
+  ]
+}
