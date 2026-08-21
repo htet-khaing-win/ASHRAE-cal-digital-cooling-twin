@@ -52,3 +52,12 @@ Thumbs.db
 # The whole directory is ignored, not just the one file, so a second
 # private note cannot be committed by accident.
 /private/
+
+# MLflow local tracking store (scripts/tracking.py). Runs are a local
+# experiment log, not a deliverable -- the reviewable results live in
+# reports/calibration_runs/*.json, which ARE committed. The store is a
+# SQLite file plus an artifact directory; neither is diffable, and a
+# result that exists only in here is a result nobody can review.
+mlflow.db
+mlartifacts/
+mlruns/

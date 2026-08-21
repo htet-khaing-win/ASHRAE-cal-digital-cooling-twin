@@ -1,23 +1,42 @@
 name: cooling-twin
 
+# Pinned to the versions this project was last verified against
+# (Session covering M8/M9 close-out, 2026-08-19; `python3 -c "import X;
+# print(X.__version__)"` run against the live environment). L9.1 is the
+# reason this file has versions at all -- M0's gate deferred pinning
+# here deliberately (07_PROGRESS.md, M0 GATE note) because pinning
+# before the dependency set was known would just mean re-pinning every
+# module. scikit-learn, streamlit, altair, optuna, mlflow and SALib
+# were all added after M0 (M7/M8) and are pinned here for the first
+# time; previous copies of this file predate them and would fail to
+# build the M7+ environment at all.
 channels:
   - conda-forge
 
 dependencies:
   - python=3.11
-  - numpy
-  - scipy
-  - pandas
-  - matplotlib
+  - numpy=2.4.6
+  - scipy=1.17.1
+  - pandas=2.3.3
+  - matplotlib=3.11.1
   - pip
   - pip:
-      - psychrolib
-      - ruptures
-      - pyyaml
-      - -e .
-      - pytest
-      - pytest-cov
-      - mypy
-      - types-PyYAML
-      - ruff
-      - SALib
+      - psychrolib==2.5.0
+      - ruptures==1.1.10
+      - pyyaml==6.0.3
+      - scikit-learn==1.9.0
+      - -e .[dev,dashboard]
+
+# `-e .[dev,dashboard]` pulls pytest/pytest-cov/mypy/ruff/SALib/optuna/
+# mlflow/types-PyYAML and streamlit/altair straight from
+# pyproject.toml's own [project.optional-dependencies] rather than
+# repeating each version here a second time -- pyproject.toml is
+# already the place those two extras are split apart and explained (see
+# its comments on why `dashboard` is its own group), so duplicating the
+# list here would just be a second place for the two files to drift out
+# of sync. `pyproject.toml`'s own dependencies (numpy/scipy/pandas/
+# matplotlib/psychrolib/ruptures/pyyaml/scikit-learn) stay unpinned
+# there deliberately -- a library consumer installing this package
+# should get compatible-and-current, not this exact machine's pins --
+# so the pins live in this file, the one meant to reproduce ONE
+# environment exactly.

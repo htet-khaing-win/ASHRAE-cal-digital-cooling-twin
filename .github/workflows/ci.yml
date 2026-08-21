@@ -17,13 +17,13 @@ jobs:
           cache: "pip"
 
       - name: Install package + dev dependencies
-        run: pip install -e ".[dev]"
+        run: pip install -e ".[dev,dashboard]"
 
       - name: Lint (ruff)
-        run: ruff check src tests
+        run: ruff check src tests dashboard
 
       - name: Type check (mypy)
-        run: mypy src
+        run: mypy src dashboard
 
       - name: Test + coverage gate
         run: pytest --cov=cooling_twin --cov-report=term-missing --cov-fail-under=80

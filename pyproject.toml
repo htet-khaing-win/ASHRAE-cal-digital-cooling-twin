@@ -10,10 +10,39 @@ dependencies = [
     "psychrolib",
     "ruptures",
     "pyyaml",
+    # M7 only, and the first time this project has taken a machine-
+    # learning dependency. L6.4 declined scikit-learn for a single
+    # least-squares call and crossval.py declined its splitters -- both
+    # correct, because numpy already had lstsq and neither TimeSeriesSplit
+    # nor KFold expresses a spin-up. Neither argument covers a gradient-
+    # boosted ensemble: hand-rolling one would put the ML half of L7.3's
+    # "physics %/ML %" claim on unreviewed code of our own, which is the
+    # half a reviewer trusts least.
+    "scikit-learn",
 ]
 
 [project.optional-dependencies]
-dev = ["pytest", "pytest-cov", "mypy", "ruff", "SALib", "types-PyYAML"]
+# `optuna` sits here rather than in the runtime dependencies for the same
+# reason `SALib` does: it tunes and screens, it never runs inside a
+# prediction. Nothing importable from `src/` may depend on either, so a
+# deployment install stays free of both.
+dev = [
+    "pytest",
+    "pytest-cov",
+    "mypy",
+    "ruff",
+    "SALib",
+    "optuna",
+    "mlflow",
+    "types-PyYAML",
+]
+# The interactive dashboard (dashboard/app.py) is a presentation layer,
+# not a library dependency -- nothing importable from `src/` may depend
+# on either package, so a plain library install stays free of both.
+dashboard = [
+    "streamlit",
+    "altair",
+]
 
 [build-system]
 requires = ["setuptools>=68"]
@@ -42,7 +71,25 @@ warn_return_any = true
 # WE wrote while not blocking CI on third-party typing that is out of
 # this project's control.
 [[tool.mypy.overrides]]
-module = ["pandas.*", "scipy.*", "psychrolib.*", "ruptures.*", "SALib.*"]
+module = [
+    "pandas.*",
+    "scipy.*",
+    "psychrolib.*",
+    "ruptures.*",
+    "SALib.*",
+    # `scripts/*.py` are CLI entry points, not `disallow_untyped_defs`-clean
+    # library code (05_ENGINEERING_STANDARDS.md's strict typing applies to
+    # `src/`), and they are not on mypy's search path -- they add
+    # themselves to `sys.path` at import time, the same trick
+    # `dashboard/data.py` reuses to reach them. Ignoring the two it imports
+    # by name here keeps `dashboard/` itself fully checked without pulling
+    # every script into strict mode.
+    "open_test_set",
+    "run_calibration",
+    "sklearn.*",
+    "optuna.*",
+    "mlflow.*",
+]
 ignore_missing_imports = true
 
 [tool.coverage.report]
