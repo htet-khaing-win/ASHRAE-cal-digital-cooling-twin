@@ -1,0 +1,3404 @@
+{
+  "year": 2016,
+  "note": "Training year only (ADR-002). Split conformal on a time-ordered split with a 168-hour embargo. The point model was fitted on the whole year, so these coverage numbers are OPTIMISTIC for an unseen year; the conditional columns are where the method's assumption actually shows strain.",
+  "alpha": 0.1,
+  "calibration_fraction": 0.7,
+  "buildings": [
+    {
+      "building_id": "Fox_education_Claude",
+      "role": "primary",
+      "year": 2016,
+      "calibration_artifact": "calibration_20260812T200947+0000_seed42.json",
+      "alpha": 0.1,
+      "n_hours": 8782,
+      "embargo_hours": 168,
+      "mondrian_bin_width_k": 5.0,
+      "splits": {
+        "contiguous_forward": {
+          "n_calibration": 6147,
+          "n_scored": 2467,
+          "scored_window": [
+            "2016-09-20 04:00:00",
+            "2016-12-31 23:00:00"
+          ],
+          "methods": {
+            "conformal_constant": {
+              "marginal": {
+                "empirical_pct": 99.2298338062424,
+                "target_pct": 90.0,
+                "n": 2467,
+                "mean_width": 2521.804066182033,
+                "median_width": 2521.8040661820323,
+                "mean_relative_width_pct": 43.321437635956755,
+                "passed": true
+              },
+              "quantile": 1260.9020330910162,
+              "normalised": false,
+              "by_month": {
+                "9": {
+                  "empirical_pct": 95.0,
+                  "target_pct": 90.0,
+                  "n": 260,
+                  "mean_width": 2521.804066182033,
+                  "median_width": 2521.8040661820323,
+                  "mean_relative_width_pct": 30.455082472871098,
+                  "passed": true
+                },
+                "10": {
+                  "empirical_pct": 99.73118279569893,
+                  "target_pct": 90.0,
+                  "n": 744,
+                  "mean_width": 2521.8040661820323,
+                  "median_width": 2521.8040661820323,
+                  "mean_relative_width_pct": 34.508084927243466,
+                  "passed": true
+                },
+                "11": {
+                  "empirical_pct": 99.72222222222223,
+                  "target_pct": 90.0,
+                  "n": 720,
+                  "mean_width": 2521.804066182033,
+                  "median_width": 2521.8040661820323,
+                  "mean_relative_width_pct": 47.291625473567336,
+                  "passed": true
+                },
+                "12": {
+                  "empirical_pct": 99.7308209959623,
+                  "target_pct": 90.0,
+                  "n": 743,
+                  "mean_width": 2521.804066182033,
+                  "median_width": 2521.8040661820323,
+                  "mean_relative_width_pct": 63.917325192815696,
+                  "passed": true
+                }
+              },
+              "by_load_quintile": {
+                "1": {
+                  "empirical_pct": 99.19028340080972,
+                  "target_pct": 90.0,
+                  "n": 494,
+                  "mean_width": 2521.804066182033,
+                  "median_width": 2521.8040661820323,
+                  "mean_relative_width_pct": 78.09947762006189,
+                  "passed": true
+                },
+                "2": {
+                  "empirical_pct": 99.79674796747967,
+                  "target_pct": 90.0,
+                  "n": 492,
+                  "mean_width": 2521.804066182033,
+                  "median_width": 2521.8040661820323,
+                  "mean_relative_width_pct": 55.86792816348524,
+                  "passed": true
+                },
+                "3": {
+                  "empirical_pct": 100.0,
+                  "target_pct": 90.0,
+                  "n": 494,
+                  "mean_width": 2521.8040661820332,
+                  "median_width": 2521.8040661820323,
+                  "mean_relative_width_pct": 43.97002140543586,
+                  "passed": true
+                },
+                "4": {
+                  "empirical_pct": 99.79716024340772,
+                  "target_pct": 90.0,
+                  "n": 493,
+                  "mean_width": 2521.8040661820323,
+                  "median_width": 2521.8040661820323,
+                  "mean_relative_width_pct": 36.32116365400422,
+                  "passed": true
+                },
+                "5": {
+                  "empirical_pct": 97.36842105263158,
+                  "target_pct": 90.0,
+                  "n": 494,
+                  "mean_width": 2521.804066182033,
+                  "median_width": 2521.8040661820323,
+                  "mean_relative_width_pct": 29.047937861009807,
+                  "passed": true
+                }
+              },
+              "worst_conditional_pct": 95.0
+            },
+            "conformal_normalised": {
+              "marginal": {
+                "empirical_pct": 97.28415079043373,
+                "target_pct": 90.0,
+                "n": 2467,
+                "mean_width": 2167.016707716289,
+                "median_width": 2143.856189374399,
+                "mean_relative_width_pct": 37.22663485967711,
+                "passed": true
+              },
+              "quantile": 0.18406748151624555,
+              "normalised": true,
+              "by_month": {
+                "9": {
+                  "empirical_pct": 99.61538461538461,
+                  "target_pct": 90.0,
+                  "n": 260,
+                  "mean_width": 2921.846794424172,
+                  "median_width": 2938.461928986057,
+                  "mean_relative_width_pct": 35.28628028267242,
+                  "passed": true
+                },
+                "10": {
+                  "empirical_pct": 99.73118279569893,
+                  "target_pct": 90.0,
+                  "n": 744,
+                  "mean_width": 2680.791551142693,
+                  "median_width": 2667.311011080515,
+                  "mean_relative_width_pct": 36.683651898113474,
+                  "passed": true
+                },
+                "11": {
+                  "empirical_pct": 98.05555555555556,
+                  "target_pct": 90.0,
+                  "n": 720,
+                  "mean_width": 2006.6010819027724,
+                  "median_width": 2013.1765854608147,
+                  "mean_relative_width_pct": 37.62997614000637,
+                  "passed": true
+                },
+                "12": {
+                  "empirical_pct": 93.27052489905788,
+                  "target_pct": 90.0,
+                  "n": 743,
+                  "mean_width": 1543.860509240432,
+                  "median_width": 1530.9473906882722,
+                  "mean_relative_width_pct": 39.13049215233667,
+                  "passed": true
+                }
+              },
+              "by_load_quintile": {
+                "1": {
+                  "empirical_pct": 87.65182186234817,
+                  "target_pct": 90.0,
+                  "n": 494,
+                  "mean_width": 1260.044132309914,
+                  "median_width": 1285.5200076886972,
+                  "mean_relative_width_pct": 39.023169893058984,
+                  "passed": false
+                },
+                "2": {
+                  "empirical_pct": 99.1869918699187,
+                  "target_pct": 90.0,
+                  "n": 492,
+                  "mean_width": 1767.3538882161029,
+                  "median_width": 1772.188769484542,
+                  "mean_relative_width_pct": 39.15387455767004,
+                  "passed": true
+                },
+                "3": {
+                  "empirical_pct": 99.79757085020243,
+                  "target_pct": 90.0,
+                  "n": 494,
+                  "mean_width": 2153.236116293383,
+                  "median_width": 2143.6716166287615,
+                  "mean_relative_width_pct": 37.54369318141286,
+                  "passed": true
+                },
+                "4": {
+                  "empirical_pct": 99.79716024340772,
+                  "target_pct": 90.0,
+                  "n": 493,
+                  "mean_width": 2563.6998964369086,
+                  "median_width": 2561.4771416049334,
+                  "mean_relative_width_pct": 36.9245829788892,
+                  "passed": true
+                },
+                "5": {
+                  "empirical_pct": 100.0,
+                  "target_pct": 90.0,
+                  "n": 494,
+                  "mean_width": 3089.9344396363117,
+                  "median_width": 3081.424696380261,
+                  "mean_relative_width_pct": 35.59206871017505,
+                  "passed": true
+                }
+              },
+              "worst_conditional_pct": 87.65182186234817
+            },
+            "conformal_mondrian_temperature": {
+              "marginal": {
+                "empirical_pct": 97.36522091609243,
+                "target_pct": 90.0,
+                "n": 2467,
+                "mean_width": 2034.81932414514,
+                "median_width": 2041.9385862404906,
+                "mean_relative_width_pct": 34.95564926455721,
+                "passed": true
+              },
+              "quantile": 0.18406748151624555,
+              "normalised": true,
+              "by_month": {
+                "9": {
+                  "empirical_pct": 95.0,
+                  "target_pct": 90.0,
+                  "n": 260,
+                  "mean_width": 2350.5100983432258,
+                  "median_width": 2263.262465578046,
+                  "mean_relative_width_pct": 28.386415843455158,
+                  "passed": true
+                },
+                "10": {
+                  "empirical_pct": 99.46236559139786,
+                  "target_pct": 90.0,
+                  "n": 744,
+                  "mean_width": 2242.6385305876747,
+                  "median_width": 2165.228705277931,
+                  "mean_relative_width_pct": 30.688014946297482,
+                  "passed": true
+                },
+                "11": {
+                  "empirical_pct": 99.02777777777779,
+                  "target_pct": 90.0,
+                  "n": 720,
+                  "mean_width": 1991.2506007043885,
+                  "median_width": 2015.8374183990095,
+                  "mean_relative_width_pct": 37.34210714280387,
+                  "passed": true
+                },
+                "12": {
+                  "empirical_pct": 94.48183041722746,
+                  "target_pct": 90.0,
+                  "n": 743,
+                  "mean_width": 1758.4699163289795,
+                  "median_width": 1897.3019220450878,
+                  "mean_relative_width_pct": 44.56995489500873,
+                  "passed": true
+                }
+              },
+              "by_load_quintile": {
+                "1": {
+                  "empirical_pct": 90.48582995951418,
+                  "target_pct": 90.0,
+                  "n": 494,
+                  "mean_width": 1488.7524979018297,
+                  "median_width": 1603.2903008966073,
+                  "mean_relative_width_pct": 46.10619593762775,
+                  "passed": true
+                },
+                "2": {
+                  "empirical_pct": 99.59349593495935,
+                  "target_pct": 90.0,
+                  "n": 492,
+                  "mean_width": 2068.5898987082487,
+                  "median_width": 2072.618356779227,
+                  "mean_relative_width_pct": 45.82744290507522,
+                  "passed": true
+                },
+                "3": {
+                  "empirical_pct": 100.0,
+                  "target_pct": 90.0,
+                  "n": 494,
+                  "mean_width": 2093.7211246765323,
+                  "median_width": 2072.9906475012767,
+                  "mean_relative_width_pct": 36.505993428910216,
+                  "passed": true
+                },
+                "4": {
+                  "empirical_pct": 99.79716024340772,
+                  "target_pct": 90.0,
+                  "n": 493,
+                  "mean_width": 2041.8527215746126,
+                  "median_width": 2008.624294570056,
+                  "mean_relative_width_pct": 29.40849681869461,
+                  "passed": true
+                },
+                "5": {
+                  "empirical_pct": 96.96356275303644,
+                  "target_pct": 90.0,
+                  "n": 494,
+                  "mean_width": 2481.331338485035,
+                  "median_width": 2507.428499184159,
+                  "mean_relative_width_pct": 28.581744117025615,
+                  "passed": true
+                }
+              },
+              "worst_conditional_pct": 90.48582995951418
+            },
+            "gaussian_control": {
+              "marginal": {
+                "empirical_pct": 99.59464937170652,
+                "target_pct": 90.0,
+                "n": 2467,
+                "mean_width": 3033.866976037554,
+                "median_width": 3033.866976037554,
+                "mean_relative_width_pct": 52.118037543330864,
+                "passed": true
+              },
+              "quantile": 1516.9334880187769,
+              "normalised": false,
+              "by_month": {
+                "9": {
+                  "empirical_pct": 97.6923076923077,
+                  "target_pct": 90.0,
+                  "n": 260,
+                  "mean_width": 3033.8669760375537,
+                  "median_width": 3033.8669760375533,
+                  "mean_relative_width_pct": 36.63911491221865,
+                  "passed": true
+                },
+                "10": {
+                  "empirical_pct": 99.86559139784946,
+                  "target_pct": 90.0,
+                  "n": 744,
+                  "mean_width": 3033.8669760375533,
+                  "median_width": 3033.866976037554,
+                  "mean_relative_width_pct": 41.515096541804894,
+                  "passed": true
+                },
+                "11": {
+                  "empirical_pct": 99.86111111111111,
+                  "target_pct": 90.0,
+                  "n": 720,
+                  "mean_width": 3033.866976037554,
+                  "median_width": 3033.866976037554,
+                  "mean_relative_width_pct": 56.89438870031375,
+                  "passed": true
+                },
+                "12": {
+                  "empirical_pct": 99.7308209959623,
+                  "target_pct": 90.0,
+                  "n": 743,
+                  "mean_width": 3033.8669760375547,
+                  "median_width": 3033.866976037554,
+                  "mean_relative_width_pct": 76.89600659290046,
+                  "passed": true
+                }
+              },
+              "by_load_quintile": {
+                "1": {
+                  "empirical_pct": 99.19028340080972,
+                  "target_pct": 90.0,
+                  "n": 494,
+                  "mean_width": 3033.8669760375547,
+                  "median_width": 3033.866976037554,
+                  "mean_relative_width_pct": 93.95790465038706,
+                  "passed": true
+                },
+                "2": {
+                  "empirical_pct": 100.0,
+                  "target_pct": 90.0,
+                  "n": 492,
+                  "mean_width": 3033.866976037555,
+                  "median_width": 3033.866976037554,
+                  "mean_relative_width_pct": 67.21214568086968,
+                  "passed": true
+                },
+                "3": {
+                  "empirical_pct": 100.0,
+                  "target_pct": 90.0,
+                  "n": 494,
+                  "mean_width": 3033.8669760375547,
+                  "median_width": 3033.866976037554,
+                  "mean_relative_width_pct": 52.898318971933556,
+                  "passed": true
+                },
+                "4": {
+                  "empirical_pct": 99.79716024340772,
+                  "target_pct": 90.0,
+                  "n": 493,
+                  "mean_width": 3033.8669760375547,
+                  "median_width": 3033.866976037554,
+                  "mean_relative_width_pct": 43.69632852086328,
+                  "passed": true
+                },
+                "5": {
+                  "empirical_pct": 98.98785425101214,
+                  "target_pct": 90.0,
+                  "n": 494,
+                  "mean_width": 3033.8669760375537,
+                  "median_width": 3033.8669760375533,
+                  "mean_relative_width_pct": 34.94624367543836,
+                  "passed": true
+                }
+              },
+              "worst_conditional_pct": 97.6923076923077
+            }
+          }
+        },
+        "contiguous_reversed": {
+          "n_calibration": 2467,
+          "n_scored": 6147,
+          "scored_window": [
+            "2016-01-01 00:00:00",
+            "2016-09-13 03:00:00"
+          ],
+          "methods": {
+            "conformal_constant": {
+              "marginal": {
+                "empirical_pct": 49.926793557833086,
+                "target_pct": 90.0,
+                "n": 6147,
+                "mean_width": 1253.0152048947475,
+                "median_width": 1253.117134058084,
+                "mean_relative_width_pct": 17.23173032480426,
+                "passed": false
+              },
+              "quantile": 626.558567029042,
+              "normalised": false,
+              "by_month": {
+                "1": {
+                  "empirical_pct": 58.333333333333336,
+                  "target_pct": 90.0,
+                  "n": 744,
+                  "mean_width": 1252.2749854464857,
+                  "median_width": 1253.117134058084,
+                  "mean_relative_width_pct": 36.00255101924808,
+                  "passed": false
+                },
+                "2": {
+                  "empirical_pct": 57.04022988505747,
+                  "target_pct": 90.0,
+                  "n": 696,
+                  "mean_width": 1253.117134058084,
+                  "median_width": 1253.117134058084,
+                  "mean_relative_width_pct": 26.10794380223888,
+                  "passed": false
+                },
+                "3": {
+                  "empirical_pct": 32.39247311827957,
+                  "target_pct": 90.0,
+                  "n": 744,
+                  "mean_width": 1253.117134058084,
+                  "median_width": 1253.117134058084,
+                  "mean_relative_width_pct": 24.871024807923487,
+                  "passed": false
+                },
+                "4": {
+                  "empirical_pct": 69.02777777777777,
+                  "target_pct": 90.0,
+                  "n": 720,
+                  "mean_width": 1253.117134058084,
+                  "median_width": 1253.117134058084,
+                  "mean_relative_width_pct": 21.272607827371846,
+                  "passed": false
+                },
+                "5": {
+                  "empirical_pct": 80.77956989247312,
+                  "target_pct": 90.0,
+                  "n": 744,
+                  "mean_width": 1253.117134058084,
+                  "median_width": 1253.117134058084,
+                  "mean_relative_width_pct": 18.207196167946453,
+                  "passed": false
+                },
+                "6": {
+                  "empirical_pct": 47.91666666666667,
+                  "target_pct": 90.0,
+                  "n": 720,
+                  "mean_width": 1253.117134058084,
+                  "median_width": 1253.117134058084,
+                  "mean_relative_width_pct": 12.881310995437852,
+                  "passed": false
+                },
+                "7": {
+                  "empirical_pct": 23.418573351278603,
+                  "target_pct": 90.0,
+                  "n": 743,
+                  "mean_width": 1253.117134058084,
+                  "median_width": 1253.117134058084,
+                  "mean_relative_width_pct": 11.618552604422776,
+                  "passed": false
+                },
+                "8": {
+                  "empirical_pct": 33.33333333333333,
+                  "target_pct": 90.0,
+                  "n": 744,
+                  "mean_width": 1253.117134058084,
+                  "median_width": 1253.117134058084,
+                  "mean_relative_width_pct": 11.997434321607594,
+                  "passed": false
+                },
+                "9": {
+                  "empirical_pct": 45.20547945205479,
+                  "target_pct": 90.0,
+                  "n": 292,
+                  "mean_width": 1253.117134058084,
+                  "median_width": 1253.117134058084,
+                  "mean_relative_width_pct": 12.748039781405172,
+                  "passed": false
+                }
+              },
+              "by_load_quintile": {
+                "1": {
+                  "empirical_pct": 51.056910569105696,
+                  "target_pct": 90.0,
+                  "n": 1230,
+                  "mean_width": 1252.6077368491174,
+                  "median_width": 1253.117134058084,
+                  "mean_relative_width_pct": 37.54121540494255,
+                  "passed": false
+                },
+                "2": {
+                  "empirical_pct": 46.948738812042315,
+                  "target_pct": 90.0,
+                  "n": 1229,
+                  "mean_width": 1253.1171340580843,
+                  "median_width": 1253.117134058084,
+                  "mean_relative_width_pct": 24.676114970310937,
+                  "passed": false
+                },
+                "3": {
+                  "empirical_pct": 79.17005695687551,
+                  "target_pct": 90.0,
+                  "n": 1229,
+                  "mean_width": 1253.1171340580843,
+                  "median_width": 1253.117134058084,
+                  "mean_relative_width_pct": 17.89245038428593,
+                  "passed": false
+                },
+                "4": {
+                  "empirical_pct": 60.781122864117165,
+                  "target_pct": 90.0,
+                  "n": 1229,
+                  "mean_width": 1253.1171340580843,
+                  "median_width": 1253.117134058084,
+                  "mean_relative_width_pct": 13.285444743240639,
+                  "passed": false
+                },
+                "5": {
+                  "empirical_pct": 11.707317073170733,
+                  "target_pct": 90.0,
+                  "n": 1230,
+                  "mean_width": 1253.117134058084,
+                  "median_width": 1253.117134058084,
+                  "mean_relative_width_pct": 10.89023099613231,
+                  "passed": false
+                }
+              },
+              "worst_conditional_pct": 11.707317073170733
+            },
+            "conformal_normalised": {
+              "marginal": {
+                "empirical_pct": 68.89539612819262,
+                "target_pct": 90.0,
+                "n": 6147,
+                "mean_width": 1801.5815477501608,
+                "median_width": 1830.2744400487154,
+                "mean_relative_width_pct": 24.775730787386532,
+                "passed": false
+              },
+              "quantile": 0.1242472537727274,
+              "normalised": true,
+              "by_month": {
+                "1": {
+                  "empirical_pct": 47.58064516129033,
+                  "target_pct": 90.0,
+                  "n": 744,
+                  "mean_width": 977.2905468487298,
+                  "median_width": 937.6704113210747,
+                  "mean_relative_width_pct": 28.096826322060103,
+                  "passed": false
+                },
+                "2": {
+                  "empirical_pct": 60.63218390804598,
+                  "target_pct": 90.0,
+                  "n": 696,
+                  "mean_width": 1315.6619832804138,
+                  "median_width": 1291.3330438307694,
+                  "mean_relative_width_pct": 27.411028218081206,
+                  "passed": false
+                },
+                "3": {
+                  "empirical_pct": 43.27956989247312,
+                  "target_pct": 90.0,
+                  "n": 744,
+                  "mean_width": 1436.6576144412932,
+                  "median_width": 1399.7622497500424,
+                  "mean_relative_width_pct": 28.5138126342189,
+                  "passed": false
+                },
+                "4": {
+                  "empirical_pct": 77.08333333333334,
+                  "target_pct": 90.0,
+                  "n": 720,
+                  "mean_width": 1575.7825324462904,
+                  "median_width": 1567.789313607067,
+                  "mean_relative_width_pct": 26.750096158528013,
+                  "passed": false
+                },
+                "5": {
+                  "empirical_pct": 88.97849462365592,
+                  "target_pct": 90.0,
+                  "n": 744,
+                  "mean_width": 1781.1773453225326,
+                  "median_width": 1767.0197233412982,
+                  "mean_relative_width_pct": 25.879659973339933,
+                  "passed": false
+                },
+                "6": {
+                  "empirical_pct": 87.63888888888889,
+                  "target_pct": 90.0,
+                  "n": 720,
+                  "mean_width": 2289.1524422793304,
+                  "median_width": 2313.2309327270073,
+                  "mean_relative_width_pct": 23.531147826121234,
+                  "passed": false
+                },
+                "7": {
+                  "empirical_pct": 63.795423956931366,
+                  "target_pct": 90.0,
+                  "n": 743,
+                  "mean_width": 2445.4530403825897,
+                  "median_width": 2470.563195590563,
+                  "mean_relative_width_pct": 22.67355861564156,
+                  "passed": false
+                },
+                "8": {
+                  "empirical_pct": 76.88172043010752,
+                  "target_pct": 90.0,
+                  "n": 744,
+                  "mean_width": 2385.2930998558,
+                  "median_width": 2387.650823260903,
+                  "mean_relative_width_pct": 22.83696912724304,
+                  "passed": false
+                },
+                "9": {
+                  "empirical_pct": 83.21917808219177,
+                  "target_pct": 90.0,
+                  "n": 292,
+                  "mean_width": 2270.7698617736364,
+                  "median_width": 2319.3456479727834,
+                  "mean_relative_width_pct": 23.10068527956498,
+                  "passed": false
+                }
+              },
+              "by_load_quintile": {
+                "1": {
+                  "empirical_pct": 36.17886178861789,
+                  "target_pct": 90.0,
+                  "n": 1230,
+                  "mean_width": 979.8900471308424,
+                  "median_width": 996.1019048782557,
+                  "mean_relative_width_pct": 29.367743987461367,
+                  "passed": false
+                },
+                "2": {
+                  "empirical_pct": 58.82831570382425,
+                  "target_pct": 90.0,
+                  "n": 1229,
+                  "mean_width": 1423.87434213163,
+                  "median_width": 1421.5670541093696,
+                  "mean_relative_width_pct": 28.038629442351358,
+                  "passed": false
+                },
+                "3": {
+                  "empirical_pct": 94.38567941415785,
+                  "target_pct": 90.0,
+                  "n": 1229,
+                  "mean_width": 1822.6434239045996,
+                  "median_width": 1826.6918702354178,
+                  "mean_relative_width_pct": 26.024348517882817,
+                  "passed": true
+                },
+                "4": {
+                  "empirical_pct": 94.22294548413345,
+                  "target_pct": 90.0,
+                  "n": 1229,
+                  "mean_width": 2215.6615311209684,
+                  "median_width": 2214.294066662548,
+                  "mean_relative_width_pct": 23.490261238473465,
+                  "passed": true
+                },
+                "5": {
+                  "empirical_pct": 60.89430894308943,
+                  "target_pct": 90.0,
+                  "n": 1230,
+                  "mean_width": 2565.8850893033373,
+                  "median_width": 2567.424116347187,
+                  "mean_relative_width_pct": 22.298858241251782,
+                  "passed": false
+                }
+              },
+              "worst_conditional_pct": 36.17886178861789
+            },
+            "conformal_mondrian_temperature": {
+              "marginal": {
+                "empirical_pct": 60.48478932812754,
+                "target_pct": 90.0,
+                "n": 6147,
+                "mean_width": 1563.4801124649637,
+                "median_width": 1360.4813124364864,
+                "mean_relative_width_pct": 21.501309450154643,
+                "passed": false
+              },
+              "quantile": 0.1242472537727274,
+              "normalised": true,
+              "by_month": {
+                "1": {
+                  "empirical_pct": 53.897849462365585,
+                  "target_pct": 90.0,
+                  "n": 744,
+                  "mean_width": 1239.281429176637,
+                  "median_width": 1232.934113435985,
+                  "mean_relative_width_pct": 35.62898995800887,
+                  "passed": false
+                },
+                "2": {
+                  "empirical_pct": 57.18390804597702,
+                  "target_pct": 90.0,
+                  "n": 696,
+                  "mean_width": 1226.8680568014968,
+                  "median_width": 1249.7292352856332,
+                  "mean_relative_width_pct": 25.561060023181202,
+                  "passed": false
+                },
+                "3": {
+                  "empirical_pct": 32.25806451612903,
+                  "target_pct": 90.0,
+                  "n": 744,
+                  "mean_width": 1236.3746088755433,
+                  "median_width": 1249.6501868586129,
+                  "mean_relative_width_pct": 24.538730445453336,
+                  "passed": false
+                },
+                "4": {
+                  "empirical_pct": 68.47222222222223,
+                  "target_pct": 90.0,
+                  "n": 720,
+                  "mean_width": 1249.8024896915558,
+                  "median_width": 1248.356454674249,
+                  "mean_relative_width_pct": 21.21633924099635,
+                  "passed": false
+                },
+                "5": {
+                  "empirical_pct": 79.56989247311827,
+                  "target_pct": 90.0,
+                  "n": 744,
+                  "mean_width": 1338.2642830924653,
+                  "median_width": 1306.4361268347075,
+                  "mean_relative_width_pct": 19.44434376051819,
+                  "passed": false
+                },
+                "6": {
+                  "empirical_pct": 77.63888888888889,
+                  "target_pct": 90.0,
+                  "n": 720,
+                  "mean_width": 1984.471074401933,
+                  "median_width": 2275.717991115654,
+                  "mean_relative_width_pct": 20.39920161975626,
+                  "passed": false
+                },
+                "7": {
+                  "empirical_pct": 53.97039030955586,
+                  "target_pct": 90.0,
+                  "n": 743,
+                  "mean_width": 2171.153522518337,
+                  "median_width": 2374.5496833945035,
+                  "mean_relative_width_pct": 20.130329981177848,
+                  "passed": false
+                },
+                "8": {
+                  "empirical_pct": 59.81182795698925,
+                  "target_pct": 90.0,
+                  "n": 744,
+                  "mean_width": 1938.324331190077,
+                  "median_width": 1804.7659059849575,
+                  "mean_relative_width_pct": 18.557657720406695,
+                  "passed": false
+                },
+                "9": {
+                  "empirical_pct": 64.72602739726028,
+                  "target_pct": 90.0,
+                  "n": 292,
+                  "mean_width": 1833.2124283315763,
+                  "median_width": 1630.2496308170357,
+                  "mean_relative_width_pct": 18.649385862642013,
+                  "passed": false
+                }
+              },
+              "by_load_quintile": {
+                "1": {
+                  "empirical_pct": 48.3739837398374,
+                  "target_pct": 90.0,
+                  "n": 1230,
+                  "mean_width": 1245.0633243245732,
+                  "median_width": 1242.8160882406569,
+                  "mean_relative_width_pct": 37.31510597949695,
+                  "passed": false
+                },
+                "2": {
+                  "empirical_pct": 44.263628966639544,
+                  "target_pct": 90.0,
+                  "n": 1229,
+                  "mean_width": 1189.1940291491787,
+                  "median_width": 1119.6359187197886,
+                  "mean_relative_width_pct": 23.417354840774404,
+                  "passed": false
+                },
+                "3": {
+                  "empirical_pct": 80.4719283970708,
+                  "target_pct": 90.0,
+                  "n": 1229,
+                  "mean_width": 1291.3452003517164,
+                  "median_width": 1308.8907298242866,
+                  "mean_relative_width_pct": 18.438284257956592,
+                  "passed": false
+                },
+                "4": {
+                  "empirical_pct": 78.60048820179007,
+                  "target_pct": 90.0,
+                  "n": 1229,
+                  "mean_width": 1763.4415116091118,
+                  "median_width": 1491.9584460629658,
+                  "mean_relative_width_pct": 18.69586180228038,
+                  "passed": false
+                },
+                "5": {
+                  "empirical_pct": 50.73170731707317,
+                  "target_pct": 90.0,
+                  "n": 1230,
+                  "mean_width": 2327.9935216087065,
+                  "median_width": 2496.5591412111116,
+                  "mean_relative_width_pct": 20.231458431756806,
+                  "passed": false
+                }
+              },
+              "worst_conditional_pct": 32.25806451612903
+            },
+            "gaussian_control": {
+              "marginal": {
+                "empirical_pct": 56.678054335448195,
+                "target_pct": 90.0,
+                "n": 6147,
+                "mean_width": 1391.3219831888368,
+                "median_width": 1391.43516320862,
+                "mean_relative_width_pct": 19.133754415450817,
+                "passed": false
+              },
+              "quantile": 695.7175816043099,
+              "normalised": false,
+              "by_month": {
+                "1": {
+                  "empirical_pct": 65.59139784946237,
+                  "target_pct": 90.0,
+                  "n": 744,
+                  "mean_width": 1390.5000589322703,
+                  "median_width": 1391.43516320862,
+                  "mean_relative_width_pct": 39.97648271807297,
+                  "passed": false
+                },
+                "2": {
+                  "empirical_pct": 64.65517241379311,
+                  "target_pct": 90.0,
+                  "n": 696,
+                  "mean_width": 1391.4351632086198,
+                  "median_width": 1391.43516320862,
+                  "mean_relative_width_pct": 28.98971696912883,
+                  "passed": false
+                },
+                "3": {
+                  "empirical_pct": 43.413978494623656,
+                  "target_pct": 90.0,
+                  "n": 744,
+                  "mean_width": 1391.43516320862,
+                  "median_width": 1391.43516320862,
+                  "mean_relative_width_pct": 27.616267882882997,
+                  "passed": false
+                },
+                "4": {
+                  "empirical_pct": 77.5,
+                  "target_pct": 90.0,
+                  "n": 720,
+                  "mean_width": 1391.4351632086198,
+                  "median_width": 1391.43516320862,
+                  "mean_relative_width_pct": 23.620660622760365,
+                  "passed": false
+                },
+                "5": {
+                  "empirical_pct": 86.69354838709677,
+                  "target_pct": 90.0,
+                  "n": 744,
+                  "mean_width": 1391.4351632086198,
+                  "median_width": 1391.43516320862,
+                  "mean_relative_width_pct": 20.216891368707156,
+                  "passed": false
+                },
+                "6": {
+                  "empirical_pct": 53.47222222222222,
+                  "target_pct": 90.0,
+                  "n": 720,
+                  "mean_width": 1391.4351632086186,
+                  "median_width": 1391.4351632086182,
+                  "mean_relative_width_pct": 14.303139411424933,
+                  "passed": false
+                },
+                "7": {
+                  "empirical_pct": 29.34051144010767,
+                  "target_pct": 90.0,
+                  "n": 743,
+                  "mean_width": 1391.4351632086184,
+                  "median_width": 1391.4351632086182,
+                  "mean_relative_width_pct": 12.9009987973188,
+                  "passed": false
+                },
+                "8": {
+                  "empirical_pct": 36.55913978494624,
+                  "target_pct": 90.0,
+                  "n": 744,
+                  "mean_width": 1391.4351632086184,
+                  "median_width": 1391.4351632086182,
+                  "mean_relative_width_pct": 13.321701163968735,
+                  "passed": false
+                },
+                "9": {
+                  "empirical_pct": 49.65753424657534,
+                  "target_pct": 90.0,
+                  "n": 292,
+                  "mean_width": 1391.4351632086186,
+                  "median_width": 1391.4351632086182,
+                  "mean_relative_width_pct": 14.155157831404516,
+                  "passed": false
+                }
+              },
+              "by_load_quintile": {
+                "1": {
+                  "empirical_pct": 58.536585365853654,
+                  "target_pct": 90.0,
+                  "n": 1230,
+                  "mean_width": 1390.8695391585352,
+                  "median_width": 1391.43516320862,
+                  "mean_relative_width_pct": 41.68498360154491,
+                  "passed": false
+                },
+                "2": {
+                  "empirical_pct": 58.25874694873882,
+                  "target_pct": 90.0,
+                  "n": 1229,
+                  "mean_width": 1391.4351632086202,
+                  "median_width": 1391.43516320862,
+                  "mean_relative_width_pct": 27.399844059172985,
+                  "passed": false
+                },
+                "3": {
+                  "empirical_pct": 84.29617575264443,
+                  "target_pct": 90.0,
+                  "n": 1229,
+                  "mean_width": 1391.4351632086195,
+                  "median_width": 1391.43516320862,
+                  "mean_relative_width_pct": 19.867404206690093,
+                  "passed": false
+                },
+                "4": {
+                  "empirical_pct": 66.88364524003255,
+                  "target_pct": 90.0,
+                  "n": 1229,
+                  "mean_width": 1391.4351632086184,
+                  "median_width": 1391.4351632086182,
+                  "mean_relative_width_pct": 14.751881106872862,
+                  "passed": false
+                },
+                "5": {
+                  "empirical_pct": 15.447154471544716,
+                  "target_pct": 90.0,
+                  "n": 1230,
+                  "mean_width": 1391.4351632086182,
+                  "median_width": 1391.4351632086182,
+                  "mean_relative_width_pct": 12.092285654423542,
+                  "passed": false
+                }
+              },
+              "worst_conditional_pct": 15.447154471544716
+            }
+          }
+        },
+        "interleaved_weeks": {
+          "n_calibration": 5758,
+          "n_scored": 3024,
+          "scored_window": [
+            "2016-01-01 00:00:00",
+            "2016-12-30 01:00:00"
+          ],
+          "methods": {
+            "conformal_constant": {
+              "marginal": {
+                "empirical_pct": 93.51851851851852,
+                "target_pct": 90.0,
+                "n": 3024,
+                "mean_width": 2355.7824978022554,
+                "median_width": 2356.172076518611,
+                "mean_relative_width_pct": 35.17239154618453,
+                "passed": true
+              },
+              "quantile": 1178.0860382593055,
+              "normalised": false,
+              "by_month": {
+                "1": {
+                  "empirical_pct": 94.64285714285714,
+                  "target_pct": 90.0,
+                  "n": 336,
+                  "mean_width": 2352.665868071411,
+                  "median_width": 2356.172076518611,
+                  "mean_relative_width_pct": 65.63268195824287,
+                  "passed": true
+                },
+                "2": {
+                  "empirical_pct": 98.80952380952381,
+                  "target_pct": 90.0,
+                  "n": 168,
+                  "mean_width": 2356.172076518611,
+                  "median_width": 2356.172076518611,
+                  "mean_relative_width_pct": 44.570592427898916,
+                  "passed": true
+                },
+                "3": {
+                  "empirical_pct": 94.64285714285714,
+                  "target_pct": 90.0,
+                  "n": 336,
+                  "mean_width": 2356.172076518611,
+                  "median_width": 2356.172076518611,
+                  "mean_relative_width_pct": 49.66044884134184,
+                  "passed": true
+                },
+                "4": {
+                  "empirical_pct": 98.21428571428571,
+                  "target_pct": 90.0,
+                  "n": 168,
+                  "mean_width": 2356.172076518611,
+                  "median_width": 2356.172076518611,
+                  "mean_relative_width_pct": 38.23832960644767,
+                  "passed": true
+                },
+                "5": {
+                  "empirical_pct": 97.56944444444444,
+                  "target_pct": 90.0,
+                  "n": 288,
+                  "mean_width": 2356.172076518611,
+                  "median_width": 2356.172076518611,
+                  "mean_relative_width_pct": 35.07400619713447,
+                  "passed": true
+                },
+                "6": {
+                  "empirical_pct": 97.68518518518519,
+                  "target_pct": 90.0,
+                  "n": 216,
+                  "mean_width": 2356.172076518611,
+                  "median_width": 2356.172076518611,
+                  "mean_relative_width_pct": 23.95043321486268,
+                  "passed": true
+                },
+                "7": {
+                  "empirical_pct": 72.80334728033473,
+                  "target_pct": 90.0,
+                  "n": 239,
+                  "mean_width": 2356.1720765186105,
+                  "median_width": 2356.172076518611,
+                  "mean_relative_width_pct": 22.421495576829567,
+                  "passed": false
+                },
+                "8": {
+                  "empirical_pct": 73.9622641509434,
+                  "target_pct": 90.0,
+                  "n": 265,
+                  "mean_width": 2356.172076518611,
+                  "median_width": 2356.172076518611,
+                  "mean_relative_width_pct": 22.75048018585245,
+                  "passed": false
+                },
+                "9": {
+                  "empirical_pct": 95.81151832460732,
+                  "target_pct": 90.0,
+                  "n": 191,
+                  "mean_width": 2356.1720765186114,
+                  "median_width": 2356.172076518611,
+                  "mean_relative_width_pct": 26.086296701099187,
+                  "passed": true
+                },
+                "10": {
+                  "empirical_pct": 99.68051118210862,
+                  "target_pct": 90.0,
+                  "n": 313,
+                  "mean_width": 2356.172076518611,
+                  "median_width": 2356.172076518611,
+                  "mean_relative_width_pct": 31.748758156850727,
+                  "passed": true
+                },
+                "11": {
+                  "empirical_pct": 100.0,
+                  "target_pct": 90.0,
+                  "n": 168,
+                  "mean_width": 2356.172076518611,
+                  "median_width": 2356.172076518611,
+                  "mean_relative_width_pct": 41.22650784028618,
+                  "passed": true
+                },
+                "12": {
+                  "empirical_pct": 100.0,
+                  "target_pct": 90.0,
+                  "n": 336,
+                  "mean_width": 2356.172076518611,
+                  "median_width": 2356.172076518611,
+                  "mean_relative_width_pct": 65.5114786884285,
+                  "passed": true
+                }
+              },
+              "by_load_quintile": {
+                "1": {
+                  "empirical_pct": 95.20661157024793,
+                  "target_pct": 90.0,
+                  "n": 605,
+                  "mean_width": 2354.2248268685958,
+                  "median_width": 2356.172076518611,
+                  "mean_relative_width_pct": 73.3090511980214,
+                  "passed": true
+                },
+                "2": {
+                  "empirical_pct": 97.52066115702479,
+                  "target_pct": 90.0,
+                  "n": 605,
+                  "mean_width": 2356.172076518611,
+                  "median_width": 2356.172076518611,
+                  "mean_relative_width_pct": 50.97506136591883,
+                  "passed": true
+                },
+                "3": {
+                  "empirical_pct": 97.84768211920529,
+                  "target_pct": 90.0,
+                  "n": 604,
+                  "mean_width": 2356.172076518611,
+                  "median_width": 2356.172076518611,
+                  "mean_relative_width_pct": 37.098531922274454,
+                  "passed": true
+                },
+                "4": {
+                  "empirical_pct": 99.83471074380165,
+                  "target_pct": 90.0,
+                  "n": 605,
+                  "mean_width": 2356.172076518611,
+                  "median_width": 2356.172076518611,
+                  "mean_relative_width_pct": 28.149166824197778,
+                  "passed": true
+                },
+                "5": {
+                  "empirical_pct": 77.1900826446281,
+                  "target_pct": 90.0,
+                  "n": 605,
+                  "mean_width": 2356.172076518611,
+                  "median_width": 2356.172076518611,
+                  "mean_relative_width_pct": 21.550006557868002,
+                  "passed": false
+                }
+              },
+              "worst_conditional_pct": 72.80334728033473
+            },
+            "conformal_normalised": {
+              "marginal": {
+                "empirical_pct": 86.64021164021165,
+                "target_pct": 90.0,
+                "n": 3024,
+                "mean_width": 2261.829994270542,
+                "median_width": 2255.067424015413,
+                "mean_relative_width_pct": 33.76965838043406,
+                "passed": false
+              },
+              "quantile": 0.16751107524653397,
+              "normalised": true,
+              "by_month": {
+                "1": {
+                  "empirical_pct": 54.46428571428571,
+                  "target_pct": 90.0,
+                  "n": 336,
+                  "mean_width": 1373.0140663701984,
+                  "median_width": 1334.0515634876224,
+                  "mean_relative_width_pct": 38.303184810574095,
+                  "passed": false
+                },
+                "2": {
+                  "empirical_pct": 93.45238095238095,
+                  "target_pct": 90.0,
+                  "n": 168,
+                  "mean_width": 1954.6795386681242,
+                  "median_width": 1919.5154761259992,
+                  "mean_relative_width_pct": 36.975748042077385,
+                  "passed": true
+                },
+                "3": {
+                  "empirical_pct": 66.96428571428571,
+                  "target_pct": 90.0,
+                  "n": 336,
+                  "mean_width": 1845.4810918854407,
+                  "median_width": 1783.6440671609362,
+                  "mean_relative_width_pct": 38.89674284174325,
+                  "passed": false
+                },
+                "4": {
+                  "empirical_pct": 94.04761904761905,
+                  "target_pct": 90.0,
+                  "n": 168,
+                  "mean_width": 2200.0447355129695,
+                  "median_width": 2173.923532734965,
+                  "mean_relative_width_pct": 35.70453812939516,
+                  "passed": true
+                },
+                "5": {
+                  "empirical_pct": 94.79166666666666,
+                  "target_pct": 90.0,
+                  "n": 288,
+                  "mean_width": 2360.751688694145,
+                  "median_width": 2289.9702572957576,
+                  "mean_relative_width_pct": 35.14217835969676,
+                  "passed": true
+                },
+                "6": {
+                  "empirical_pct": 98.61111111111111,
+                  "target_pct": 90.0,
+                  "n": 216,
+                  "mean_width": 3145.6879814651643,
+                  "median_width": 3187.76315330728,
+                  "mean_relative_width_pct": 31.97584364304918,
+                  "passed": true
+                },
+                "7": {
+                  "empirical_pct": 82.00836820083683,
+                  "target_pct": 90.0,
+                  "n": 239,
+                  "mean_width": 3278.1776699029692,
+                  "median_width": 3329.57307722927,
+                  "mean_relative_width_pct": 31.19536423434493,
+                  "passed": false
+                },
+                "8": {
+                  "empirical_pct": 94.71698113207547,
+                  "target_pct": 90.0,
+                  "n": 265,
+                  "mean_width": 3174.297858300234,
+                  "median_width": 3107.4417159642753,
+                  "mean_relative_width_pct": 30.650053639527933,
+                  "passed": true
+                },
+                "9": {
+                  "empirical_pct": 99.47643979057592,
+                  "target_pct": 90.0,
+                  "n": 191,
+                  "mean_width": 2865.1827396897475,
+                  "median_width": 2902.0927651266966,
+                  "mean_relative_width_pct": 31.72179476842408,
+                  "passed": true
+                },
+                "10": {
+                  "empirical_pct": 99.68051118210862,
+                  "target_pct": 90.0,
+                  "n": 313,
+                  "mean_width": 2454.475686628443,
+                  "median_width": 2455.555101441365,
+                  "mean_relative_width_pct": 33.07337174277094,
+                  "passed": true
+                },
+                "11": {
+                  "empirical_pct": 100.0,
+                  "target_pct": 90.0,
+                  "n": 168,
+                  "mean_width": 1963.7218115198252,
+                  "median_width": 1910.9695563970745,
+                  "mean_relative_width_pct": 34.3597114428003,
+                  "passed": true
+                },
+                "12": {
+                  "empirical_pct": 87.5,
+                  "target_pct": 90.0,
+                  "n": 336,
+                  "mean_width": 1282.5038928876984,
+                  "median_width": 1226.5584583493526,
+                  "mean_relative_width_pct": 35.65899421526201,
+                  "passed": false
+                }
+              },
+              "by_load_quintile": {
+                "1": {
+                  "empirical_pct": 60.33057851239669,
+                  "target_pct": 90.0,
+                  "n": 605,
+                  "mean_width": 1232.659127463183,
+                  "median_width": 1222.8775842204627,
+                  "mean_relative_width_pct": 38.38421464831095,
+                  "passed": false
+                },
+                "2": {
+                  "empirical_pct": 83.80165289256199,
+                  "target_pct": 90.0,
+                  "n": 605,
+                  "mean_width": 1743.518515614816,
+                  "median_width": 1732.7497364625833,
+                  "mean_relative_width_pct": 37.72048918320119,
+                  "passed": false
+                },
+                "3": {
+                  "empirical_pct": 97.84768211920529,
+                  "target_pct": 90.0,
+                  "n": 604,
+                  "mean_width": 2250.735516633527,
+                  "median_width": 2251.642684972414,
+                  "mean_relative_width_pct": 35.43840632208861,
+                  "passed": true
+                },
+                "4": {
+                  "empirical_pct": 99.83471074380165,
+                  "target_pct": 90.0,
+                  "n": 605,
+                  "mean_width": 2738.2538342756043,
+                  "median_width": 2736.4737824861522,
+                  "mean_relative_width_pct": 32.71389418293803,
+                  "passed": true
+                },
+                "5": {
+                  "empirical_pct": 91.40495867768595,
+                  "target_pct": 90.0,
+                  "n": 605,
+                  "mean_width": 3343.9646393860176,
+                  "median_width": 3299.7172230545657,
+                  "mean_relative_width_pct": 30.584548822310172,
+                  "passed": true
+                }
+              },
+              "worst_conditional_pct": 54.46428571428571
+            },
+            "conformal_mondrian_temperature": {
+              "marginal": {
+                "empirical_pct": 88.95502645502646,
+                "target_pct": 90.0,
+                "n": 3024,
+                "mean_width": 2094.545433940668,
+                "median_width": 1915.3697086865877,
+                "mean_relative_width_pct": 31.272060210381117,
+                "passed": false
+              },
+              "quantile": 0.16751107524653397,
+              "normalised": true,
+              "by_month": {
+                "1": {
+                  "empirical_pct": 75.59523809523809,
+                  "target_pct": 90.0,
+                  "n": 336,
+                  "mean_width": 1621.7162865499565,
+                  "median_width": 1657.482675721185,
+                  "mean_relative_width_pct": 45.241268939259854,
+                  "passed": false
+                },
+                "2": {
+                  "empirical_pct": 90.47619047619048,
+                  "target_pct": 90.0,
+                  "n": 168,
+                  "mean_width": 1845.9526429128964,
+                  "median_width": 1821.812028929793,
+                  "mean_relative_width_pct": 34.919012795551076,
+                  "passed": true
+                },
+                "3": {
+                  "empirical_pct": 73.21428571428571,
+                  "target_pct": 90.0,
+                  "n": 336,
+                  "mean_width": 1829.8530220882665,
+                  "median_width": 1817.515571159499,
+                  "mean_relative_width_pct": 38.56735392809556,
+                  "passed": false
+                },
+                "4": {
+                  "empirical_pct": 94.64285714285714,
+                  "target_pct": 90.0,
+                  "n": 168,
+                  "mean_width": 1922.7682721272674,
+                  "median_width": 1857.6080700425691,
+                  "mean_relative_width_pct": 31.204616878007375,
+                  "passed": true
+                },
+                "5": {
+                  "empirical_pct": 94.44444444444444,
+                  "target_pct": 90.0,
+                  "n": 288,
+                  "mean_width": 2029.468973099026,
+                  "median_width": 1909.8935033844468,
+                  "mean_relative_width_pct": 30.210699824837313,
+                  "passed": true
+                },
+                "6": {
+                  "empirical_pct": 98.61111111111111,
+                  "target_pct": 90.0,
+                  "n": 216,
+                  "mean_width": 2851.5535121595317,
+                  "median_width": 2901.5647372585595,
+                  "mean_relative_width_pct": 28.985973746236496,
+                  "passed": true
+                },
+                "7": {
+                  "empirical_pct": 77.40585774058577,
+                  "target_pct": 90.0,
+                  "n": 239,
+                  "mean_width": 2965.147585483109,
+                  "median_width": 2918.054700419143,
+                  "mean_relative_width_pct": 28.21654841559331,
+                  "passed": false
+                },
+                "8": {
+                  "empirical_pct": 87.54716981132076,
+                  "target_pct": 90.0,
+                  "n": 265,
+                  "mean_width": 2636.4024464197096,
+                  "median_width": 2628.473339854615,
+                  "mean_relative_width_pct": 25.456299315722223,
+                  "passed": false
+                },
+                "9": {
+                  "empirical_pct": 95.81151832460732,
+                  "target_pct": 90.0,
+                  "n": 191,
+                  "mean_width": 2405.013069194314,
+                  "median_width": 2398.2858910524274,
+                  "mean_relative_width_pct": 26.627038457107567,
+                  "passed": true
+                },
+                "10": {
+                  "empirical_pct": 99.04153354632588,
+                  "target_pct": 90.0,
+                  "n": 313,
+                  "mean_width": 2049.3473975441966,
+                  "median_width": 1921.195894417784,
+                  "mean_relative_width_pct": 27.614381628755453,
+                  "passed": true
+                },
+                "11": {
+                  "empirical_pct": 100.0,
+                  "target_pct": 90.0,
+                  "n": 168,
+                  "mean_width": 1858.7573233554306,
+                  "median_width": 1852.4879290471727,
+                  "mean_relative_width_pct": 32.52312262257502,
+                  "passed": true
+                },
+                "12": {
+                  "empirical_pct": 94.04761904761905,
+                  "target_pct": 90.0,
+                  "n": 336,
+                  "mean_width": 1548.2707878737062,
+                  "median_width": 1555.9258129060559,
+                  "mean_relative_width_pct": 43.048430008377416,
+                  "passed": true
+                }
+              },
+              "by_load_quintile": {
+                "1": {
+                  "empirical_pct": 78.51239669421489,
+                  "target_pct": 90.0,
+                  "n": 605,
+                  "mean_width": 1529.292683844298,
+                  "median_width": 1551.2565148125059,
+                  "mean_relative_width_pct": 47.62119334448715,
+                  "passed": false
+                },
+                "2": {
+                  "empirical_pct": 87.10743801652893,
+                  "target_pct": 90.0,
+                  "n": 605,
+                  "mean_width": 1879.973319136927,
+                  "median_width": 1883.874123294097,
+                  "mean_relative_width_pct": 40.672647072064564,
+                  "passed": false
+                },
+                "3": {
+                  "empirical_pct": 94.37086092715232,
+                  "target_pct": 90.0,
+                  "n": 604,
+                  "mean_width": 1822.008467849691,
+                  "median_width": 1817.335128985098,
+                  "mean_relative_width_pct": 28.68798929450441,
+                  "passed": true
+                },
+                "4": {
+                  "empirical_pct": 99.17355371900827,
+                  "target_pct": 90.0,
+                  "n": 605,
+                  "mean_width": 2230.5427973948213,
+                  "median_width": 2276.607952448341,
+                  "mean_relative_width_pct": 26.648274944821782,
+                  "passed": true
+                },
+                "5": {
+                  "empirical_pct": 85.6198347107438,
+                  "target_pct": 90.0,
+                  "n": 605,
+                  "mean_width": 3010.459427153487,
+                  "median_width": 2950.709695368336,
+                  "mean_relative_width_pct": 27.534245500952803,
+                  "passed": false
+                }
+              },
+              "worst_conditional_pct": 73.21428571428571
+            },
+            "gaussian_control": {
+              "marginal": {
+                "empirical_pct": 95.43650793650794,
+                "target_pct": 90.0,
+                "n": 3024,
+                "mean_width": 2666.8627571715324,
+                "median_width": 2667.303779621867,
+                "mean_relative_width_pct": 39.81689361504372,
+                "passed": true
+              },
+              "quantile": 1333.6518898109334,
+              "normalised": false,
+              "by_month": {
+                "1": {
+                  "empirical_pct": 97.61904761904762,
+                  "target_pct": 90.0,
+                  "n": 336,
+                  "mean_width": 2663.3345775688585,
+                  "median_width": 2667.303779621867,
+                  "mean_relative_width_pct": 74.29945478031742,
+                  "passed": true
+                },
+                "2": {
+                  "empirical_pct": 99.40476190476191,
+                  "target_pct": 90.0,
+                  "n": 168,
+                  "mean_width": 2667.303779621867,
+                  "median_width": 2667.303779621867,
+                  "mean_relative_width_pct": 50.45612365399811,
+                  "passed": true
+                },
+                "3": {
+                  "empirical_pct": 97.91666666666666,
+                  "target_pct": 90.0,
+                  "n": 336,
+                  "mean_width": 2667.303779621867,
+                  "median_width": 2667.303779621867,
+                  "mean_relative_width_pct": 56.21809383631543,
+                  "passed": true
+                },
+                "4": {
+                  "empirical_pct": 99.40476190476191,
+                  "target_pct": 90.0,
+                  "n": 168,
+                  "mean_width": 2667.303779621867,
+                  "median_width": 2667.303779621867,
+                  "mean_relative_width_pct": 43.287687729669514,
+                  "passed": true
+                },
+                "5": {
+                  "empirical_pct": 97.56944444444444,
+                  "target_pct": 90.0,
+                  "n": 288,
+                  "mean_width": 2667.303779621867,
+                  "median_width": 2667.303779621867,
+                  "mean_relative_width_pct": 39.70551651487523,
+                  "passed": true
+                },
+                "6": {
+                  "empirical_pct": 98.14814814814815,
+                  "target_pct": 90.0,
+                  "n": 216,
+                  "mean_width": 2667.3037796218673,
+                  "median_width": 2667.303779621867,
+                  "mean_relative_width_pct": 27.11307958966033,
+                  "passed": true
+                },
+                "7": {
+                  "empirical_pct": 75.31380753138075,
+                  "target_pct": 90.0,
+                  "n": 239,
+                  "mean_width": 2667.303779621867,
+                  "median_width": 2667.303779621867,
+                  "mean_relative_width_pct": 25.382246268370164,
+                  "passed": false
+                },
+                "8": {
+                  "empirical_pct": 83.01886792452831,
+                  "target_pct": 90.0,
+                  "n": 265,
+                  "mean_width": 2667.3037796218673,
+                  "median_width": 2667.303779621867,
+                  "mean_relative_width_pct": 25.7546731805763,
+                  "passed": false
+                },
+                "9": {
+                  "empirical_pct": 97.38219895287958,
+                  "target_pct": 90.0,
+                  "n": 191,
+                  "mean_width": 2667.3037796218664,
+                  "median_width": 2667.303779621867,
+                  "mean_relative_width_pct": 29.530983106288275,
+                  "passed": true
+                },
+                "10": {
+                  "empirical_pct": 99.68051118210862,
+                  "target_pct": 90.0,
+                  "n": 313,
+                  "mean_width": 2667.303779621867,
+                  "median_width": 2667.303779621867,
+                  "mean_relative_width_pct": 35.941170627568816,
+                  "passed": true
+                },
+                "11": {
+                  "empirical_pct": 100.0,
+                  "target_pct": 90.0,
+                  "n": 168,
+                  "mean_width": 2667.303779621867,
+                  "median_width": 2667.303779621867,
+                  "mean_relative_width_pct": 46.670453859840265,
+                  "passed": true
+                },
+                "12": {
+                  "empirical_pct": 100.0,
+                  "target_pct": 90.0,
+                  "n": 336,
+                  "mean_width": 2667.303779621867,
+                  "median_width": 2667.303779621867,
+                  "mean_relative_width_pct": 74.16224666088495,
+                  "passed": true
+                }
+              },
+              "by_load_quintile": {
+                "1": {
+                  "empirical_pct": 96.8595041322314,
+                  "target_pct": 90.0,
+                  "n": 605,
+                  "mean_width": 2665.0993963329233,
+                  "median_width": 2667.303779621867,
+                  "mean_relative_width_pct": 82.98948590796225,
+                  "passed": true
+                },
+                "2": {
+                  "empirical_pct": 99.00826446280992,
+                  "target_pct": 90.0,
+                  "n": 605,
+                  "mean_width": 2667.303779621867,
+                  "median_width": 2667.303779621867,
+                  "mean_relative_width_pct": 57.70630048747118,
+                  "passed": true
+                },
+                "3": {
+                  "empirical_pct": 98.67549668874173,
+                  "target_pct": 90.0,
+                  "n": 604,
+                  "mean_width": 2667.303779621867,
+                  "median_width": 2667.303779621867,
+                  "mean_relative_width_pct": 41.99738015778303,
+                  "passed": true
+                },
+                "4": {
+                  "empirical_pct": 99.83471074380165,
+                  "target_pct": 90.0,
+                  "n": 605,
+                  "mean_width": 2667.3037796218664,
+                  "median_width": 2667.303779621867,
+                  "mean_relative_width_pct": 31.86625451156692,
+                  "passed": true
+                },
+                "5": {
+                  "empirical_pct": 82.8099173553719,
+                  "target_pct": 90.0,
+                  "n": 605,
+                  "mean_width": 2667.303779621867,
+                  "median_width": 2667.303779621867,
+                  "mean_relative_width_pct": 24.395677427604603,
+                  "passed": false
+                }
+              },
+              "worst_conditional_pct": 75.31380753138075
+            }
+          }
+        }
+      }
+    },
+    {
+      "building_id": "Bull_education_Luke",
+      "role": "generalisation",
+      "year": 2016,
+      "calibration_artifact": "calibration_20260812T201111+0000_seed42.json",
+      "alpha": 0.1,
+      "n_hours": 8572,
+      "embargo_hours": 168,
+      "mondrian_bin_width_k": 5.0,
+      "splits": {
+        "contiguous_forward": {
+          "n_calibration": 6000,
+          "n_scored": 2404,
+          "scored_window": [
+            "2016-09-20 17:00:00",
+            "2016-12-31 23:00:00"
+          ],
+          "methods": {
+            "conformal_constant": {
+              "marginal": {
+                "empirical_pct": 86.27287853577371,
+                "target_pct": 90.0,
+                "n": 2404,
+                "mean_width": 924.7899903574483,
+                "median_width": 925.4006198959505,
+                "mean_relative_width_pct": 39.374637377233356,
+                "passed": false
+              },
+              "quantile": 462.70030994797526,
+              "normalised": false,
+              "by_month": {
+                "9": {
+                  "empirical_pct": 77.7327935222672,
+                  "target_pct": 90.0,
+                  "n": 247,
+                  "mean_width": 925.4006198959506,
+                  "median_width": 925.4006198959505,
+                  "mean_relative_width_pct": 27.599907395296725,
+                  "passed": false
+                },
+                "10": {
+                  "empirical_pct": 84.89208633093526,
+                  "target_pct": 90.0,
+                  "n": 695,
+                  "mean_width": 925.4006198959505,
+                  "median_width": 925.4006198959505,
+                  "mean_relative_width_pct": 33.069998172650585,
+                  "passed": false
+                },
+                "11": {
+                  "empirical_pct": 82.91666666666667,
+                  "target_pct": 90.0,
+                  "n": 720,
+                  "mean_width": 925.4006198959506,
+                  "median_width": 925.4006198959505,
+                  "mean_relative_width_pct": 40.188822648549596,
+                  "passed": false
+                },
+                "12": {
+                  "empirical_pct": 93.66576819407008,
+                  "target_pct": 90.0,
+                  "n": 742,
+                  "mean_width": 923.4222460272719,
+                  "median_width": 925.4006198959505,
+                  "mean_relative_width_pct": 56.37604350900687,
+                  "passed": true
+                }
+              },
+              "by_load_quintile": {
+                "1": {
+                  "empirical_pct": 88.77338877338877,
+                  "target_pct": 90.0,
+                  "n": 481,
+                  "mean_width": 922.348741703519,
+                  "median_width": 925.4006198959505,
+                  "mean_relative_width_pct": 76.23990182511696,
+                  "passed": false
+                },
+                "2": {
+                  "empirical_pct": 91.06029106029106,
+                  "target_pct": 90.0,
+                  "n": 481,
+                  "mean_width": 925.4006198959505,
+                  "median_width": 925.4006198959505,
+                  "mean_relative_width_pct": 54.72301713585416,
+                  "passed": true
+                },
+                "3": {
+                  "empirical_pct": 90.41666666666667,
+                  "target_pct": 90.0,
+                  "n": 480,
+                  "mean_width": 925.4006198959505,
+                  "median_width": 925.4006198959505,
+                  "mean_relative_width_pct": 39.52745871596033,
+                  "passed": true
+                },
+                "4": {
+                  "empirical_pct": 85.44698544698545,
+                  "target_pct": 90.0,
+                  "n": 481,
+                  "mean_width": 925.4006198959505,
+                  "median_width": 925.4006198959505,
+                  "mean_relative_width_pct": 32.474931327657465,
+                  "passed": false
+                },
+                "5": {
+                  "empirical_pct": 75.67567567567568,
+                  "target_pct": 90.0,
+                  "n": 481,
+                  "mean_width": 925.4006198959505,
+                  "median_width": 925.4006198959505,
+                  "mean_relative_width_pct": 25.34057537934704,
+                  "passed": false
+                }
+              },
+              "worst_conditional_pct": 75.67567567567568
+            },
+            "conformal_normalised": {
+              "marginal": {
+                "empirical_pct": 86.35607321131448,
+                "target_pct": 90.0,
+                "n": 2404,
+                "mean_width": 1053.3652902083138,
+                "median_width": 1037.401556007162,
+                "mean_relative_width_pct": 44.84896761445844,
+                "passed": false
+              },
+              "quantile": 0.2331586911217429,
+              "normalised": true,
+              "by_month": {
+                "9": {
+                  "empirical_pct": 91.49797570850203,
+                  "target_pct": 90.0,
+                  "n": 247,
+                  "mean_width": 1434.7238502588373,
+                  "median_width": 1487.2824068425389,
+                  "mean_relative_width_pct": 42.79038132632739,
+                  "passed": true
+                },
+                "10": {
+                  "empirical_pct": 92.08633093525181,
+                  "target_pct": 90.0,
+                  "n": 695,
+                  "mean_width": 1268.0536522688137,
+                  "median_width": 1244.0320034984816,
+                  "mean_relative_width_pct": 45.315003104350176,
+                  "passed": true
+                },
+                "11": {
+                  "empirical_pct": 84.44444444444444,
+                  "target_pct": 90.0,
+                  "n": 720,
+                  "mean_width": 1020.2597528208955,
+                  "median_width": 989.6165608758022,
+                  "mean_relative_width_pct": 44.308418840460995,
+                  "passed": false
+                },
+                "12": {
+                  "empirical_pct": 81.13207547169812,
+                  "target_pct": 90.0,
+                  "n": 742,
+                  "mean_width": 757.4515583409482,
+                  "median_width": 671.0492364231638,
+                  "mean_relative_width_pct": 46.24333255204381,
+                  "passed": false
+                }
+              },
+              "by_load_quintile": {
+                "1": {
+                  "empirical_pct": 69.23076923076923,
+                  "target_pct": 90.0,
+                  "n": 481,
+                  "mean_width": 601.1234271436705,
+                  "median_width": 620.8990245991813,
+                  "mean_relative_width_pct": 49.68792062920471,
+                  "passed": false
+                },
+                "2": {
+                  "empirical_pct": 88.35758835758836,
+                  "target_pct": 90.0,
+                  "n": 481,
+                  "mean_width": 806.2937458795933,
+                  "median_width": 784.8117216131147,
+                  "mean_relative_width_pct": 47.67970274027056,
+                  "passed": false
+                },
+                "3": {
+                  "empirical_pct": 89.58333333333334,
+                  "target_pct": 90.0,
+                  "n": 480,
+                  "mean_width": 1033.8971816177773,
+                  "median_width": 1028.659913504332,
+                  "mean_relative_width_pct": 44.16176873486365,
+                  "passed": false
+                },
+                "4": {
+                  "empirical_pct": 91.26819126819127,
+                  "target_pct": 90.0,
+                  "n": 481,
+                  "mean_width": 1251.2792284023844,
+                  "median_width": 1256.5266113180578,
+                  "mean_relative_width_pct": 43.91093558880538,
+                  "passed": true
+                },
+                "5": {
+                  "empirical_pct": 93.34719334719335,
+                  "target_pct": 90.0,
+                  "n": 481,
+                  "mean_width": 1574.1923937599104,
+                  "median_width": 1612.5461830610502,
+                  "mean_relative_width_pct": 43.106672027249125,
+                  "passed": true
+                }
+              },
+              "worst_conditional_pct": 69.23076923076923
+            },
+            "conformal_mondrian_temperature": {
+              "marginal": {
+                "empirical_pct": 83.86023294509151,
+                "target_pct": 90.0,
+                "n": 2404,
+                "mean_width": 953.9713522392225,
+                "median_width": 956.1171061151423,
+                "mean_relative_width_pct": 40.61708761377253,
+                "passed": false
+              },
+              "quantile": 0.2331586911217429,
+              "normalised": true,
+              "by_month": {
+                "9": {
+                  "empirical_pct": 76.11336032388664,
+                  "target_pct": 90.0,
+                  "n": 247,
+                  "mean_width": 966.0363830027283,
+                  "median_width": 921.283281627886,
+                  "mean_relative_width_pct": 28.811861736553144,
+                  "passed": false
+                },
+                "10": {
+                  "empirical_pct": 81.72661870503597,
+                  "target_pct": 90.0,
+                  "n": 695,
+                  "mean_width": 969.3086308286593,
+                  "median_width": 954.0642069839253,
+                  "mean_relative_width_pct": 34.639089234500815,
+                  "passed": false
+                },
+                "11": {
+                  "empirical_pct": 87.77777777777777,
+                  "target_pct": 90.0,
+                  "n": 720,
+                  "mean_width": 1032.6868836787307,
+                  "median_width": 1051.9582427940645,
+                  "mean_relative_width_pct": 44.848111323195674,
+                  "passed": false
+                },
+                "12": {
+                  "empirical_pct": 84.63611859838275,
+                  "target_pct": 90.0,
+                  "n": 742,
+                  "mean_width": 859.2076677989384,
+                  "median_width": 878.7157823184816,
+                  "mean_relative_width_pct": 52.45566594426046,
+                  "passed": false
+                }
+              },
+              "by_load_quintile": {
+                "1": {
+                  "empirical_pct": 75.88357588357589,
+                  "target_pct": 90.0,
+                  "n": 481,
+                  "mean_width": 738.3186171406862,
+                  "median_width": 829.3712182134977,
+                  "mean_relative_width_pct": 61.028260072756474,
+                  "passed": false
+                },
+                "2": {
+                  "empirical_pct": 89.6049896049896,
+                  "target_pct": 90.0,
+                  "n": 481,
+                  "mean_width": 962.0767589840427,
+                  "median_width": 978.1102421846806,
+                  "mean_relative_width_pct": 56.891838881424526,
+                  "passed": false
+                },
+                "3": {
+                  "empirical_pct": 92.91666666666667,
+                  "target_pct": 90.0,
+                  "n": 480,
+                  "mean_width": 1051.6543971924734,
+                  "median_width": 1075.6901214323943,
+                  "mean_relative_width_pct": 44.920248457535685,
+                  "passed": true
+                },
+                "4": {
+                  "empirical_pct": 87.31808731808732,
+                  "target_pct": 90.0,
+                  "n": 481,
+                  "mean_width": 1045.3547262583297,
+                  "median_width": 1102.3164077724805,
+                  "mean_relative_width_pct": 36.68446099819819,
+                  "passed": false
+                },
+                "5": {
+                  "empirical_pct": 73.5966735966736,
+                  "target_pct": 90.0,
+                  "n": 481,
+                  "mean_width": 972.6553448741212,
+                  "median_width": 885.3018634295458,
+                  "mean_relative_width_pct": 26.634568375023104,
+                  "passed": false
+                }
+              },
+              "worst_conditional_pct": 73.5966735966736
+            },
+            "gaussian_control": {
+              "marginal": {
+                "empirical_pct": 95.75707154742096,
+                "target_pct": 90.0,
+                "n": 2404,
+                "mean_width": 1240.7943553558543,
+                "median_width": 1242.8644091735678,
+                "mean_relative_width_pct": 52.829105322572865,
+                "passed": true
+              },
+              "quantile": 621.432204586784,
+              "normalised": false,
+              "by_month": {
+                "9": {
+                  "empirical_pct": 91.90283400809717,
+                  "target_pct": 90.0,
+                  "n": 247,
+                  "mean_width": 1242.8644091735682,
+                  "median_width": 1242.8644091735678,
+                  "mean_relative_width_pct": 37.06820793134717,
+                  "passed": true
+                },
+                "10": {
+                  "empirical_pct": 94.67625899280576,
+                  "target_pct": 90.0,
+                  "n": 695,
+                  "mean_width": 1242.8644091735678,
+                  "median_width": 1242.8644091735678,
+                  "mean_relative_width_pct": 44.41484353538004,
+                  "passed": true
+                },
+                "11": {
+                  "empirical_pct": 94.44444444444444,
+                  "target_pct": 90.0,
+                  "n": 720,
+                  "mean_width": 1242.8644091735678,
+                  "median_width": 1242.8644091735678,
+                  "mean_relative_width_pct": 53.975820031422764,
+                  "passed": true
+                },
+                "12": {
+                  "empirical_pct": 99.32614555256065,
+                  "target_pct": 90.0,
+                  "n": 742,
+                  "mean_width": 1236.1576579905714,
+                  "median_width": 1242.8644091735678,
+                  "mean_relative_width_pct": 75.46891815817301,
+                  "passed": true
+                }
+              },
+              "by_load_quintile": {
+                "1": {
+                  "empirical_pct": 96.88149688149689,
+                  "target_pct": 90.0,
+                  "n": 481,
+                  "mean_width": 1232.518443731191,
+                  "median_width": 1242.864409173568,
+                  "mean_relative_width_pct": 101.8780434113899,
+                  "passed": true
+                },
+                "2": {
+                  "empirical_pct": 96.88149688149689,
+                  "target_pct": 90.0,
+                  "n": 481,
+                  "mean_width": 1242.8644091735682,
+                  "median_width": 1242.8644091735678,
+                  "mean_relative_width_pct": 73.49605014139244,
+                  "passed": true
+                },
+                "3": {
+                  "empirical_pct": 98.54166666666667,
+                  "target_pct": 90.0,
+                  "n": 480,
+                  "mean_width": 1242.8644091735675,
+                  "median_width": 1242.8644091735678,
+                  "mean_relative_width_pct": 53.08757155216554,
+                  "passed": true
+                },
+                "4": {
+                  "empirical_pct": 95.21829521829522,
+                  "target_pct": 90.0,
+                  "n": 481,
+                  "mean_width": 1242.8644091735678,
+                  "median_width": 1242.8644091735678,
+                  "mean_relative_width_pct": 43.6156357254649,
+                  "passed": true
+                },
+                "5": {
+                  "empirical_pct": 91.26819126819127,
+                  "target_pct": 90.0,
+                  "n": 481,
+                  "mean_width": 1242.8644091735678,
+                  "median_width": 1242.8644091735678,
+                  "mean_relative_width_pct": 34.03379959969296,
+                  "passed": true
+                }
+              },
+              "worst_conditional_pct": 91.26819126819127
+            }
+          }
+        },
+        "contiguous_reversed": {
+          "n_calibration": 2404,
+          "n_scored": 6000,
+          "scored_window": [
+            "2016-01-01 00:00:00",
+            "2016-09-13 16:00:00"
+          ],
+          "methods": {
+            "conformal_constant": {
+              "marginal": {
+                "empirical_pct": 92.76666666666667,
+                "target_pct": 90.0,
+                "n": 6000,
+                "mean_width": 1027.433990025676,
+                "median_width": 1027.4406984848752,
+                "mean_relative_width_pct": 37.75124681035399,
+                "passed": true
+              },
+              "quantile": 513.7203492424376,
+              "normalised": false,
+              "by_month": {
+                "1": {
+                  "empirical_pct": 94.8936170212766,
+                  "target_pct": 90.0,
+                  "n": 705,
+                  "mean_width": 1027.3836052150932,
+                  "median_width": 1027.4406984848752,
+                  "mean_relative_width_pct": 86.64372943663075,
+                  "passed": true
+                },
+                "2": {
+                  "empirical_pct": 95.52238805970148,
+                  "target_pct": 90.0,
+                  "n": 670,
+                  "mean_width": 1027.4406984848752,
+                  "median_width": 1027.4406984848752,
+                  "mean_relative_width_pct": 62.84007112441906,
+                  "passed": true
+                },
+                "3": {
+                  "empirical_pct": 77.79291553133515,
+                  "target_pct": 90.0,
+                  "n": 734,
+                  "mean_width": 1027.4406984848752,
+                  "median_width": 1027.4406984848752,
+                  "mean_relative_width_pct": 53.31275362942297,
+                  "passed": false
+                },
+                "4": {
+                  "empirical_pct": 90.82058414464534,
+                  "target_pct": 90.0,
+                  "n": 719,
+                  "mean_width": 1027.4406984848752,
+                  "median_width": 1027.4406984848752,
+                  "mean_relative_width_pct": 41.24409484091373,
+                  "passed": true
+                },
+                "5": {
+                  "empirical_pct": 90.70080862533693,
+                  "target_pct": 90.0,
+                  "n": 742,
+                  "mean_width": 1027.4406984848752,
+                  "median_width": 1027.4406984848752,
+                  "mean_relative_width_pct": 35.12904367875403,
+                  "passed": true
+                },
+                "6": {
+                  "empirical_pct": 97.77777777777777,
+                  "target_pct": 90.0,
+                  "n": 720,
+                  "mean_width": 1027.4406984848754,
+                  "median_width": 1027.4406984848756,
+                  "mean_relative_width_pct": 28.59923893504037,
+                  "passed": true
+                },
+                "7": {
+                  "empirical_pct": 98.03328290468987,
+                  "target_pct": 90.0,
+                  "n": 661,
+                  "mean_width": 1027.4406984848754,
+                  "median_width": 1027.4406984848756,
+                  "mean_relative_width_pct": 27.462777588761274,
+                  "passed": true
+                },
+                "8": {
+                  "empirical_pct": 96.10215053763442,
+                  "target_pct": 90.0,
+                  "n": 744,
+                  "mean_width": 1027.4406984848754,
+                  "median_width": 1027.4406984848756,
+                  "mean_relative_width_pct": 27.374737755164645,
+                  "passed": true
+                },
+                "9": {
+                  "empirical_pct": 96.06557377049181,
+                  "target_pct": 90.0,
+                  "n": 305,
+                  "mean_width": 1027.4406984848754,
+                  "median_width": 1027.4406984848756,
+                  "mean_relative_width_pct": 26.777187558839657,
+                  "passed": true
+                }
+              },
+              "by_load_quintile": {
+                "1": {
+                  "empirical_pct": 85.83333333333333,
+                  "target_pct": 90.0,
+                  "n": 1200,
+                  "mean_width": 1027.4071561888784,
+                  "median_width": 1027.4406984848752,
+                  "mean_relative_width_pct": 93.43226637464993,
+                  "passed": false
+                },
+                "2": {
+                  "empirical_pct": 91.83333333333333,
+                  "target_pct": 90.0,
+                  "n": 1200,
+                  "mean_width": 1027.4406984848752,
+                  "median_width": 1027.4406984848752,
+                  "mean_relative_width_pct": 51.61674846192581,
+                  "passed": true
+                },
+                "3": {
+                  "empirical_pct": 92.0,
+                  "target_pct": 90.0,
+                  "n": 1200,
+                  "mean_width": 1027.4406984848752,
+                  "median_width": 1027.4406984848754,
+                  "mean_relative_width_pct": 35.27439894138681,
+                  "passed": true
+                },
+                "4": {
+                  "empirical_pct": 97.5,
+                  "target_pct": 90.0,
+                  "n": 1200,
+                  "mean_width": 1027.4406984848752,
+                  "median_width": 1027.4406984848754,
+                  "mean_relative_width_pct": 28.497488022912375,
+                  "passed": true
+                },
+                "5": {
+                  "empirical_pct": 96.66666666666667,
+                  "target_pct": 90.0,
+                  "n": 1200,
+                  "mean_width": 1027.4406984848752,
+                  "median_width": 1027.4406984848756,
+                  "mean_relative_width_pct": 25.687817024819367,
+                  "passed": true
+                }
+              },
+              "worst_conditional_pct": 77.79291553133515
+            },
+            "conformal_normalised": {
+              "marginal": {
+                "empirical_pct": 92.9,
+                "target_pct": 90.0,
+                "n": 6000,
+                "mean_width": 1461.1124448847734,
+                "median_width": 1489.9211680540407,
+                "mean_relative_width_pct": 53.68599546054184,
+                "passed": true
+              },
+              "quantile": 0.264291157459623,
+              "normalised": true,
+              "by_month": {
+                "1": {
+                  "empirical_pct": 89.07801418439716,
+                  "target_pct": 90.0,
+                  "n": 705,
+                  "mean_width": 707.6021694972587,
+                  "median_width": 684.4794508306104,
+                  "mean_relative_width_pct": 59.675169636231146,
+                  "passed": false
+                },
+                "2": {
+                  "empirical_pct": 88.50746268656717,
+                  "target_pct": 90.0,
+                  "n": 670,
+                  "mean_width": 927.2793393435785,
+                  "median_width": 928.9397084451435,
+                  "mean_relative_width_pct": 56.714027118532115,
+                  "passed": false
+                },
+                "3": {
+                  "empirical_pct": 75.88555858310627,
+                  "target_pct": 90.0,
+                  "n": 734,
+                  "mean_width": 1125.463466365589,
+                  "median_width": 1112.6105014708892,
+                  "mean_relative_width_pct": 58.39904589116127,
+                  "passed": false
+                },
+                "4": {
+                  "empirical_pct": 92.48956884561892,
+                  "target_pct": 90.0,
+                  "n": 719,
+                  "mean_width": 1281.2605690194302,
+                  "median_width": 1258.1596222194585,
+                  "mean_relative_width_pct": 51.433072976852095,
+                  "passed": true
+                },
+                "5": {
+                  "empirical_pct": 95.55256064690026,
+                  "target_pct": 90.0,
+                  "n": 742,
+                  "mean_width": 1518.0854158435216,
+                  "median_width": 1478.4278687273345,
+                  "mean_relative_width_pct": 51.90459065899226,
+                  "passed": true
+                },
+                "6": {
+                  "empirical_pct": 99.86111111111111,
+                  "target_pct": 90.0,
+                  "n": 720,
+                  "mean_width": 1883.822811126881,
+                  "median_width": 1940.761442872486,
+                  "mean_relative_width_pct": 52.4369910264852,
+                  "passed": true
+                },
+                "7": {
+                  "empirical_pct": 98.9409984871407,
+                  "target_pct": 90.0,
+                  "n": 661,
+                  "mean_width": 2027.518410228065,
+                  "median_width": 2019.6067616256773,
+                  "mean_relative_width_pct": 54.194161511533565,
+                  "passed": true
+                },
+                "8": {
+                  "empirical_pct": 100.0,
+                  "target_pct": 90.0,
+                  "n": 744,
+                  "mean_width": 1990.7554478732604,
+                  "median_width": 1999.158455995561,
+                  "mean_relative_width_pct": 53.04092820204559,
+                  "passed": true
+                },
+                "9": {
+                  "empirical_pct": 100.0,
+                  "target_pct": 90.0,
+                  "n": 305,
+                  "mean_width": 1951.2718821962555,
+                  "median_width": 1966.4057428770766,
+                  "mean_relative_width_pct": 50.85410111251143,
+                  "passed": true
+                }
+              },
+              "by_load_quintile": {
+                "1": {
+                  "empirical_pct": 75.33333333333333,
+                  "target_pct": 90.0,
+                  "n": 1200,
+                  "mean_width": 730.7459871149742,
+                  "median_width": 717.6843719696155,
+                  "mean_relative_width_pct": 66.45394020185418,
+                  "passed": false
+                },
+                "2": {
+                  "empirical_pct": 93.5,
+                  "target_pct": 90.0,
+                  "n": 1200,
+                  "mean_width": 1094.4121592923755,
+                  "median_width": 1089.1500365064312,
+                  "mean_relative_width_pct": 54.98127261570533,
+                  "passed": true
+                },
+                "3": {
+                  "empirical_pct": 96.66666666666667,
+                  "target_pct": 90.0,
+                  "n": 1200,
+                  "mean_width": 1497.5422370645274,
+                  "median_width": 1480.133114914384,
+                  "mean_relative_width_pct": 51.41406446103384,
+                  "passed": true
+                },
+                "4": {
+                  "empirical_pct": 99.58333333333333,
+                  "target_pct": 90.0,
+                  "n": 1200,
+                  "mean_width": 1926.9977317388018,
+                  "median_width": 1936.9055889822348,
+                  "mean_relative_width_pct": 53.447945814669524,
+                  "passed": true
+                },
+                "5": {
+                  "empirical_pct": 99.41666666666666,
+                  "target_pct": 90.0,
+                  "n": 1200,
+                  "mean_width": 2055.8641092131875,
+                  "median_width": 2055.1022676070743,
+                  "mean_relative_width_pct": 51.40020357694546,
+                  "passed": true
+                }
+              },
+              "worst_conditional_pct": 75.33333333333333
+            },
+            "conformal_mondrian_temperature": {
+              "marginal": {
+                "empirical_pct": 91.66666666666666,
+                "target_pct": 90.0,
+                "n": 6000,
+                "mean_width": 1149.4947580828825,
+                "median_width": 1165.9203452262482,
+                "mean_relative_width_pct": 42.23615408957864,
+                "passed": true
+              },
+              "quantile": 0.264291157459623,
+              "normalised": true,
+              "by_month": {
+                "1": {
+                  "empirical_pct": 87.65957446808511,
+                  "target_pct": 90.0,
+                  "n": 705,
+                  "mean_width": 725.576330117016,
+                  "median_width": 717.9034012654961,
+                  "mean_relative_width_pct": 61.19100880446739,
+                  "passed": false
+                },
+                "2": {
+                  "empirical_pct": 89.40298507462686,
+                  "target_pct": 90.0,
+                  "n": 670,
+                  "mean_width": 891.3559445625189,
+                  "median_width": 929.1910148276801,
+                  "mean_relative_width_pct": 54.5168894283459,
+                  "passed": false
+                },
+                "3": {
+                  "empirical_pct": 73.433242506812,
+                  "target_pct": 90.0,
+                  "n": 734,
+                  "mean_width": 1034.1065454596182,
+                  "median_width": 1027.8161517194637,
+                  "mean_relative_width_pct": 53.65863700548542,
+                  "passed": false
+                },
+                "4": {
+                  "empirical_pct": 90.26425591098747,
+                  "target_pct": 90.0,
+                  "n": 719,
+                  "mean_width": 1102.2760371146778,
+                  "median_width": 1109.7635450489975,
+                  "mean_relative_width_pct": 44.248176544559534,
+                  "passed": true
+                },
+                "5": {
+                  "empirical_pct": 92.58760107816711,
+                  "target_pct": 90.0,
+                  "n": 742,
+                  "mean_width": 1201.2303761519363,
+                  "median_width": 1200.81821392055,
+                  "mean_relative_width_pct": 41.07105589092906,
+                  "passed": true
+                },
+                "6": {
+                  "empirical_pct": 99.30555555555556,
+                  "target_pct": 90.0,
+                  "n": 720,
+                  "mean_width": 1276.7567227991767,
+                  "median_width": 1244.9760717885881,
+                  "mean_relative_width_pct": 35.53905410900975,
+                  "passed": true
+                },
+                "7": {
+                  "empirical_pct": 98.9409984871407,
+                  "target_pct": 90.0,
+                  "n": 661,
+                  "mean_width": 1445.0005738605498,
+                  "median_width": 1251.344371930556,
+                  "mean_relative_width_pct": 38.62386358072505,
+                  "passed": true
+                },
+                "8": {
+                  "empirical_pct": 99.46236559139786,
+                  "target_pct": 90.0,
+                  "n": 744,
+                  "mean_width": 1448.955308849902,
+                  "median_width": 1304.5144908342374,
+                  "mean_relative_width_pct": 38.60541212472085,
+                  "passed": true
+                },
+                "9": {
+                  "empirical_pct": 98.0327868852459,
+                  "target_pct": 90.0,
+                  "n": 305,
+                  "mean_width": 1288.236620422306,
+                  "median_width": 1267.8421484022629,
+                  "mean_relative_width_pct": 33.5740580026494,
+                  "passed": true
+                }
+              },
+              "by_load_quintile": {
+                "1": {
+                  "empirical_pct": 75.91666666666667,
+                  "target_pct": 90.0,
+                  "n": 1200,
+                  "mean_width": 738.6597021347754,
+                  "median_width": 729.3649179951351,
+                  "mean_relative_width_pct": 67.17361236423807,
+                  "passed": false
+                },
+                "2": {
+                  "empirical_pct": 89.08333333333334,
+                  "target_pct": 90.0,
+                  "n": 1200,
+                  "mean_width": 1008.8637999068185,
+                  "median_width": 1023.7149233971365,
+                  "mean_relative_width_pct": 50.68347892868629,
+                  "passed": false
+                },
+                "3": {
+                  "empirical_pct": 95.5,
+                  "target_pct": 90.0,
+                  "n": 1200,
+                  "mean_width": 1245.3629624546427,
+                  "median_width": 1267.0308267422952,
+                  "mean_relative_width_pct": 42.756170773878566,
+                  "passed": true
+                },
+                "4": {
+                  "empirical_pct": 99.58333333333333,
+                  "target_pct": 90.0,
+                  "n": 1200,
+                  "mean_width": 1355.331189944596,
+                  "median_width": 1236.7651130111853,
+                  "mean_relative_width_pct": 37.591984052687664,
+                  "passed": true
+                },
+                "5": {
+                  "empirical_pct": 98.25,
+                  "target_pct": 90.0,
+                  "n": 1200,
+                  "mean_width": 1399.2561359735798,
+                  "median_width": 1277.2405062202874,
+                  "mean_relative_width_pct": 34.98385419688941,
+                  "passed": true
+                }
+              },
+              "worst_conditional_pct": 73.433242506812
+            },
+            "gaussian_control": {
+              "marginal": {
+                "empirical_pct": 94.93333333333334,
+                "target_pct": 90.0,
+                "n": 6000,
+                "mean_width": 1142.902487339333,
+                "median_width": 1142.91881897524,
+                "mean_relative_width_pct": 41.99393274757866,
+                "passed": true
+              },
+              "quantile": 571.45940948762,
+              "normalised": false,
+              "by_month": {
+                "1": {
+                  "empirical_pct": 96.45390070921985,
+                  "target_pct": 90.0,
+                  "n": 705,
+                  "mean_width": 1142.7798263292239,
+                  "median_width": 1142.91881897524,
+                  "mean_relative_width_pct": 96.37559483673036,
+                  "passed": true
+                },
+                "2": {
+                  "empirical_pct": 97.01492537313433,
+                  "target_pct": 90.0,
+                  "n": 670,
+                  "mean_width": 1142.91881897524,
+                  "median_width": 1142.91881897524,
+                  "mean_relative_width_pct": 69.90291505850678,
+                  "passed": true
+                },
+                "3": {
+                  "empirical_pct": 82.9700272479564,
+                  "target_pct": 90.0,
+                  "n": 734,
+                  "mean_width": 1142.9188189752401,
+                  "median_width": 1142.91881897524,
+                  "mean_relative_width_pct": 59.30478469882709,
+                  "passed": false
+                },
+                "4": {
+                  "empirical_pct": 93.88038942976355,
+                  "target_pct": 90.0,
+                  "n": 719,
+                  "mean_width": 1142.91881897524,
+                  "median_width": 1142.91881897524,
+                  "mean_relative_width_pct": 45.87968165441894,
+                  "passed": true
+                },
+                "5": {
+                  "empirical_pct": 93.66576819407008,
+                  "target_pct": 90.0,
+                  "n": 742,
+                  "mean_width": 1142.91881897524,
+                  "median_width": 1142.91881897524,
+                  "mean_relative_width_pct": 39.07733572580705,
+                  "passed": true
+                },
+                "6": {
+                  "empirical_pct": 98.75,
+                  "target_pct": 90.0,
+                  "n": 720,
+                  "mean_width": 1142.91881897524,
+                  "median_width": 1142.9188189752404,
+                  "mean_relative_width_pct": 31.813620421527624,
+                  "passed": true
+                },
+                "7": {
+                  "empirical_pct": 98.78971255673223,
+                  "target_pct": 90.0,
+                  "n": 661,
+                  "mean_width": 1142.9188189752401,
+                  "median_width": 1142.9188189752404,
+                  "mean_relative_width_pct": 30.54942769330913,
+                  "passed": true
+                },
+                "8": {
+                  "empirical_pct": 97.44623655913979,
+                  "target_pct": 90.0,
+                  "n": 744,
+                  "mean_width": 1142.9188189752401,
+                  "median_width": 1142.9188189752404,
+                  "mean_relative_width_pct": 30.451492714886122,
+                  "passed": true
+                },
+                "9": {
+                  "empirical_pct": 97.70491803278688,
+                  "target_pct": 90.0,
+                  "n": 305,
+                  "mean_width": 1142.91881897524,
+                  "median_width": 1142.9188189752404,
+                  "mean_relative_width_pct": 29.786781490511515,
+                  "passed": true
+                }
+              },
+              "by_load_quintile": {
+                "1": {
+                  "empirical_pct": 89.41666666666667,
+                  "target_pct": 90.0,
+                  "n": 1200,
+                  "mean_width": 1142.8371607957054,
+                  "median_width": 1142.91881897524,
+                  "mean_relative_width_pct": 103.92945521851412,
+                  "passed": false
+                },
+                "2": {
+                  "empirical_pct": 94.25,
+                  "target_pct": 90.0,
+                  "n": 1200,
+                  "mean_width": 1142.91881897524,
+                  "median_width": 1142.91881897524,
+                  "mean_relative_width_pct": 57.418158808038214,
+                  "passed": true
+                },
+                "3": {
+                  "empirical_pct": 94.66666666666667,
+                  "target_pct": 90.0,
+                  "n": 1200,
+                  "mean_width": 1142.91881897524,
+                  "median_width": 1142.9188189752401,
+                  "mean_relative_width_pct": 39.23902804084294,
+                  "passed": true
+                },
+                "4": {
+                  "empirical_pct": 98.5,
+                  "target_pct": 90.0,
+                  "n": 1200,
+                  "mean_width": 1142.91881897524,
+                  "median_width": 1142.9188189752401,
+                  "mean_relative_width_pct": 31.700433322271707,
+                  "passed": true
+                },
+                "5": {
+                  "empirical_pct": 97.83333333333334,
+                  "target_pct": 90.0,
+                  "n": 1200,
+                  "mean_width": 1142.91881897524,
+                  "median_width": 1142.9188189752404,
+                  "mean_relative_width_pct": 28.574972297041825,
+                  "passed": true
+                }
+              },
+              "worst_conditional_pct": 82.9700272479564
+            }
+          }
+        },
+        "interleaved_weeks": {
+          "n_calibration": 5712,
+          "n_scored": 2860,
+          "scored_window": [
+            "2016-01-01 00:00:00",
+            "2016-12-31 23:00:00"
+          ],
+          "methods": {
+            "conformal_constant": {
+              "marginal": {
+                "empirical_pct": 90.13986013986013,
+                "target_pct": 90.0,
+                "n": 2860,
+                "mean_width": 961.9224798072789,
+                "median_width": 961.9250997218996,
+                "mean_relative_width_pct": 36.02257469177897,
+                "passed": true
+              },
+              "quantile": 480.9625498609498,
+              "normalised": false,
+              "by_month": {
+                "1": {
+                  "empirical_pct": 91.36904761904762,
+                  "target_pct": 90.0,
+                  "n": 336,
+                  "mean_width": 961.9027992581645,
+                  "median_width": 961.9250997218996,
+                  "mean_relative_width_pct": 84.90060976901938,
+                  "passed": true
+                },
+                "2": {
+                  "empirical_pct": 98.21428571428571,
+                  "target_pct": 90.0,
+                  "n": 168,
+                  "mean_width": 961.9250997218994,
+                  "median_width": 961.9250997218996,
+                  "mean_relative_width_pct": 49.64120072723482,
+                  "passed": true
+                },
+                "3": {
+                  "empirical_pct": 87.73946360153256,
+                  "target_pct": 90.0,
+                  "n": 261,
+                  "mean_width": 961.9250997218994,
+                  "median_width": 961.9250997218996,
+                  "mean_relative_width_pct": 43.498029784745114,
+                  "passed": false
+                },
+                "4": {
+                  "empirical_pct": 80.65843621399176,
+                  "target_pct": 90.0,
+                  "n": 243,
+                  "mean_width": 961.9250997218994,
+                  "median_width": 961.9250997218996,
+                  "mean_relative_width_pct": 41.728983789783044,
+                  "passed": false
+                },
+                "5": {
+                  "empirical_pct": 79.04761904761905,
+                  "target_pct": 90.0,
+                  "n": 210,
+                  "mean_width": 961.9250997218993,
+                  "median_width": 961.9250997218996,
+                  "mean_relative_width_pct": 31.333224107340808,
+                  "passed": false
+                },
+                "6": {
+                  "empirical_pct": 96.5986394557823,
+                  "target_pct": 90.0,
+                  "n": 294,
+                  "mean_width": 961.9250997218996,
+                  "median_width": 961.9250997218996,
+                  "mean_relative_width_pct": 27.98478000974412,
+                  "passed": true
+                },
+                "7": {
+                  "empirical_pct": 99.40476190476191,
+                  "target_pct": 90.0,
+                  "n": 168,
+                  "mean_width": 961.9250997218994,
+                  "median_width": 961.9250997218996,
+                  "mean_relative_width_pct": 25.790524505853558,
+                  "passed": true
+                },
+                "8": {
+                  "empirical_pct": 94.67084639498434,
+                  "target_pct": 90.0,
+                  "n": 319,
+                  "mean_width": 961.9250997218999,
+                  "median_width": 961.9250997218996,
+                  "mean_relative_width_pct": 25.28672862370813,
+                  "passed": true
+                },
+                "9": {
+                  "empirical_pct": 88.10810810810811,
+                  "target_pct": 90.0,
+                  "n": 185,
+                  "mean_width": 961.9250997218994,
+                  "median_width": 961.9250997218996,
+                  "mean_relative_width_pct": 24.41762906987207,
+                  "passed": false
+                },
+                "10": {
+                  "empirical_pct": 85.58558558558559,
+                  "target_pct": 90.0,
+                  "n": 222,
+                  "mean_width": 961.9250997218994,
+                  "median_width": 961.9250997218996,
+                  "mean_relative_width_pct": 35.27853937856463,
+                  "passed": false
+                },
+                "11": {
+                  "empirical_pct": 85.46099290780141,
+                  "target_pct": 90.0,
+                  "n": 282,
+                  "mean_width": 961.9250997218996,
+                  "median_width": 961.9250997218996,
+                  "mean_relative_width_pct": 40.75473161050668,
+                  "passed": false
+                },
+                "12": {
+                  "empirical_pct": 97.67441860465115,
+                  "target_pct": 90.0,
+                  "n": 172,
+                  "mean_width": 961.9250997218995,
+                  "median_width": 961.9250997218996,
+                  "mean_relative_width_pct": 55.4264935770902,
+                  "passed": true
+                }
+              },
+              "by_load_quintile": {
+                "1": {
+                  "empirical_pct": 88.2867132867133,
+                  "target_pct": 90.0,
+                  "n": 572,
+                  "mean_width": 961.9120001487967,
+                  "median_width": 961.9250997218996,
+                  "mean_relative_width_pct": 83.17109799201981,
+                  "passed": false
+                },
+                "2": {
+                  "empirical_pct": 90.9090909090909,
+                  "target_pct": 90.0,
+                  "n": 572,
+                  "mean_width": 961.9250997218998,
+                  "median_width": 961.9250997218996,
+                  "mean_relative_width_pct": 49.58033124423013,
+                  "passed": true
+                },
+                "3": {
+                  "empirical_pct": 88.46153846153845,
+                  "target_pct": 90.0,
+                  "n": 572,
+                  "mean_width": 961.9250997218998,
+                  "median_width": 961.9250997218996,
+                  "mean_relative_width_pct": 34.58459812507855,
+                  "passed": false
+                },
+                "4": {
+                  "empirical_pct": 91.6083916083916,
+                  "target_pct": 90.0,
+                  "n": 572,
+                  "mean_width": 961.9250997218998,
+                  "median_width": 961.9250997218996,
+                  "mean_relative_width_pct": 27.659123914698203,
+                  "passed": true
+                },
+                "5": {
+                  "empirical_pct": 91.43356643356644,
+                  "target_pct": 90.0,
+                  "n": 572,
+                  "mean_width": 961.9250997218998,
+                  "median_width": 961.9250997218996,
+                  "mean_relative_width_pct": 24.07324081992048,
+                  "passed": true
+                }
+              },
+              "worst_conditional_pct": 79.04761904761905
+            },
+            "conformal_normalised": {
+              "marginal": {
+                "empirical_pct": 92.9020979020979,
+                "target_pct": 90.0,
+                "n": 2860,
+                "mean_width": 1333.6449594988462,
+                "median_width": 1340.2076251955812,
+                "mean_relative_width_pct": 49.94303197435078,
+                "passed": true
+              },
+              "quantile": 0.2508822839532065,
+              "normalised": true,
+              "by_month": {
+                "1": {
+                  "empirical_pct": 81.54761904761905,
+                  "target_pct": 90.0,
+                  "n": 336,
+                  "mean_width": 646.2470427000325,
+                  "median_width": 616.0992283583989,
+                  "mean_relative_width_pct": 57.0398256757049,
+                  "passed": false
+                },
+                "2": {
+                  "empirical_pct": 97.61904761904762,
+                  "target_pct": 90.0,
+                  "n": 168,
+                  "mean_width": 993.2108315965111,
+                  "median_width": 1008.870971845202,
+                  "mean_relative_width_pct": 51.25573526462764,
+                  "passed": true
+                },
+                "3": {
+                  "empirical_pct": 88.88888888888889,
+                  "target_pct": 90.0,
+                  "n": 261,
+                  "mean_width": 1125.7894160210474,
+                  "median_width": 1079.091247303046,
+                  "mean_relative_width_pct": 50.907936141381334,
+                  "passed": false
+                },
+                "4": {
+                  "empirical_pct": 85.59670781893004,
+                  "target_pct": 90.0,
+                  "n": 243,
+                  "mean_width": 1109.973926723563,
+                  "median_width": 1152.355265537768,
+                  "mean_relative_width_pct": 48.151445480235765,
+                  "passed": false
+                },
+                "5": {
+                  "empirical_pct": 90.95238095238095,
+                  "target_pct": 90.0,
+                  "n": 210,
+                  "mean_width": 1532.6159814042537,
+                  "median_width": 1563.7448135746981,
+                  "mean_relative_width_pct": 49.922597954575735,
+                  "passed": true
+                },
+                "6": {
+                  "empirical_pct": 99.65986394557824,
+                  "target_pct": 90.0,
+                  "n": 294,
+                  "mean_width": 1712.247428956604,
+                  "median_width": 1774.6271140966958,
+                  "mean_relative_width_pct": 49.81351212839097,
+                  "passed": true
+                },
+                "7": {
+                  "empirical_pct": 100.0,
+                  "target_pct": 90.0,
+                  "n": 168,
+                  "mean_width": 1903.60993372837,
+                  "median_width": 1902.5988594066066,
+                  "mean_relative_width_pct": 51.0383798692867,
+                  "passed": true
+                },
+                "8": {
+                  "empirical_pct": 99.68652037617555,
+                  "target_pct": 90.0,
+                  "n": 319,
+                  "mean_width": 1910.7832387426313,
+                  "median_width": 1920.293593393123,
+                  "mean_relative_width_pct": 50.22995785304279,
+                  "passed": true
+                },
+                "9": {
+                  "empirical_pct": 99.45945945945947,
+                  "target_pct": 90.0,
+                  "n": 185,
+                  "mean_width": 1861.6683903988448,
+                  "median_width": 1870.1065077192338,
+                  "mean_relative_width_pct": 47.25682719060655,
+                  "passed": true
+                },
+                "10": {
+                  "empirical_pct": 92.7927927927928,
+                  "target_pct": 90.0,
+                  "n": 222,
+                  "mean_width": 1306.9370015144011,
+                  "median_width": 1279.9153852878267,
+                  "mean_relative_width_pct": 47.931828046236504,
+                  "passed": true
+                },
+                "11": {
+                  "empirical_pct": 89.00709219858156,
+                  "target_pct": 90.0,
+                  "n": 282,
+                  "mean_width": 1178.7193277567762,
+                  "median_width": 1137.1175817426197,
+                  "mean_relative_width_pct": 49.93984444395158,
+                  "passed": false
+                },
+                "12": {
+                  "empirical_pct": 97.67441860465115,
+                  "target_pct": 90.0,
+                  "n": 172,
+                  "mean_width": 843.7646343904739,
+                  "median_width": 762.744500644689,
+                  "mean_relative_width_pct": 48.6180421969862,
+                  "passed": true
+                }
+              },
+              "by_load_quintile": {
+                "1": {
+                  "empirical_pct": 80.24475524475524,
+                  "target_pct": 90.0,
+                  "n": 572,
+                  "mean_width": 691.5591953949008,
+                  "median_width": 672.9889386818597,
+                  "mean_relative_width_pct": 59.795217856284516,
+                  "passed": false
+                },
+                "2": {
+                  "empirical_pct": 93.7062937062937,
+                  "target_pct": 90.0,
+                  "n": 572,
+                  "mean_width": 1003.6673830445278,
+                  "median_width": 997.100119684767,
+                  "mean_relative_width_pct": 51.73184619547191,
+                  "passed": true
+                },
+                "3": {
+                  "empirical_pct": 93.53146853146853,
+                  "target_pct": 90.0,
+                  "n": 572,
+                  "mean_width": 1325.9042396450197,
+                  "median_width": 1341.4950716619924,
+                  "mean_relative_width_pct": 47.67093123333422,
+                  "passed": true
+                },
+                "4": {
+                  "empirical_pct": 98.25174825174825,
+                  "target_pct": 90.0,
+                  "n": 572,
+                  "mean_width": 1734.8442788423724,
+                  "median_width": 1750.9152069426973,
+                  "mean_relative_width_pct": 49.88358542164983,
+                  "passed": true
+                },
+                "5": {
+                  "empirical_pct": 98.77622377622379,
+                  "target_pct": 90.0,
+                  "n": 572,
+                  "mean_width": 1912.24970056741,
+                  "median_width": 1918.7617530638267,
+                  "mean_relative_width_pct": 47.85616630950674,
+                  "passed": true
+                }
+              },
+              "worst_conditional_pct": 80.24475524475524
+            },
+            "conformal_mondrian_temperature": {
+              "marginal": {
+                "empirical_pct": 90.76923076923077,
+                "target_pct": 90.0,
+                "n": 2860,
+                "mean_width": 1004.4463510200918,
+                "median_width": 994.2021080602975,
+                "mean_relative_width_pct": 37.615030798277324,
+                "passed": true
+              },
+              "quantile": 0.2508822839532065,
+              "normalised": true,
+              "by_month": {
+                "1": {
+                  "empirical_pct": 89.28571428571429,
+                  "target_pct": 90.0,
+                  "n": 336,
+                  "mean_width": 810.134867731664,
+                  "median_width": 806.3103170766879,
+                  "mean_relative_width_pct": 71.50508795546406,
+                  "passed": false
+                },
+                "2": {
+                  "empirical_pct": 97.02380952380952,
+                  "target_pct": 90.0,
+                  "n": 168,
+                  "mean_width": 984.7540630099708,
+                  "median_width": 978.665476199594,
+                  "mean_relative_width_pct": 50.81931443827682,
+                  "passed": true
+                },
+                "3": {
+                  "empirical_pct": 86.59003831417624,
+                  "target_pct": 90.0,
+                  "n": 261,
+                  "mean_width": 1071.0346128925833,
+                  "median_width": 1083.4148931651534,
+                  "mean_relative_width_pct": 48.43193665033118,
+                  "passed": false
+                },
+                "4": {
+                  "empirical_pct": 85.59670781893004,
+                  "target_pct": 90.0,
+                  "n": 243,
+                  "mean_width": 1023.228583433169,
+                  "median_width": 1021.7021595185238,
+                  "mean_relative_width_pct": 44.38837180116187,
+                  "passed": false
+                },
+                "5": {
+                  "empirical_pct": 87.14285714285714,
+                  "target_pct": 90.0,
+                  "n": 210,
+                  "mean_width": 1118.9754792236968,
+                  "median_width": 1092.6372960160352,
+                  "mean_relative_width_pct": 36.4488976026009,
+                  "passed": false
+                },
+                "6": {
+                  "empirical_pct": 97.27891156462584,
+                  "target_pct": 90.0,
+                  "n": 294,
+                  "mean_width": 1058.2884676188055,
+                  "median_width": 1016.2289147519105,
+                  "mean_relative_width_pct": 30.788228690283372,
+                  "passed": true
+                },
+                "7": {
+                  "empirical_pct": 97.61904761904762,
+                  "target_pct": 90.0,
+                  "n": 168,
+                  "mean_width": 940.2810843961045,
+                  "median_width": 983.4047434547635,
+                  "mean_relative_width_pct": 25.21021892091106,
+                  "passed": true
+                },
+                "8": {
+                  "empirical_pct": 93.10344827586206,
+                  "target_pct": 90.0,
+                  "n": 319,
+                  "mean_width": 1036.0254542113255,
+                  "median_width": 1014.3419490225642,
+                  "mean_relative_width_pct": 27.23465113392893,
+                  "passed": true
+                },
+                "9": {
+                  "empirical_pct": 85.94594594594595,
+                  "target_pct": 90.0,
+                  "n": 185,
+                  "mean_width": 1008.6439869456811,
+                  "median_width": 1002.6196175723198,
+                  "mean_relative_width_pct": 25.603547244912196,
+                  "passed": false
+                },
+                "10": {
+                  "empirical_pct": 86.93693693693693,
+                  "target_pct": 90.0,
+                  "n": 222,
+                  "mean_width": 1005.656665361025,
+                  "median_width": 985.2099133503457,
+                  "mean_relative_width_pct": 36.882391654518564,
+                  "passed": false
+                },
+                "11": {
+                  "empirical_pct": 87.58865248226951,
+                  "target_pct": 90.0,
+                  "n": 282,
+                  "mean_width": 1054.4992913403885,
+                  "median_width": 1072.4762840287042,
+                  "mean_relative_width_pct": 44.676904277133104,
+                  "passed": false
+                },
+                "12": {
+                  "empirical_pct": 98.83720930232558,
+                  "target_pct": 90.0,
+                  "n": 172,
+                  "mean_width": 959.7864325161195,
+                  "median_width": 905.415423499788,
+                  "mean_relative_width_pct": 55.30326275155195,
+                  "passed": true
+                }
+              },
+              "by_load_quintile": {
+                "1": {
+                  "empirical_pct": 87.76223776223776,
+                  "target_pct": 90.0,
+                  "n": 572,
+                  "mean_width": 832.8729350026292,
+                  "median_width": 825.0544464932032,
+                  "mean_relative_width_pct": 72.01381881220883,
+                  "passed": false
+                },
+                "2": {
+                  "empirical_pct": 88.11188811188812,
+                  "target_pct": 90.0,
+                  "n": 572,
+                  "mean_width": 1010.4638466855057,
+                  "median_width": 1018.315167803777,
+                  "mean_relative_width_pct": 52.082155090318786,
+                  "passed": false
+                },
+                "3": {
+                  "empirical_pct": 93.88111888111888,
+                  "target_pct": 90.0,
+                  "n": 572,
+                  "mean_width": 1098.1291190153086,
+                  "median_width": 1119.3351615683432,
+                  "mean_relative_width_pct": 39.481612738425106,
+                  "passed": true
+                },
+                "4": {
+                  "empirical_pct": 92.48251748251748,
+                  "target_pct": 90.0,
+                  "n": 572,
+                  "mean_width": 1095.111684992609,
+                  "median_width": 1040.9459113413538,
+                  "mean_relative_width_pct": 31.488761239728074,
+                  "passed": true
+                },
+                "5": {
+                  "empirical_pct": 91.6083916083916,
+                  "target_pct": 90.0,
+                  "n": 572,
+                  "mean_width": 985.6541694044066,
+                  "median_width": 989.3045348503497,
+                  "mean_relative_width_pct": 24.66708706539719,
+                  "passed": true
+                }
+              },
+              "worst_conditional_pct": 85.59670781893004
+            },
+            "gaussian_control": {
+              "marginal": {
+                "empirical_pct": 94.86013986013985,
+                "target_pct": 90.0,
+                "n": 2860,
+                "mean_width": 1147.593047898118,
+                "median_width": 1147.628133378063,
+                "mean_relative_width_pct": 42.975662957745364,
+                "passed": true
+              },
+              "quantile": 573.8140666890315,
+              "normalised": false,
+              "by_month": {
+                "1": {
+                  "empirical_pct": 95.23809523809523,
+                  "target_pct": 90.0,
+                  "n": 336,
+                  "mean_width": 1147.3294891142443,
+                  "median_width": 1147.628133378063,
+                  "mean_relative_width_pct": 101.26696097246028,
+                  "passed": true
+                },
+                "2": {
+                  "empirical_pct": 100.0,
+                  "target_pct": 90.0,
+                  "n": 168,
+                  "mean_width": 1147.6281333780628,
+                  "median_width": 1147.628133378063,
+                  "mean_relative_width_pct": 59.22460963510841,
+                  "passed": true
+                },
+                "3": {
+                  "empirical_pct": 92.33716475095785,
+                  "target_pct": 90.0,
+                  "n": 261,
+                  "mean_width": 1147.628133378063,
+                  "median_width": 1147.628133378063,
+                  "mean_relative_width_pct": 51.8954778723651,
+                  "passed": true
+                },
+                "4": {
+                  "empirical_pct": 89.7119341563786,
+                  "target_pct": 90.0,
+                  "n": 243,
+                  "mean_width": 1147.6281333780628,
+                  "median_width": 1147.628133378063,
+                  "mean_relative_width_pct": 49.78491130783193,
+                  "passed": false
+                },
+                "5": {
+                  "empirical_pct": 87.14285714285714,
+                  "target_pct": 90.0,
+                  "n": 210,
+                  "mean_width": 1147.628133378063,
+                  "median_width": 1147.6281333780628,
+                  "mean_relative_width_pct": 37.382213548040355,
+                  "passed": false
+                },
+                "6": {
+                  "empirical_pct": 98.29931972789116,
+                  "target_pct": 90.0,
+                  "n": 294,
+                  "mean_width": 1147.6281333780632,
+                  "median_width": 1147.6281333780628,
+                  "mean_relative_width_pct": 33.38734050589117,
+                  "passed": true
+                },
+                "7": {
+                  "empirical_pct": 99.40476190476191,
+                  "target_pct": 90.0,
+                  "n": 168,
+                  "mean_width": 1147.628133378063,
+                  "median_width": 1147.6281333780635,
+                  "mean_relative_width_pct": 30.76947623682023,
+                  "passed": true
+                },
+                "8": {
+                  "empirical_pct": 97.4921630094044,
+                  "target_pct": 90.0,
+                  "n": 319,
+                  "mean_width": 1147.628133378063,
+                  "median_width": 1147.6281333780626,
+                  "mean_relative_width_pct": 30.168420782505457,
+                  "passed": true
+                },
+                "9": {
+                  "empirical_pct": 95.13513513513514,
+                  "target_pct": 90.0,
+                  "n": 185,
+                  "mean_width": 1147.628133378063,
+                  "median_width": 1147.6281333780626,
+                  "mean_relative_width_pct": 29.131538494085152,
+                  "passed": true
+                },
+                "10": {
+                  "empirical_pct": 94.5945945945946,
+                  "target_pct": 90.0,
+                  "n": 222,
+                  "mean_width": 1147.6281333780628,
+                  "median_width": 1147.628133378063,
+                  "mean_relative_width_pct": 42.08918584932615,
+                  "passed": true
+                },
+                "11": {
+                  "empirical_pct": 91.48936170212765,
+                  "target_pct": 90.0,
+                  "n": 282,
+                  "mean_width": 1147.628133378063,
+                  "median_width": 1147.628133378063,
+                  "mean_relative_width_pct": 48.62257630870812,
+                  "passed": true
+                },
+                "12": {
+                  "empirical_pct": 100.0,
+                  "target_pct": 90.0,
+                  "n": 172,
+                  "mean_width": 1147.6281333780628,
+                  "median_width": 1147.628133378063,
+                  "mean_relative_width_pct": 66.12677367703276,
+                  "passed": true
+                }
+              },
+              "by_load_quintile": {
+                "1": {
+                  "empirical_pct": 92.48251748251748,
+                  "target_pct": 90.0,
+                  "n": 572,
+                  "mean_width": 1147.4527059783372,
+                  "median_width": 1147.628133378063,
+                  "mean_relative_width_pct": 99.21375493326823,
+                  "passed": true
+                },
+                "2": {
+                  "empirical_pct": 94.75524475524476,
+                  "target_pct": 90.0,
+                  "n": 572,
+                  "mean_width": 1147.628133378063,
+                  "median_width": 1147.628133378063,
+                  "mean_relative_width_pct": 59.15198908369484,
+                  "passed": true
+                },
+                "3": {
+                  "empirical_pct": 95.62937062937063,
+                  "target_pct": 90.0,
+                  "n": 572,
+                  "mean_width": 1147.6281333780628,
+                  "median_width": 1147.628133378063,
+                  "mean_relative_width_pct": 41.261276789002714,
+                  "passed": true
+                },
+                "4": {
+                  "empirical_pct": 95.27972027972028,
+                  "target_pct": 90.0,
+                  "n": 572,
+                  "mean_width": 1147.628133378063,
+                  "median_width": 1147.6281333780626,
+                  "mean_relative_width_pct": 32.998815352956925,
+                  "passed": true
+                },
+                "5": {
+                  "empirical_pct": 96.15384615384616,
+                  "target_pct": 90.0,
+                  "n": 572,
+                  "mean_width": 1147.628133378063,
+                  "median_width": 1147.6281333780626,
+                  "mean_relative_width_pct": 28.720664877663715,
+                  "passed": true
+                }
+              },
+              "worst_conditional_pct": 87.14285714285714
+            }
+          }
+        }
+      }
+    }
+  ]
+}
