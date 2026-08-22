@@ -1,0 +1,128 @@
+{
+  "year": 2016,
+  "note": "Training year only (ADR-002). Physics parameters read frozen. The attribution explains a correction fitted on every hour -- the deployment model -- which is what a SHAP plot normally shows. The control arm is the identical learner fitted on the same residual with its hours shuffled: any attribution it still produces is not evidence about the building.",
+  "buildings": [
+    {
+      "building_id": "Fox_education_Claude",
+      "role": "primary",
+      "calibration_artifact": "calibration_20260812T200947+0000_seed42.json",
+      "year": 2016,
+      "hours_total": 8782,
+      "hours_scored": 6479,
+      "n_explain_hours": 150,
+      "n_background_hours": 120,
+      "physics_pct": 90.57109157556079,
+      "ml_pct_out_of_fold": 3.3167498460300067,
+      "ml_pct_in_sample": 6.330473588659473,
+      "unexplained_pct": 6.112158578409211,
+      "memorisation_gap_pct": 3.013723742629466,
+      "attribution_kw": {
+        "outdoor_dry_bulb_24h_mean_c": 330.9176468487008,
+        "humidity_ratio_g_per_kg": 234.44127528142383,
+        "hour_cos": 124.88007419171241,
+        "outdoor_dry_bulb_c": 92.17641974255929,
+        "hour_sin": 37.865136195160815,
+        "is_weekend": 19.068349598278175
+      },
+      "attribution_kw_control": {
+        "outdoor_dry_bulb_24h_mean_c": 58.611523311960205,
+        "outdoor_dry_bulb_c": 37.92036090909344,
+        "humidity_ratio_g_per_kg": 34.008908445456136,
+        "hour_cos": 17.740078292946244,
+        "hour_sin": 14.712060732875043,
+        "is_weekend": 7.461315186950707
+      },
+      "permutation_kw": {
+        "outdoor_dry_bulb_24h_mean_c": 25.452249522709664,
+        "humidity_ratio_g_per_kg": 35.129179411004756,
+        "hour_cos": 32.12609248906219,
+        "outdoor_dry_bulb_c": 20.911498531548773,
+        "hour_sin": 6.383378053872141,
+        "is_weekend": 1.973163599739222
+      },
+      "permutation_kw_control": {
+        "outdoor_dry_bulb_24h_mean_c": 1.6676239285364953,
+        "outdoor_dry_bulb_c": 1.1652709583461183,
+        "humidity_ratio_g_per_kg": -0.15384519765508223,
+        "hour_cos": -0.6816033685615095,
+        "hour_sin": -0.039972562569998885,
+        "is_weekend": -0.039392188522915594
+      },
+      "base_value_kw": 68.25204568788392,
+      "base_value_kw_control": -1.6801600029519292,
+      "efficiency_error_kw": 3.410605131648481e-13,
+      "off_manifold_fraction": {
+        "outdoor_dry_bulb_c vs outdoor_dry_bulb_24h_mean_c": 0.25972222222222224,
+        "hour_sin vs hour_cos": 0.10163888888888889
+      },
+      "rank_agreement": 0.8285714285714287,
+      "rank_agreement_control": 0.48571428571428577,
+      "control_attribution_ratio": 0.2030791325299815,
+      "attribution_total_kw": 839.3489018578354,
+      "attribution_total_kw_control": 170.45424687928178,
+      "top_feature": "outdoor_dry_bulb_24h_mean_c",
+      "top_feature_control": "outdoor_dry_bulb_24h_mean_c"
+    },
+    {
+      "building_id": "Bull_education_Luke",
+      "role": "generalisation",
+      "calibration_artifact": "calibration_20260812T201111+0000_seed42.json",
+      "year": 2016,
+      "hours_total": 8572,
+      "hours_scored": 6304,
+      "n_explain_hours": 150,
+      "n_background_hours": 120,
+      "physics_pct": 86.70960956511065,
+      "ml_pct_out_of_fold": 1.0805813582059507,
+      "ml_pct_in_sample": 6.835577945357358,
+      "unexplained_pct": 12.20980907668339,
+      "memorisation_gap_pct": 5.754996587151408,
+      "attribution_kw": {
+        "outdoor_dry_bulb_c": 259.2327576367722,
+        "outdoor_dry_bulb_24h_mean_c": 242.14667938696016,
+        "humidity_ratio_g_per_kg": 133.83857589391766,
+        "hour_sin": 67.32237996174987,
+        "hour_cos": 32.85347724775729,
+        "is_weekend": 25.82705430733118
+      },
+      "attribution_kw_control": {
+        "humidity_ratio_g_per_kg": 39.25004774630051,
+        "outdoor_dry_bulb_24h_mean_c": 25.895126255996004,
+        "outdoor_dry_bulb_c": 25.88049192405543,
+        "hour_cos": 10.101884256740492,
+        "hour_sin": 8.445564922059189,
+        "is_weekend": 3.907349546255256
+      },
+      "permutation_kw": {
+        "outdoor_dry_bulb_c": 66.9843388894673,
+        "outdoor_dry_bulb_24h_mean_c": 66.37385596358929,
+        "humidity_ratio_g_per_kg": 49.09691967383529,
+        "hour_sin": 13.491077768632184,
+        "hour_cos": 10.416072921014337,
+        "is_weekend": 4.847027664742851
+      },
+      "permutation_kw_control": {
+        "humidity_ratio_g_per_kg": 0.7025979310164314,
+        "outdoor_dry_bulb_24h_mean_c": 0.14550363694786475,
+        "outdoor_dry_bulb_c": 2.4208187930044267,
+        "hour_cos": -0.4936986054161741,
+        "hour_sin": -0.3384723146407168,
+        "is_weekend": -0.032026142818298235
+      },
+      "base_value_kw": 19.765948693232573,
+      "base_value_kw_control": -3.0607529822142667,
+      "efficiency_error_kw": 3.694822225952521e-13,
+      "off_manifold_fraction": {
+        "outdoor_dry_bulb_c vs outdoor_dry_bulb_24h_mean_c": 0.11406944444444445,
+        "hour_sin vs hour_cos": 0.09997222222222223
+      },
+      "rank_agreement": 1.0,
+      "rank_agreement_control": 0.6,
+      "control_attribution_ratio": 0.14907691185145971,
+      "attribution_total_kw": 761.2209244344883,
+      "attribution_total_kw_control": 113.48046465140689,
+      "top_feature": "outdoor_dry_bulb_c",
+      "top_feature_control": "humidity_ratio_g_per_kg"
+    }
+  ]
+}
