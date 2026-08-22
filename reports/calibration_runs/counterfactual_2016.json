@@ -1,0 +1,1800 @@
+{
+  "year": 2016,
+  "note": "Training year only (ADR-002). Physics parameters read frozen. The cooling-load model is calibrated and was tested on 2017 (M6); the load-to-electricity conversion is UNCALIBRATED and cannot be validated from BDG2, which records no chiller sub-meter. No result here is a measured saving.",
+  "interval_sources": {
+    "conformal_band_kw": "The twin's own hourly error against the meter, as a distribution-free interval. Brackets ONE hour's load. Assumes the error distribution is unchanged by the intervention -- an assumption, not a result.",
+    "block_bootstrap_pct": "Sampling variability of the ANNUAL MEAN saving, resampled in week-long blocks so the residual's autocorrelation survives. Says nothing about the model being wrong.",
+    "parameter_ensemble_pct": "The same intervention re-run on every behavioural parameter set from L6.8's equifinality study -- parameter sets that fit the meter equally well and describe different buildings. This is the term that dominates, and the only one that measures anything structural."
+  },
+  "alpha": 0.1,
+  "buildings": [
+    {
+      "building_id": "Fox_education_Claude",
+      "role": "primary",
+      "year": 2016,
+      "calibration_artifact": "calibration_20260812T200947+0000_seed42.json",
+      "n_hours": 8782,
+      "mean_measured_kw": 6882.5806570257355,
+      "mean_baseline_load_kw": 6882.580960080342,
+      "plant": {
+        "n_chillers": 4,
+        "q_ref_kw_per_chiller": 4977.60963,
+        "capacity_kw": 19910.43852,
+        "t_chw_supply_c": 6.7,
+        "design_delta_t_k": 6.0,
+        "tower_approach_k": 3.5,
+        "pump_rated_kw": 603.3466218181818,
+        "pump_rated_flow_m3_per_s": 0.7927392307692307,
+        "variable_speed": true
+      },
+      "baseline_mwh": {
+        "chiller": 7136.947275498204,
+        "pump": 291.19238266153565,
+        "total": 7428.13965815974
+      },
+      "baseline_plant_cop": 8.137007214858931,
+      "scenarios": [
+        {
+          "name": "zone_setpoint_plus_1k",
+          "description": "Relax the zone air setpoint by 1 K (e.g. 24 -> 25 degC).",
+          "zone_setpoint_delta_c": 1.0,
+          "chw_supply_delta_c": 0.0,
+          "chw_return_fixed": false,
+          "vent_flow_scale": 1.0,
+          "load_change_pct": -3.36561921974965,
+          "chiller_change_pct": -2.913054736533971,
+          "pump_change_pct": -8.176096451508121,
+          "total_change_pct": -3.1193725667792696,
+          "baseline_mwh": {
+            "chiller": 7136.947275498204,
+            "pump": 291.19238266153565,
+            "total": 7428.13965815974
+          },
+          "scenario_mwh": {
+            "chiller": 6929.044094845372,
+            "pump": 267.3842125956839,
+            "total": 7196.428307441054
+          },
+          "delta_mwh": {
+            "chiller": -207.90318065283282,
+            "pump": -23.808170065851755,
+            "total": -231.71135071868594,
+            "cooling_load": -2034.275368527256
+          },
+          "baseline_mean_load_kw": 6882.580960080342,
+          "scenario_mean_load_kw": 6650.939492473049,
+          "n_hours": 8782,
+          "notes": [],
+          "intervals": {
+            "conformal": {
+              "alpha": 0.1,
+              "quantile_relative": 0.18406748151624555,
+              "n_calibration": 6147,
+              "n_scored": 2467,
+              "median_half_width_kw": 1030.0310249696677,
+              "median_half_width_pct_of_mean_load": 18.215215932711335
+            },
+            "block_bootstrap_pct": {
+              "point": -3.1193725667792696,
+              "lower": -3.3713785741198357,
+              "upper": -2.8960189993275205,
+              "block_hours": 168
+            }
+          }
+        },
+        {
+          "name": "zone_setpoint_minus_1k",
+          "description": "Tighten the zone air setpoint by 1 K -- the cost of a comfort complaint.",
+          "zone_setpoint_delta_c": -1.0,
+          "chw_supply_delta_c": 0.0,
+          "chw_return_fixed": false,
+          "vent_flow_scale": 1.0,
+          "load_change_pct": 3.3645192031293845,
+          "chiller_change_pct": 3.0036455463520286,
+          "pump_change_pct": 8.680295739679682,
+          "total_change_pct": 3.2261773472337167,
+          "baseline_mwh": {
+            "chiller": 7136.947275498204,
+            "pump": 291.19238266153565,
+            "total": 7428.13965815974
+          },
+          "scenario_mwh": {
+            "chiller": 7351.3158744841985,
+            "pump": 316.4687426479767,
+            "total": 7667.7846171321735
+          },
+          "delta_mwh": {
+            "chiller": 214.36859898599414,
+            "pump": 25.276359986441037,
+            "total": 239.64495897243341,
+            "cooling_load": 2033.6104873955921
+          },
+          "baseline_mean_load_kw": 6882.580960080342,
+          "scenario_mean_load_kw": 7114.1467181531725,
+          "n_hours": 8782,
+          "notes": [],
+          "intervals": {
+            "conformal": {
+              "alpha": 0.1,
+              "quantile_relative": 0.18406748151624555,
+              "n_calibration": 6147,
+              "n_scored": 2467,
+              "median_half_width_kw": 1114.0581128782087,
+              "median_half_width_pct_of_mean_load": 18.209480272494645
+            },
+            "block_bootstrap_pct": {
+              "point": 3.2261773472337167,
+              "lower": 3.017876974540248,
+              "upper": 3.4466630325520042,
+              "block_hours": 168
+            }
+          }
+        },
+        {
+          "name": "chw_supply_plus_2k_coils_hold",
+          "description": "Raise chilled-water supply by 2 K, coils rebalanced so delta-T (and therefore flow) is unchanged.",
+          "zone_setpoint_delta_c": 0.0,
+          "chw_supply_delta_c": 2.0,
+          "chw_return_fixed": false,
+          "vent_flow_scale": 1.0,
+          "load_change_pct": 0.0,
+          "chiller_change_pct": -4.383276853447709,
+          "pump_change_pct": 0.0,
+          "total_change_pct": -4.211446908191037,
+          "baseline_mwh": {
+            "chiller": 7136.947275498204,
+            "pump": 291.19238266153565,
+            "total": 7428.13965815974
+          },
+          "scenario_mwh": {
+            "chiller": 6824.115117528524,
+            "pump": 291.19238266153565,
+            "total": 7115.30750019006
+          },
+          "delta_mwh": {
+            "chiller": -312.83215796968034,
+            "pump": 0.0,
+            "total": -312.83215796968034,
+            "cooling_load": 0.0
+          },
+          "baseline_mean_load_kw": 6882.580960080342,
+          "scenario_mean_load_kw": 6882.580960080342,
+          "n_hours": 8782,
+          "notes": [
+            "scenario: 1334 h capped at INV-1's COP ceiling, chiller saving understated on those hours"
+          ],
+          "intervals": {
+            "conformal": {
+              "alpha": 0.1,
+              "quantile_relative": 0.18406748151624555,
+              "n_calibration": 6147,
+              "n_scored": 2467,
+              "median_half_width_kw": 1071.9280946871995,
+              "median_half_width_pct_of_mean_load": 18.210021552026934
+            },
+            "block_bootstrap_pct": {
+              "point": -4.211446908191037,
+              "lower": -4.755279571080788,
+              "upper": -3.789758145711026,
+              "block_hours": 168
+            }
+          }
+        },
+        {
+          "name": "chw_supply_plus_2k_return_fixed",
+          "description": "Raise chilled-water supply by 2 K with the return temperature unchanged -- delta-T narrows, flow rises, pump power cubes.",
+          "zone_setpoint_delta_c": 0.0,
+          "chw_supply_delta_c": 2.0,
+          "chw_return_fixed": true,
+          "vent_flow_scale": 1.0,
+          "load_change_pct": 0.0,
+          "chiller_change_pct": -4.383276853447709,
+          "pump_change_pct": 237.49999999999994,
+          "total_change_pct": 5.098850698578512,
+          "baseline_mwh": {
+            "chiller": 7136.947275498204,
+            "pump": 291.19238266153565,
+            "total": 7428.13965815974
+          },
+          "scenario_mwh": {
+            "chiller": 6824.115117528524,
+            "pump": 982.7742914826825,
+            "total": 7806.889409011205
+          },
+          "delta_mwh": {
+            "chiller": -312.83215796968034,
+            "pump": 691.581908821147,
+            "total": 378.74975085146525,
+            "cooling_load": 0.0
+          },
+          "baseline_mean_load_kw": 6882.580960080342,
+          "scenario_mean_load_kw": 6882.580960080342,
+          "n_hours": 8782,
+          "notes": [
+            "scenario: 1334 h capped at INV-1's COP ceiling, chiller saving understated on those hours"
+          ],
+          "intervals": {
+            "conformal": {
+              "alpha": 0.1,
+              "quantile_relative": 0.18406748151624555,
+              "n_calibration": 6147,
+              "n_scored": 2467,
+              "median_half_width_kw": 1071.9280946871995,
+              "median_half_width_pct_of_mean_load": 18.210021552026934
+            },
+            "block_bootstrap_pct": {
+              "point": 5.098850698578512,
+              "lower": 4.066035170900722,
+              "upper": 6.425191855521232,
+              "block_hours": 168
+            }
+          }
+        },
+        {
+          "name": "ventilation_setback_30pct",
+          "description": "Cut calibrated outside-air flow by 30% during the year.",
+          "zone_setpoint_delta_c": 0.0,
+          "chw_supply_delta_c": 0.0,
+          "chw_return_fixed": false,
+          "vent_flow_scale": 0.7,
+          "load_change_pct": -0.8558199455447684,
+          "chiller_change_pct": -0.9528585494575308,
+          "pump_change_pct": -12.560789743694352,
+          "total_change_pct": -1.4079039979511998,
+          "baseline_mwh": {
+            "chiller": 7136.947275498204,
+            "pump": 291.19238266153565,
+            "total": 7428.13965815974
+          },
+          "scenario_mwh": {
+            "chiller": 7068.942263213343,
+            "pump": 254.61631972576626,
+            "total": 7323.558582939111
+          },
+          "delta_mwh": {
+            "chiller": -68.00501228486155,
+            "pump": -36.576062935769386,
+            "total": -104.58107522062892,
+            "cooling_load": -517.2817604855373
+          },
+          "baseline_mean_load_kw": 6882.580960080342,
+          "scenario_mean_load_kw": 6823.678459455708,
+          "n_hours": 8782,
+          "notes": [],
+          "intervals": {
+            "conformal": {
+              "alpha": 0.1,
+              "quantile_relative": 0.18406748151624555,
+              "n_calibration": 6147,
+              "n_scored": 2467,
+              "median_half_width_kw": 1109.0049240509425,
+              "median_half_width_pct_of_mean_load": 18.280161116715693
+            },
+            "block_bootstrap_pct": {
+              "point": -1.4079039979511998,
+              "lower": -3.548669697245743,
+              "upper": 0.2865804114160201,
+              "block_hours": 168
+            }
+          }
+        }
+      ],
+      "parameter_ensemble": {
+        "source": "equifinality_20260812T200947+0000_seed42_spread100.json",
+        "n_parameter_sets": 3,
+        "parameters": [
+          {
+            "ua_envelope_w_per_m2k": 2.9993507881716743,
+            "r_internal_ratio": 19.99999427990273,
+            "internal_gain_w_per_m2": 382.90446087514704,
+            "vent_flow_kg_per_s": 180.0,
+            "t_setpoint_c": 25.67169763744806
+          },
+          {
+            "ua_envelope_w_per_m2k": 2.9973828046043622,
+            "r_internal_ratio": 18.573243233800437,
+            "internal_gain_w_per_m2": 372.04631062335807,
+            "vent_flow_kg_per_s": 179.60298605068022,
+            "t_setpoint_c": 24.82903860341174
+          },
+          {
+            "ua_envelope_w_per_m2k": 2.9979016990016256,
+            "r_internal_ratio": 14.353665253880964,
+            "internal_gain_w_per_m2": 309.85461840717016,
+            "vent_flow_kg_per_s": 180.0,
+            "t_setpoint_c": 20.0
+          }
+        ],
+        "total_change_pct": {
+          "zone_setpoint_plus_1k": {
+            "min": -3.15154583055393,
+            "median": -3.1193725667792696,
+            "max": -3.0957347166650777,
+            "values": [
+              -3.15154583055393,
+              -3.1193725667792696,
+              -3.0957347166650777
+            ]
+          },
+          "zone_setpoint_minus_1k": {
+            "min": 3.213752058350009,
+            "median": 3.2209523227768986,
+            "max": 3.2261773472337167,
+            "values": [
+              3.2209523227768986,
+              3.2261773472337167,
+              3.213752058350009
+            ]
+          },
+          "chw_supply_plus_2k_coils_hold": {
+            "min": -4.219503050357274,
+            "median": -4.215317454770988,
+            "max": -4.211446908191037,
+            "values": [
+              -4.219503050357274,
+              -4.211446908191037,
+              -4.215317454770988
+            ]
+          },
+          "chw_supply_plus_2k_return_fixed": {
+            "min": 5.087554820649951,
+            "median": 5.098850698578512,
+            "max": 5.100433669291732,
+            "values": [
+              5.100433669291732,
+              5.098850698578512,
+              5.087554820649951
+            ]
+          },
+          "ventilation_setback_30pct": {
+            "min": -5.570055493601111,
+            "median": -1.4079039979511998,
+            "max": -0.7205369739781039,
+            "values": [
+              -0.7205369739781039,
+              -1.4079039979511998,
+              -5.570055493601111
+            ]
+          }
+        }
+      },
+      "chw_tradeoff": {
+        "rows": [
+          {
+            "pump_share_pct": 8.0,
+            "mode": "coils_hold",
+            "chw_supply_delta_k": 0.0,
+            "chw_delta_t_k": 6.0,
+            "chiller_change_pct": 0.0,
+            "pump_change_pct": 0.0,
+            "total_change_pct": 0.0,
+            "n_hours_flow_capped": 0,
+            "n_hours_cop_capped": 0
+          },
+          {
+            "pump_share_pct": 8.0,
+            "mode": "coils_hold",
+            "chw_supply_delta_k": 0.5,
+            "chw_delta_t_k": 6.0,
+            "chiller_change_pct": -1.1054988067989546,
+            "pump_change_pct": 0.0,
+            "total_change_pct": -1.070555290065367,
+            "n_hours_flow_capped": 0,
+            "n_hours_cop_capped": 0
+          },
+          {
+            "pump_share_pct": 8.0,
+            "mode": "coils_hold",
+            "chw_supply_delta_k": 1.0,
+            "chw_delta_t_k": 6.0,
+            "chiller_change_pct": -2.171048721980917,
+            "pump_change_pct": 0.0,
+            "total_change_pct": -2.1024244259804203,
+            "n_hours_flow_capped": 0,
+            "n_hours_cop_capped": 0
+          },
+          {
+            "pump_share_pct": 8.0,
+            "mode": "coils_hold",
+            "chw_supply_delta_k": 1.5,
+            "chw_delta_t_k": 6.0,
+            "chiller_change_pct": -3.30862551064226,
+            "pump_change_pct": 0.0,
+            "total_change_pct": -3.2040437506392294,
+            "n_hours_flow_capped": 0,
+            "n_hours_cop_capped": 725
+          },
+          {
+            "pump_share_pct": 8.0,
+            "mode": "coils_hold",
+            "chw_supply_delta_k": 2.0,
+            "chw_delta_t_k": 6.0,
+            "chiller_change_pct": -4.383276853447704,
+            "pump_change_pct": 0.0,
+            "total_change_pct": -4.244726628757856,
+            "n_hours_flow_capped": 0,
+            "n_hours_cop_capped": 1334
+          },
+          {
+            "pump_share_pct": 8.0,
+            "mode": "coils_hold",
+            "chw_supply_delta_k": 2.5,
+            "chw_delta_t_k": 6.0,
+            "chiller_change_pct": -5.373609413093405,
+            "pump_change_pct": 0.0,
+            "total_change_pct": -5.203755941256693,
+            "n_hours_flow_capped": 0,
+            "n_hours_cop_capped": 1837
+          },
+          {
+            "pump_share_pct": 8.0,
+            "mode": "coils_hold",
+            "chw_supply_delta_k": 3.0,
+            "chw_delta_t_k": 6.0,
+            "chiller_change_pct": -6.293304943030298,
+            "pump_change_pct": 0.0,
+            "total_change_pct": -6.094380977455827,
+            "n_hours_flow_capped": 0,
+            "n_hours_cop_capped": 2253
+          },
+          {
+            "pump_share_pct": 8.0,
+            "mode": "coils_hold",
+            "chw_supply_delta_k": 3.3,
+            "chw_delta_t_k": 6.0,
+            "chiller_change_pct": -6.811700769713047,
+            "pump_change_pct": 0.0,
+            "total_change_pct": -6.596390921916995,
+            "n_hours_flow_capped": 0,
+            "n_hours_cop_capped": 2488
+          },
+          {
+            "pump_share_pct": 8.0,
+            "mode": "return_fixed",
+            "chw_supply_delta_k": 0.0,
+            "chw_delta_t_k": 6.0,
+            "chiller_change_pct": 0.0,
+            "pump_change_pct": 0.0,
+            "total_change_pct": 0.0,
+            "n_hours_flow_capped": 0,
+            "n_hours_cop_capped": 0
+          },
+          {
+            "pump_share_pct": 8.0,
+            "mode": "return_fixed",
+            "chw_supply_delta_k": 0.5,
+            "chw_delta_t_k": 5.5,
+            "chiller_change_pct": -1.1054988067989546,
+            "pump_change_pct": 29.82719759579262,
+            "total_change_pct": -0.1277526638714055,
+            "n_hours_flow_capped": 0,
+            "n_hours_cop_capped": 0
+          },
+          {
+            "pump_share_pct": 8.0,
+            "mode": "return_fixed",
+            "chw_supply_delta_k": 1.0,
+            "chw_delta_t_k": 5.0,
+            "chiller_change_pct": -2.171048721980917,
+            "pump_change_pct": 72.79999999999998,
+            "total_change_pct": 0.19869792942990294,
+            "n_hours_flow_capped": 0,
+            "n_hours_cop_capped": 0
+          },
+          {
+            "pump_share_pct": 8.0,
+            "mode": "return_fixed",
+            "chw_supply_delta_k": 1.5,
+            "chw_delta_t_k": 4.5,
+            "chiller_change_pct": -3.30862551064226,
+            "pump_change_pct": 137.037037037037,
+            "total_change_pct": 1.1275357747058123,
+            "n_hours_flow_capped": 0,
+            "n_hours_cop_capped": 725
+          },
+          {
+            "pump_share_pct": 8.0,
+            "mode": "return_fixed",
+            "chw_supply_delta_k": 2.0,
+            "chw_delta_t_k": 4.0,
+            "chiller_change_pct": -4.383276853447704,
+            "pump_change_pct": 237.49999999999994,
+            "total_change_pct": 3.2623689675326917,
+            "n_hours_flow_capped": 0,
+            "n_hours_cop_capped": 1334
+          },
+          {
+            "pump_share_pct": 8.0,
+            "mode": "return_fixed",
+            "chw_supply_delta_k": 2.5,
+            "chw_delta_t_k": 3.5,
+            "chiller_change_pct": -5.373609413093405,
+            "pump_change_pct": 403.6112603146793,
+            "total_change_pct": 7.553921174202705,
+            "n_hours_flow_capped": 19,
+            "n_hours_cop_capped": 1837
+          },
+          {
+            "pump_share_pct": 8.0,
+            "mode": "return_fixed",
+            "chw_supply_delta_k": 3.0,
+            "chw_delta_t_k": 3.0,
+            "chiller_change_pct": -6.293304943030298,
+            "pump_change_pct": 659.9830921842907,
+            "total_change_pct": 14.76690813817747,
+            "n_hours_flow_capped": 919,
+            "n_hours_cop_capped": 2253
+          },
+          {
+            "pump_share_pct": 8.0,
+            "mode": "return_fixed",
+            "chw_supply_delta_k": 3.3,
+            "chw_delta_t_k": 2.7,
+            "chiller_change_pct": -6.811700769713047,
+            "pump_change_pct": 834.2732618554203,
+            "total_change_pct": 19.774005415673624,
+            "n_hours_flow_capped": 1952,
+            "n_hours_cop_capped": 2488
+          },
+          {
+            "pump_share_pct": 10.0,
+            "mode": "coils_hold",
+            "chw_supply_delta_k": 0.0,
+            "chw_delta_t_k": 6.0,
+            "chiller_change_pct": 0.0,
+            "pump_change_pct": 0.0,
+            "total_change_pct": 0.0,
+            "n_hours_flow_capped": 0,
+            "n_hours_cop_capped": 0
+          },
+          {
+            "pump_share_pct": 10.0,
+            "mode": "coils_hold",
+            "chw_supply_delta_k": 0.5,
+            "chw_delta_t_k": 6.0,
+            "chiller_change_pct": -1.1054988067989546,
+            "pump_change_pct": 0.0,
+            "total_change_pct": -1.0621618682927547,
+            "n_hours_flow_capped": 0,
+            "n_hours_cop_capped": 0
+          },
+          {
+            "pump_share_pct": 10.0,
+            "mode": "coils_hold",
+            "chw_supply_delta_k": 1.0,
+            "chw_delta_t_k": 6.0,
+            "chiller_change_pct": -2.171048721980917,
+            "pump_change_pct": 0.0,
+            "total_change_pct": -2.0859408915790745,
+            "n_hours_flow_capped": 0,
+            "n_hours_cop_capped": 0
+          },
+          {
+            "pump_share_pct": 10.0,
+            "mode": "coils_hold",
+            "chw_supply_delta_k": 1.5,
+            "chw_delta_t_k": 6.0,
+            "chiller_change_pct": -3.30862551064226,
+            "pump_change_pct": 0.0,
+            "total_change_pct": -3.178923244648868,
+            "n_hours_flow_capped": 0,
+            "n_hours_cop_capped": 725
+          },
+          {
+            "pump_share_pct": 10.0,
+            "mode": "coils_hold",
+            "chw_supply_delta_k": 2.0,
+            "chw_delta_t_k": 6.0,
+            "chiller_change_pct": -4.383276853447704,
+            "pump_change_pct": 0.0,
+            "total_change_pct": -4.211446908191041,
+            "n_hours_flow_capped": 0,
+            "n_hours_cop_capped": 1334
+          },
+          {
+            "pump_share_pct": 10.0,
+            "mode": "coils_hold",
+            "chw_supply_delta_k": 2.5,
+            "chw_delta_t_k": 6.0,
+            "chiller_change_pct": -5.373609413093405,
+            "pump_change_pct": 0.0,
+            "total_change_pct": -5.16295719053157,
+            "n_hours_flow_capped": 0,
+            "n_hours_cop_capped": 1837
+          },
+          {
+            "pump_share_pct": 10.0,
+            "mode": "coils_hold",
+            "chw_supply_delta_k": 3.0,
+            "chw_delta_t_k": 6.0,
+            "chiller_change_pct": -6.293304943030298,
+            "pump_change_pct": 0.0,
+            "total_change_pct": -6.046599503241801,
+            "n_hours_flow_capped": 0,
+            "n_hours_cop_capped": 2253
+          },
+          {
+            "pump_share_pct": 10.0,
+            "mode": "coils_hold",
+            "chw_supply_delta_k": 3.3,
+            "chw_delta_t_k": 6.0,
+            "chiller_change_pct": -6.811700769713047,
+            "pump_change_pct": 0.0,
+            "total_change_pct": -6.5446735639265725,
+            "n_hours_flow_capped": 0,
+            "n_hours_cop_capped": 2488
+          },
+          {
+            "pump_share_pct": 10.0,
+            "mode": "return_fixed",
+            "chw_supply_delta_k": 0.0,
+            "chw_delta_t_k": 6.0,
+            "chiller_change_pct": 0.0,
+            "pump_change_pct": 0.0,
+            "total_change_pct": 0.0,
+            "n_hours_flow_capped": 0,
+            "n_hours_cop_capped": 0
+          },
+          {
+            "pump_share_pct": 10.0,
+            "mode": "return_fixed",
+            "chw_supply_delta_k": 0.5,
+            "chw_delta_t_k": 5.5,
+            "chiller_change_pct": -1.1054988067989546,
+            "pump_change_pct": 29.827197595792644,
+            "total_change_pct": 0.10710165336094146,
+            "n_hours_flow_capped": 0,
+            "n_hours_cop_capped": 0
+          },
+          {
+            "pump_share_pct": 10.0,
+            "mode": "return_fixed",
+            "chw_supply_delta_k": 1.0,
+            "chw_delta_t_k": 5.0,
+            "chiller_change_pct": -2.171048721980917,
+            "pump_change_pct": 72.8,
+            "total_change_pct": 0.7679103327275616,
+            "n_hours_flow_capped": 0,
+            "n_hours_cop_capped": 0
+          },
+          {
+            "pump_share_pct": 10.0,
+            "mode": "return_fixed",
+            "chw_supply_delta_k": 1.5,
+            "chw_delta_t_k": 4.5,
+            "chiller_change_pct": -3.30862551064226,
+            "pump_change_pct": 137.037037037037,
+            "total_change_pct": 2.1931003257288806,
+            "n_hours_flow_capped": 0,
+            "n_hours_cop_capped": 725
+          },
+          {
+            "pump_share_pct": 10.0,
+            "mode": "return_fixed",
+            "chw_supply_delta_k": 2.0,
+            "chw_delta_t_k": 4.0,
+            "chiller_change_pct": -4.383276853447704,
+            "pump_change_pct": 237.49999999999991,
+            "total_change_pct": 5.0988506985785165,
+            "n_hours_flow_capped": 0,
+            "n_hours_cop_capped": 1334
+          },
+          {
+            "pump_share_pct": 10.0,
+            "mode": "return_fixed",
+            "chw_supply_delta_k": 2.5,
+            "chw_delta_t_k": 3.5,
+            "chiller_change_pct": -5.373609413093405,
+            "pump_change_pct": 403.6112603146795,
+            "total_change_pct": 10.659109971460023,
+            "n_hours_flow_capped": 19,
+            "n_hours_cop_capped": 1837
+          },
+          {
+            "pump_share_pct": 10.0,
+            "mode": "return_fixed",
+            "chw_supply_delta_k": 3.0,
+            "chw_delta_t_k": 3.0,
+            "chiller_change_pct": -6.293304943030298,
+            "pump_change_pct": 659.9830921842906,
+            "total_change_pct": 19.825564722744616,
+            "n_hours_flow_capped": 919,
+            "n_hours_cop_capped": 2253
+          },
+          {
+            "pump_share_pct": 10.0,
+            "mode": "return_fixed",
+            "chw_supply_delta_k": 3.3,
+            "chw_delta_t_k": 2.7,
+            "chiller_change_pct": -6.811700769713047,
+            "pump_change_pct": 834.2732618554205,
+            "total_change_pct": 26.159883712891773,
+            "n_hours_flow_capped": 1952,
+            "n_hours_cop_capped": 2488
+          },
+          {
+            "pump_share_pct": 12.0,
+            "mode": "coils_hold",
+            "chw_supply_delta_k": 0.0,
+            "chw_delta_t_k": 6.0,
+            "chiller_change_pct": 0.0,
+            "pump_change_pct": 0.0,
+            "total_change_pct": 0.0,
+            "n_hours_flow_capped": 0,
+            "n_hours_cop_capped": 0
+          },
+          {
+            "pump_share_pct": 12.0,
+            "mode": "coils_hold",
+            "chw_supply_delta_k": 0.5,
+            "chw_delta_t_k": 6.0,
+            "chiller_change_pct": -1.1054988067989546,
+            "pump_change_pct": 0.0,
+            "total_change_pct": -1.0538990357284117,
+            "n_hours_flow_capped": 0,
+            "n_hours_cop_capped": 0
+          },
+          {
+            "pump_share_pct": 12.0,
+            "mode": "coils_hold",
+            "chw_supply_delta_k": 1.0,
+            "chw_delta_t_k": 6.0,
+            "chiller_change_pct": -2.171048721980917,
+            "pump_change_pct": 0.0,
+            "total_change_pct": -2.06971381655342,
+            "n_hours_flow_capped": 0,
+            "n_hours_cop_capped": 0
+          },
+          {
+            "pump_share_pct": 12.0,
+            "mode": "coils_hold",
+            "chw_supply_delta_k": 1.5,
+            "chw_delta_t_k": 6.0,
+            "chiller_change_pct": -3.30862551064226,
+            "pump_change_pct": 0.0,
+            "total_change_pct": -3.1541935765168727,
+            "n_hours_flow_capped": 0,
+            "n_hours_cop_capped": 725
+          },
+          {
+            "pump_share_pct": 12.0,
+            "mode": "coils_hold",
+            "chw_supply_delta_k": 2.0,
+            "chw_delta_t_k": 6.0,
+            "chiller_change_pct": -4.383276853447704,
+            "pump_change_pct": 0.0,
+            "total_change_pct": -4.178684970773894,
+            "n_hours_flow_capped": 0,
+            "n_hours_cop_capped": 1334
+          },
+          {
+            "pump_share_pct": 12.0,
+            "mode": "coils_hold",
+            "chw_supply_delta_k": 2.5,
+            "chw_delta_t_k": 6.0,
+            "chiller_change_pct": -5.373609413093405,
+            "pump_change_pct": 0.0,
+            "total_change_pct": -5.122793207926312,
+            "n_hours_flow_capped": 0,
+            "n_hours_cop_capped": 1837
+          },
+          {
+            "pump_share_pct": 12.0,
+            "mode": "coils_hold",
+            "chw_supply_delta_k": 3.0,
+            "chw_delta_t_k": 6.0,
+            "chiller_change_pct": -6.293304943030298,
+            "pump_change_pct": 0.0,
+            "total_change_pct": -5.999561437980583,
+            "n_hours_flow_capped": 0,
+            "n_hours_cop_capped": 2253
+          },
+          {
+            "pump_share_pct": 12.0,
+            "mode": "coils_hold",
+            "chw_supply_delta_k": 3.3,
+            "chw_delta_t_k": 6.0,
+            "chiller_change_pct": -6.811700769713047,
+            "pump_change_pct": 0.0,
+            "total_change_pct": -6.4937608514096805,
+            "n_hours_flow_capped": 0,
+            "n_hours_cop_capped": 2488
+          },
+          {
+            "pump_share_pct": 12.0,
+            "mode": "return_fixed",
+            "chw_supply_delta_k": 0.0,
+            "chw_delta_t_k": 6.0,
+            "chiller_change_pct": 0.0,
+            "pump_change_pct": 0.0,
+            "total_change_pct": 0.0,
+            "n_hours_flow_capped": 0,
+            "n_hours_cop_capped": 0
+          },
+          {
+            "pump_share_pct": 12.0,
+            "mode": "return_fixed",
+            "chw_supply_delta_k": 0.5,
+            "chw_delta_t_k": 5.5,
+            "chiller_change_pct": -1.1054988067989546,
+            "pump_change_pct": 29.827197595792644,
+            "total_change_pct": 0.33830198534265943,
+            "n_hours_flow_capped": 0,
+            "n_hours_cop_capped": 0
+          },
+          {
+            "pump_share_pct": 12.0,
+            "mode": "return_fixed",
+            "chw_supply_delta_k": 1.0,
+            "chw_delta_t_k": 5.0,
+            "chiller_change_pct": -2.171048721980917,
+            "pump_change_pct": 72.80000000000004,
+            "total_change_pct": 1.3282666342908866,
+            "n_hours_flow_capped": 0,
+            "n_hours_cop_capped": 0
+          },
+          {
+            "pump_share_pct": 12.0,
+            "mode": "return_fixed",
+            "chw_supply_delta_k": 1.5,
+            "chw_delta_t_k": 4.5,
+            "chiller_change_pct": -3.30862551064226,
+            "pump_change_pct": 137.03703703703707,
+            "total_change_pct": 3.2420862709209963,
+            "n_hours_flow_capped": 0,
+            "n_hours_cop_capped": 725
+          },
+          {
+            "pump_share_pct": 12.0,
+            "mode": "return_fixed",
+            "chw_supply_delta_k": 2.0,
+            "chw_delta_t_k": 4.0,
+            "chiller_change_pct": -4.383276853447704,
+            "pump_change_pct": 237.50000000000006,
+            "total_change_pct": 6.906759494549175,
+            "n_hours_flow_capped": 0,
+            "n_hours_cop_capped": 1334
+          },
+          {
+            "pump_share_pct": 12.0,
+            "mode": "return_fixed",
+            "chw_supply_delta_k": 2.5,
+            "chw_delta_t_k": 3.5,
+            "chiller_change_pct": -5.373609413093405,
+            "pump_change_pct": 403.6112603146795,
+            "total_change_pct": 13.715986631220778,
+            "n_hours_flow_capped": 19,
+            "n_hours_cop_capped": 1837
+          },
+          {
+            "pump_share_pct": 12.0,
+            "mode": "return_fixed",
+            "chw_supply_delta_k": 3.0,
+            "chw_delta_t_k": 3.0,
+            "chiller_change_pct": -6.293304943030298,
+            "pump_change_pct": 659.983092184291,
+            "total_change_pct": 24.80551610501378,
+            "n_hours_flow_capped": 919,
+            "n_hours_cop_capped": 2253
+          },
+          {
+            "pump_share_pct": 12.0,
+            "mode": "return_fixed",
+            "chw_supply_delta_k": 3.3,
+            "chw_delta_t_k": 2.7,
+            "chiller_change_pct": -6.811700769713047,
+            "pump_change_pct": 834.2732618554206,
+            "total_change_pct": 32.44640720417853,
+            "n_hours_flow_capped": 1952,
+            "n_hours_cop_capped": 2488
+          }
+        ],
+        "break_even_chw_delta_k": {
+          "coils_hold@8pct": {
+            "sign_at_first_step": "saves",
+            "first_step_k": 0.5,
+            "total_pct_at_first_step": -1.070555290065367,
+            "total_pct_at_last_step": -6.596390921916995,
+            "last_step_k": 3.3,
+            "crossing_k": null
+          },
+          "return_fixed@8pct": {
+            "sign_at_first_step": "saves",
+            "first_step_k": 0.5,
+            "total_pct_at_first_step": -0.1277526638714055,
+            "total_pct_at_last_step": 19.774005415673624,
+            "last_step_k": 3.3,
+            "crossing_k": 0.6956692168629204
+          },
+          "coils_hold@10pct": {
+            "sign_at_first_step": "saves",
+            "first_step_k": 0.5,
+            "total_pct_at_first_step": -1.0621618682927547,
+            "total_pct_at_last_step": -6.5446735639265725,
+            "last_step_k": 3.3,
+            "crossing_k": null
+          },
+          "return_fixed@10pct": {
+            "sign_at_first_step": "costs",
+            "first_step_k": 0.5,
+            "total_pct_at_first_step": 0.10710165336094146,
+            "total_pct_at_last_step": 26.159883712891773,
+            "last_step_k": 3.3,
+            "crossing_k": null
+          },
+          "coils_hold@12pct": {
+            "sign_at_first_step": "saves",
+            "first_step_k": 0.5,
+            "total_pct_at_first_step": -1.0538990357284117,
+            "total_pct_at_last_step": -6.4937608514096805,
+            "last_step_k": 3.3,
+            "crossing_k": null
+          },
+          "return_fixed@12pct": {
+            "sign_at_first_step": "costs",
+            "first_step_k": 0.5,
+            "total_pct_at_first_step": 0.33830198534265943,
+            "total_pct_at_last_step": 32.44640720417853,
+            "last_step_k": 3.3,
+            "crossing_k": null
+          }
+        }
+      }
+    },
+    {
+      "building_id": "Bull_education_Luke",
+      "role": "generalisation",
+      "year": 2016,
+      "calibration_artifact": "calibration_20260812T201111+0000_seed42.json",
+      "n_hours": 8572,
+      "mean_measured_kw": 2641.881280214652,
+      "mean_baseline_load_kw": 2641.9074551854746,
+      "plant": {
+        "n_chillers": 4,
+        "q_ref_kw_per_chiller": 3437.91916375,
+        "capacity_kw": 13751.676655,
+        "t_chw_supply_c": 6.7,
+        "design_delta_t_k": 6.0,
+        "tower_approach_k": 3.5,
+        "pump_rated_kw": 416.7174743939393,
+        "pump_rated_flow_m3_per_s": 0.547526543040293,
+        "variable_speed": true
+      },
+      "baseline_mwh": {
+        "chiller": 3227.943231185957,
+        "pump": 35.594972039545574,
+        "total": 3263.538203225502
+      },
+      "baseline_plant_cop": 6.939226476180791,
+      "scenarios": [
+        {
+          "name": "zone_setpoint_plus_1k",
+          "description": "Relax the zone air setpoint by 1 K (e.g. 24 -> 25 degC).",
+          "zone_setpoint_delta_c": 1.0,
+          "chw_supply_delta_c": 0.0,
+          "chw_return_fixed": false,
+          "vent_flow_scale": 1.0,
+          "load_change_pct": -2.7070096279517433,
+          "chiller_change_pct": -1.4787763088319539,
+          "pump_change_pct": -6.407433677936055,
+          "total_change_pct": -1.5325325115545967,
+          "baseline_mwh": {
+            "chiller": 3227.943231185957,
+            "pump": 35.594972039545574,
+            "total": 3263.538203225502
+          },
+          "scenario_mwh": {
+            "chiller": 3180.2091714206344,
+            "pump": 33.314247813431805,
+            "total": 3213.5234192340663
+          },
+          "delta_mwh": {
+            "chiller": -47.7340597653224,
+            "pump": -2.280724226113769,
+            "total": -50.014783991435706,
+            "cooling_load": -613.0410595947765
+          },
+          "baseline_mean_load_kw": 2641.9074551854746,
+          "scenario_mean_load_kw": 2570.390766012029,
+          "n_hours": 8572,
+          "notes": [],
+          "intervals": {
+            "conformal": {
+              "alpha": 0.1,
+              "quantile_relative": 0.2331586911217429,
+              "n_calibration": 6000,
+              "n_scored": 2404,
+              "median_half_width_kw": 501.6554214878802,
+              "median_half_width_pct_of_mean_load": 22.935254117049283
+            },
+            "block_bootstrap_pct": {
+              "point": -1.5325325115545967,
+              "lower": -1.7775912951214075,
+              "upper": -1.3130577108418209,
+              "block_hours": 168
+            }
+          }
+        },
+        {
+          "name": "zone_setpoint_minus_1k",
+          "description": "Tighten the zone air setpoint by 1 K -- the cost of a comfort complaint.",
+          "zone_setpoint_delta_c": -1.0,
+          "chw_supply_delta_c": 0.0,
+          "chw_return_fixed": false,
+          "vent_flow_scale": 1.0,
+          "load_change_pct": 2.7097831110583734,
+          "chiller_change_pct": 1.3485272655135185,
+          "pump_change_pct": 6.735680833057243,
+          "total_change_pct": 1.40728422457715,
+          "baseline_mwh": {
+            "chiller": 3227.943231185957,
+            "pump": 35.594972039545574,
+            "total": 3263.538203225502
+          },
+          "scenario_mwh": {
+            "chiller": 3271.4729257737977,
+            "pump": 37.99253574874533,
+            "total": 3309.4654615225427
+          },
+          "delta_mwh": {
+            "chiller": 43.52969458784082,
+            "pump": 2.3975637091997584,
+            "total": 45.92725829704068,
+            "cooling_load": 613.6691545246579
+          },
+          "baseline_mean_load_kw": 2641.9074551854746,
+          "scenario_mean_load_kw": 2713.4974172158827,
+          "n_hours": 8572,
+          "notes": [],
+          "intervals": {
+            "conformal": {
+              "alpha": 0.1,
+              "quantile_relative": 0.2331586911217429,
+              "n_calibration": 6000,
+              "n_scored": 2404,
+              "median_half_width_kw": 535.0398015660678,
+              "median_half_width_pct_of_mean_load": 22.959346717305138
+            },
+            "block_bootstrap_pct": {
+              "point": 1.40728422457715,
+              "lower": 1.2002602054532059,
+              "upper": 1.6343239842251778,
+              "block_hours": 168
+            }
+          }
+        },
+        {
+          "name": "chw_supply_plus_2k_coils_hold",
+          "description": "Raise chilled-water supply by 2 K, coils rebalanced so delta-T (and therefore flow) is unchanged.",
+          "zone_setpoint_delta_c": 0.0,
+          "chw_supply_delta_c": 2.0,
+          "chw_return_fixed": false,
+          "vent_flow_scale": 1.0,
+          "load_change_pct": 0.0,
+          "chiller_change_pct": -3.38635018826945,
+          "pump_change_pct": 0.0,
+          "total_change_pct": -3.3494157224346335,
+          "baseline_mwh": {
+            "chiller": 3227.943231185957,
+            "pump": 35.594972039545574,
+            "total": 3263.538203225502
+          },
+          "scenario_mwh": {
+            "chiller": 3118.6337694994604,
+            "pump": 35.594972039545574,
+            "total": 3154.228741539006
+          },
+          "delta_mwh": {
+            "chiller": -109.30946168649643,
+            "pump": 0.0,
+            "total": -109.30946168649598,
+            "cooling_load": 0.0
+          },
+          "baseline_mean_load_kw": 2641.9074551854746,
+          "scenario_mean_load_kw": 2641.9074551854746,
+          "n_hours": 8572,
+          "notes": [
+            "scenario: 8 h capped at INV-1's COP ceiling, chiller saving understated on those hours"
+          ],
+          "intervals": {
+            "conformal": {
+              "alpha": 0.1,
+              "quantile_relative": 0.2331586911217429,
+              "n_calibration": 6000,
+              "n_scored": 2404,
+              "median_half_width_kw": 518.700778003581,
+              "median_half_width_pct_of_mean_load": 22.9625174870206
+            },
+            "block_bootstrap_pct": {
+              "point": -3.3494157224346335,
+              "lower": -3.721395185326957,
+              "upper": -3.0380882583843682,
+              "block_hours": 168
+            }
+          }
+        },
+        {
+          "name": "chw_supply_plus_2k_return_fixed",
+          "description": "Raise chilled-water supply by 2 K with the return temperature unchanged -- delta-T narrows, flow rises, pump power cubes.",
+          "zone_setpoint_delta_c": 0.0,
+          "chw_supply_delta_c": 2.0,
+          "chw_return_fixed": true,
+          "vent_flow_scale": 1.0,
+          "load_change_pct": 0.0,
+          "chiller_change_pct": -3.38635018826945,
+          "pump_change_pct": 237.49999999999997,
+          "total_change_pct": -0.7590351805317482,
+          "baseline_mwh": {
+            "chiller": 3227.943231185957,
+            "pump": 35.594972039545574,
+            "total": 3263.538203225502
+          },
+          "scenario_mwh": {
+            "chiller": 3118.6337694994604,
+            "pump": 120.1330306334663,
+            "total": 3238.7668001329266
+          },
+          "delta_mwh": {
+            "chiller": -109.30946168649643,
+            "pump": 84.53805859392074,
+            "total": -24.771403092575383,
+            "cooling_load": 0.0
+          },
+          "baseline_mean_load_kw": 2641.9074551854746,
+          "scenario_mean_load_kw": 2641.9074551854746,
+          "n_hours": 8572,
+          "notes": [
+            "scenario: 8 h capped at INV-1's COP ceiling, chiller saving understated on those hours"
+          ],
+          "intervals": {
+            "conformal": {
+              "alpha": 0.1,
+              "quantile_relative": 0.2331586911217429,
+              "n_calibration": 6000,
+              "n_scored": 2404,
+              "median_half_width_kw": 518.700778003581,
+              "median_half_width_pct_of_mean_load": 22.9625174870206
+            },
+            "block_bootstrap_pct": {
+              "point": -0.7590351805317482,
+              "lower": -1.098965864732037,
+              "upper": -0.3699947547086574,
+              "block_hours": 168
+            }
+          }
+        },
+        {
+          "name": "ventilation_setback_30pct",
+          "description": "Cut calibrated outside-air flow by 30% during the year.",
+          "zone_setpoint_delta_c": 0.0,
+          "chw_supply_delta_c": 0.0,
+          "chw_return_fixed": false,
+          "vent_flow_scale": 0.7,
+          "load_change_pct": -3.9046758341672545,
+          "chiller_change_pct": -6.814844807769542,
+          "pump_change_pct": -21.979232103608982,
+          "total_change_pct": -6.980240739479088,
+          "baseline_mwh": {
+            "chiller": 3227.943231185957,
+            "pump": 35.594972039545574,
+            "total": 3263.538203225502
+          },
+          "scenario_mwh": {
+            "chiller": 3007.9639094977324,
+            "pump": 27.77147051775913,
+            "total": 3035.7353800154915
+          },
+          "delta_mwh": {
+            "chiller": -219.97932168822445,
+            "pump": -7.823501521786444,
+            "total": -227.8028232100105,
+            "cooling_load": -884.2697070727535
+          },
+          "baseline_mean_load_kw": 2641.9074551854746,
+          "scenario_mean_load_kw": 2538.7495332217845,
+          "n_hours": 8572,
+          "notes": [],
+          "intervals": {
+            "conformal": {
+              "alpha": 0.1,
+              "quantile_relative": 0.2331586911217429,
+              "n_calibration": 6000,
+              "n_scored": 2404,
+              "median_half_width_kw": 522.9823442571881,
+              "median_half_width_pct_of_mean_load": 23.146799705230375
+            },
+            "block_bootstrap_pct": {
+              "point": -6.980240739479088,
+              "lower": -8.943487676463626,
+              "upper": -5.373120185561919,
+              "block_hours": 168
+            }
+          }
+        }
+      ],
+      "parameter_ensemble": null,
+      "chw_tradeoff": {
+        "rows": [
+          {
+            "pump_share_pct": 8.0,
+            "mode": "coils_hold",
+            "chw_supply_delta_k": 0.0,
+            "chw_delta_t_k": 6.0,
+            "chiller_change_pct": 0.0,
+            "pump_change_pct": 0.0,
+            "total_change_pct": 0.0,
+            "n_hours_flow_capped": 0,
+            "n_hours_cop_capped": 0
+          },
+          {
+            "pump_share_pct": 8.0,
+            "mode": "coils_hold",
+            "chw_supply_delta_k": 0.5,
+            "chw_delta_t_k": 6.0,
+            "chiller_change_pct": -0.8125608419494723,
+            "pump_change_pct": 0.0,
+            "total_change_pct": -0.8054553488062499,
+            "n_hours_flow_capped": 0,
+            "n_hours_cop_capped": 0
+          },
+          {
+            "pump_share_pct": 8.0,
+            "mode": "coils_hold",
+            "chw_supply_delta_k": 1.0,
+            "chw_delta_t_k": 6.0,
+            "chiller_change_pct": -1.6543984333108996,
+            "pump_change_pct": 0.0,
+            "total_change_pct": -1.639931434512576,
+            "n_hours_flow_capped": 0,
+            "n_hours_cop_capped": 0
+          },
+          {
+            "pump_share_pct": 8.0,
+            "mode": "coils_hold",
+            "chw_supply_delta_k": 1.5,
+            "chw_delta_t_k": 6.0,
+            "chiller_change_pct": -2.5221182585065227,
+            "pump_change_pct": 0.0,
+            "total_change_pct": -2.5000634251118647,
+            "n_hours_flow_capped": 0,
+            "n_hours_cop_capped": 3
+          },
+          {
+            "pump_share_pct": 8.0,
+            "mode": "coils_hold",
+            "chw_supply_delta_k": 2.0,
+            "chw_delta_t_k": 6.0,
+            "chiller_change_pct": -3.386350188269449,
+            "pump_change_pct": 0.0,
+            "total_change_pct": -3.356738020415573,
+            "n_hours_flow_capped": 0,
+            "n_hours_cop_capped": 8
+          },
+          {
+            "pump_share_pct": 8.0,
+            "mode": "coils_hold",
+            "chw_supply_delta_k": 2.5,
+            "chw_delta_t_k": 6.0,
+            "chiller_change_pct": -4.231328698327319,
+            "pump_change_pct": 0.0,
+            "total_change_pct": -4.194327558842758,
+            "n_hours_flow_capped": 0,
+            "n_hours_cop_capped": 18
+          },
+          {
+            "pump_share_pct": 8.0,
+            "mode": "coils_hold",
+            "chw_supply_delta_k": 3.0,
+            "chw_delta_t_k": 6.0,
+            "chiller_change_pct": -5.070298266784623,
+            "pump_change_pct": 0.0,
+            "total_change_pct": -5.025960701264887,
+            "n_hours_flow_capped": 0,
+            "n_hours_cop_capped": 25
+          },
+          {
+            "pump_share_pct": 8.0,
+            "mode": "coils_hold",
+            "chw_supply_delta_k": 3.3,
+            "chw_delta_t_k": 6.0,
+            "chiller_change_pct": -5.57122496373601,
+            "pump_change_pct": 0.0,
+            "total_change_pct": -5.522507010894262,
+            "n_hours_flow_capped": 0,
+            "n_hours_cop_capped": 30
+          },
+          {
+            "pump_share_pct": 8.0,
+            "mode": "return_fixed",
+            "chw_supply_delta_k": 0.0,
+            "chw_delta_t_k": 6.0,
+            "chiller_change_pct": 0.0,
+            "pump_change_pct": 0.0,
+            "total_change_pct": 0.0,
+            "n_hours_flow_capped": 0,
+            "n_hours_cop_capped": 0
+          },
+          {
+            "pump_share_pct": 8.0,
+            "mode": "return_fixed",
+            "chw_supply_delta_k": 0.5,
+            "chw_delta_t_k": 5.5,
+            "chiller_change_pct": -0.8125608419494723,
+            "pump_change_pct": 29.827197595792665,
+            "total_change_pct": -0.5446294056192347,
+            "n_hours_flow_capped": 0,
+            "n_hours_cop_capped": 0
+          },
+          {
+            "pump_share_pct": 8.0,
+            "mode": "return_fixed",
+            "chw_supply_delta_k": 1.0,
+            "chw_delta_t_k": 5.0,
+            "chiller_change_pct": -1.6543984333108996,
+            "pump_change_pct": 72.79999999999998,
+            "total_change_pct": -1.0033269193537975,
+            "n_hours_flow_capped": 0,
+            "n_hours_cop_capped": 0
+          },
+          {
+            "pump_share_pct": 8.0,
+            "mode": "return_fixed",
+            "chw_supply_delta_k": 1.5,
+            "chw_delta_t_k": 4.5,
+            "chiller_change_pct": -2.5221182585065227,
+            "pump_change_pct": 137.03703703703707,
+            "total_change_pct": -1.301733802560201,
+            "n_hours_flow_capped": 0,
+            "n_hours_cop_capped": 3
+          },
+          {
+            "pump_share_pct": 8.0,
+            "mode": "return_fixed",
+            "chw_supply_delta_k": 2.0,
+            "chw_delta_t_k": 4.0,
+            "chiller_change_pct": -3.386350188269449,
+            "pump_change_pct": 237.50000000000006,
+            "total_change_pct": -1.2799032353851492,
+            "n_hours_flow_capped": 0,
+            "n_hours_cop_capped": 8
+          },
+          {
+            "pump_share_pct": 8.0,
+            "mode": "return_fixed",
+            "chw_supply_delta_k": 2.5,
+            "chw_delta_t_k": 3.5,
+            "chiller_change_pct": -4.231328698327319,
+            "pump_change_pct": 403.7900874635568,
+            "total_change_pct": -0.6633578767593851,
+            "n_hours_flow_capped": 0,
+            "n_hours_cop_capped": 18
+          },
+          {
+            "pump_share_pct": 8.0,
+            "mode": "return_fixed",
+            "chw_supply_delta_k": 3.0,
+            "chw_delta_t_k": 3.0,
+            "chiller_change_pct": -5.070298266784623,
+            "pump_change_pct": 700.0,
+            "total_change_pct": 1.0952365598774438,
+            "n_hours_flow_capped": 0,
+            "n_hours_cop_capped": 25
+          },
+          {
+            "pump_share_pct": 8.0,
+            "mode": "return_fixed",
+            "chw_supply_delta_k": 3.3,
+            "chw_delta_t_k": 2.7,
+            "chiller_change_pct": -5.57122496373601,
+            "pump_change_pct": 997.3936899862827,
+            "total_change_pct": 3.199269451140996,
+            "n_hours_flow_capped": 0,
+            "n_hours_cop_capped": 30
+          },
+          {
+            "pump_share_pct": 10.0,
+            "mode": "coils_hold",
+            "chw_supply_delta_k": 0.0,
+            "chw_delta_t_k": 6.0,
+            "chiller_change_pct": 0.0,
+            "pump_change_pct": 0.0,
+            "total_change_pct": 0.0,
+            "n_hours_flow_capped": 0,
+            "n_hours_cop_capped": 0
+          },
+          {
+            "pump_share_pct": 10.0,
+            "mode": "coils_hold",
+            "chw_supply_delta_k": 0.5,
+            "chw_delta_t_k": 6.0,
+            "chiller_change_pct": -0.8125608419494723,
+            "pump_change_pct": 0.0,
+            "total_change_pct": -0.8036983501848338,
+            "n_hours_flow_capped": 0,
+            "n_hours_cop_capped": 0
+          },
+          {
+            "pump_share_pct": 10.0,
+            "mode": "coils_hold",
+            "chw_supply_delta_k": 1.0,
+            "chw_delta_t_k": 6.0,
+            "chiller_change_pct": -1.6543984333108996,
+            "pump_change_pct": 0.0,
+            "total_change_pct": -1.6363541322152786,
+            "n_hours_flow_capped": 0,
+            "n_hours_cop_capped": 0
+          },
+          {
+            "pump_share_pct": 10.0,
+            "mode": "coils_hold",
+            "chw_supply_delta_k": 1.5,
+            "chw_delta_t_k": 6.0,
+            "chiller_change_pct": -2.5221182585065227,
+            "pump_change_pct": 0.0,
+            "total_change_pct": -2.494609854038221,
+            "n_hours_flow_capped": 0,
+            "n_hours_cop_capped": 3
+          },
+          {
+            "pump_share_pct": 10.0,
+            "mode": "coils_hold",
+            "chw_supply_delta_k": 2.0,
+            "chw_delta_t_k": 6.0,
+            "chiller_change_pct": -3.386350188269449,
+            "pump_change_pct": 0.0,
+            "total_change_pct": -3.3494157224346344,
+            "n_hours_flow_capped": 0,
+            "n_hours_cop_capped": 8
+          },
+          {
+            "pump_share_pct": 10.0,
+            "mode": "coils_hold",
+            "chw_supply_delta_k": 2.5,
+            "chw_delta_t_k": 6.0,
+            "chiller_change_pct": -4.231328698327319,
+            "pump_change_pct": 0.0,
+            "total_change_pct": -4.185178165583969,
+            "n_hours_flow_capped": 0,
+            "n_hours_cop_capped": 18
+          },
+          {
+            "pump_share_pct": 10.0,
+            "mode": "coils_hold",
+            "chw_supply_delta_k": 3.0,
+            "chw_delta_t_k": 6.0,
+            "chiller_change_pct": -5.070298266784623,
+            "pump_change_pct": 0.0,
+            "total_change_pct": -5.014997205850202,
+            "n_hours_flow_capped": 0,
+            "n_hours_cop_capped": 25
+          },
+          {
+            "pump_share_pct": 10.0,
+            "mode": "coils_hold",
+            "chw_supply_delta_k": 3.3,
+            "chw_delta_t_k": 6.0,
+            "chiller_change_pct": -5.57122496373601,
+            "pump_change_pct": 0.0,
+            "total_change_pct": -5.510460362722847,
+            "n_hours_flow_capped": 0,
+            "n_hours_cop_capped": 30
+          },
+          {
+            "pump_share_pct": 10.0,
+            "mode": "return_fixed",
+            "chw_supply_delta_k": 0.0,
+            "chw_delta_t_k": 6.0,
+            "chiller_change_pct": 0.0,
+            "pump_change_pct": 0.0,
+            "total_change_pct": 0.0,
+            "n_hours_flow_capped": 0,
+            "n_hours_cop_capped": 0
+          },
+          {
+            "pump_share_pct": 10.0,
+            "mode": "return_fixed",
+            "chw_supply_delta_k": 0.5,
+            "chw_delta_t_k": 5.5,
+            "chiller_change_pct": -0.8125608419494723,
+            "pump_change_pct": 29.827197595792644,
+            "total_change_pct": -0.47837711956743023,
+            "n_hours_flow_capped": 0,
+            "n_hours_cop_capped": 0
+          },
+          {
+            "pump_share_pct": 10.0,
+            "mode": "return_fixed",
+            "chw_supply_delta_k": 1.0,
+            "chw_delta_t_k": 5.0,
+            "chiller_change_pct": -1.6543984333108996,
+            "pump_change_pct": 72.8,
+            "total_change_pct": -0.8423343282130569,
+            "n_hours_flow_capped": 0,
+            "n_hours_cop_capped": 0
+          },
+          {
+            "pump_share_pct": 10.0,
+            "mode": "return_fixed",
+            "chw_supply_delta_k": 1.5,
+            "chw_delta_t_k": 4.5,
+            "chiller_change_pct": -2.5221182585065227,
+            "pump_change_pct": 137.03703703703707,
+            "total_change_pct": -0.9999653308350065,
+            "n_hours_flow_capped": 0,
+            "n_hours_cop_capped": 3
+          },
+          {
+            "pump_share_pct": 10.0,
+            "mode": "return_fixed",
+            "chw_supply_delta_k": 2.0,
+            "chw_delta_t_k": 4.0,
+            "chiller_change_pct": -3.386350188269449,
+            "pump_change_pct": 237.5,
+            "total_change_pct": -0.759035180531753,
+            "n_hours_flow_capped": 0,
+            "n_hours_cop_capped": 8
+          },
+          {
+            "pump_share_pct": 10.0,
+            "mode": "return_fixed",
+            "chw_supply_delta_k": 2.5,
+            "chw_delta_t_k": 3.5,
+            "chiller_change_pct": -4.231328698327319,
+            "pump_change_pct": 403.7900874635569,
+            "total_change_pct": 0.21890598422178442,
+            "n_hours_flow_capped": 0,
+            "n_hours_cop_capped": 18
+          },
+          {
+            "pump_share_pct": 10.0,
+            "mode": "return_fixed",
+            "chw_supply_delta_k": 3.0,
+            "chw_delta_t_k": 3.0,
+            "chiller_change_pct": -5.070298266784623,
+            "pump_change_pct": 700.0,
+            "total_change_pct": 2.6198086018635935,
+            "n_hours_flow_capped": 0,
+            "n_hours_cop_capped": 25
+          },
+          {
+            "pump_share_pct": 10.0,
+            "mode": "return_fixed",
+            "chw_supply_delta_k": 3.3,
+            "chw_delta_t_k": 2.7,
+            "chiller_change_pct": -5.57122496373601,
+            "pump_change_pct": 997.3936899862827,
+            "total_change_pct": 5.367978404254825,
+            "n_hours_flow_capped": 0,
+            "n_hours_cop_capped": 30
+          },
+          {
+            "pump_share_pct": 12.0,
+            "mode": "coils_hold",
+            "chw_supply_delta_k": 0.0,
+            "chw_delta_t_k": 6.0,
+            "chiller_change_pct": 0.0,
+            "pump_change_pct": 0.0,
+            "total_change_pct": 0.0,
+            "n_hours_flow_capped": 0,
+            "n_hours_cop_capped": 0
+          },
+          {
+            "pump_share_pct": 12.0,
+            "mode": "coils_hold",
+            "chw_supply_delta_k": 0.5,
+            "chw_delta_t_k": 6.0,
+            "chiller_change_pct": -0.8125608419494723,
+            "pump_change_pct": 0.0,
+            "total_change_pct": -0.801949000217872,
+            "n_hours_flow_capped": 0,
+            "n_hours_cop_capped": 0
+          },
+          {
+            "pump_share_pct": 12.0,
+            "mode": "coils_hold",
+            "chw_supply_delta_k": 1.0,
+            "chw_delta_t_k": 6.0,
+            "chiller_change_pct": -1.6543984333108996,
+            "pump_change_pct": 0.0,
+            "total_change_pct": -1.6327924028096463,
+            "n_hours_flow_capped": 0,
+            "n_hours_cop_capped": 0
+          },
+          {
+            "pump_share_pct": 12.0,
+            "mode": "coils_hold",
+            "chw_supply_delta_k": 1.5,
+            "chw_delta_t_k": 6.0,
+            "chiller_change_pct": -2.5221182585065227,
+            "pump_change_pct": 0.0,
+            "total_change_pct": -2.489180023723492,
+            "n_hours_flow_capped": 0,
+            "n_hours_cop_capped": 3
+          },
+          {
+            "pump_share_pct": 12.0,
+            "mode": "coils_hold",
+            "chw_supply_delta_k": 2.0,
+            "chw_delta_t_k": 6.0,
+            "chiller_change_pct": -3.386350188269449,
+            "pump_change_pct": 0.0,
+            "total_change_pct": -3.342125300248222,
+            "n_hours_flow_capped": 0,
+            "n_hours_cop_capped": 8
+          },
+          {
+            "pump_share_pct": 12.0,
+            "mode": "coils_hold",
+            "chw_supply_delta_k": 2.5,
+            "chw_delta_t_k": 6.0,
+            "chiller_change_pct": -4.231328698327319,
+            "pump_change_pct": 0.0,
+            "total_change_pct": -4.176068601922434,
+            "n_hours_flow_capped": 0,
+            "n_hours_cop_capped": 18
+          },
+          {
+            "pump_share_pct": 12.0,
+            "mode": "coils_hold",
+            "chw_supply_delta_k": 3.0,
+            "chw_delta_t_k": 6.0,
+            "chiller_change_pct": -5.070298266784623,
+            "pump_change_pct": 0.0,
+            "total_change_pct": -5.004081437273178,
+            "n_hours_flow_capped": 0,
+            "n_hours_cop_capped": 25
+          },
+          {
+            "pump_share_pct": 12.0,
+            "mode": "coils_hold",
+            "chw_supply_delta_k": 3.3,
+            "chw_delta_t_k": 6.0,
+            "chiller_change_pct": -5.57122496373601,
+            "pump_change_pct": 0.0,
+            "total_change_pct": -5.4984661566239375,
+            "n_hours_flow_capped": 0,
+            "n_hours_cop_capped": 30
+          },
+          {
+            "pump_share_pct": 12.0,
+            "mode": "return_fixed",
+            "chw_supply_delta_k": 0.0,
+            "chw_delta_t_k": 6.0,
+            "chiller_change_pct": 0.0,
+            "pump_change_pct": 0.0,
+            "total_change_pct": 0.0,
+            "n_hours_flow_capped": 0,
+            "n_hours_cop_capped": 0
+          },
+          {
+            "pump_share_pct": 12.0,
+            "mode": "return_fixed",
+            "chw_supply_delta_k": 0.5,
+            "chw_delta_t_k": 5.5,
+            "chiller_change_pct": -0.8125608419494723,
+            "pump_change_pct": 29.827197595792597,
+            "total_change_pct": -0.41241324628739084,
+            "n_hours_flow_capped": 0,
+            "n_hours_cop_capped": 0
+          },
+          {
+            "pump_share_pct": 12.0,
+            "mode": "return_fixed",
+            "chw_supply_delta_k": 1.0,
+            "chw_delta_t_k": 5.0,
+            "chiller_change_pct": -1.6543984333108996,
+            "pump_change_pct": 72.79999999999998,
+            "total_change_pct": -0.6820425780879491,
+            "n_hours_flow_capped": 0,
+            "n_hours_cop_capped": 0
+          },
+          {
+            "pump_share_pct": 12.0,
+            "mode": "return_fixed",
+            "chw_supply_delta_k": 1.5,
+            "chw_delta_t_k": 4.5,
+            "chiller_change_pct": -2.5221182585065227,
+            "pump_change_pct": 137.03703703703692,
+            "total_change_pct": -0.6995105327435192,
+            "n_hours_flow_capped": 0,
+            "n_hours_cop_capped": 3
+          },
+          {
+            "pump_share_pct": 12.0,
+            "mode": "return_fixed",
+            "chw_supply_delta_k": 2.0,
+            "chw_delta_t_k": 4.0,
+            "chiller_change_pct": -3.386350188269449,
+            "pump_change_pct": 237.49999999999986,
+            "total_change_pct": -0.24043459459709426,
+            "n_hours_flow_capped": 0,
+            "n_hours_cop_capped": 8
+          },
+          {
+            "pump_share_pct": 12.0,
+            "mode": "return_fixed",
+            "chw_supply_delta_k": 2.5,
+            "chw_delta_t_k": 3.5,
+            "chiller_change_pct": -4.231328698327319,
+            "pump_change_pct": 403.7900874635567,
+            "total_change_pct": 1.0973291299502863,
+            "n_hours_flow_capped": 0,
+            "n_hours_cop_capped": 18
+          },
+          {
+            "pump_share_pct": 12.0,
+            "mode": "return_fixed",
+            "chw_supply_delta_k": 3.0,
+            "chw_delta_t_k": 3.0,
+            "chiller_change_pct": -5.070298266784623,
+            "pump_change_pct": 700.0,
+            "total_change_pct": 4.1377438004353895,
+            "n_hours_flow_capped": 0,
+            "n_hours_cop_capped": 25
+          },
+          {
+            "pump_share_pct": 12.0,
+            "mode": "return_fixed",
+            "chw_supply_delta_k": 3.3,
+            "chw_delta_t_k": 2.7,
+            "chiller_change_pct": -5.57122496373601,
+            "pump_change_pct": 997.3936899862823,
+            "total_change_pct": 7.527246424873013,
+            "n_hours_flow_capped": 0,
+            "n_hours_cop_capped": 30
+          }
+        ],
+        "break_even_chw_delta_k": {
+          "coils_hold@8pct": {
+            "sign_at_first_step": "saves",
+            "first_step_k": 0.5,
+            "total_pct_at_first_step": -0.8054553488062499,
+            "total_pct_at_last_step": -5.522507010894262,
+            "last_step_k": 3.3,
+            "crossing_k": null
+          },
+          "return_fixed@8pct": {
+            "sign_at_first_step": "saves",
+            "first_step_k": 0.5,
+            "total_pct_at_first_step": -0.5446294056192347,
+            "total_pct_at_last_step": 3.199269451140996,
+            "last_step_k": 3.3,
+            "crossing_k": 2.6886045647989207
+          },
+          "coils_hold@10pct": {
+            "sign_at_first_step": "saves",
+            "first_step_k": 0.5,
+            "total_pct_at_first_step": -0.8036983501848338,
+            "total_pct_at_last_step": -5.510460362722847,
+            "last_step_k": 3.3,
+            "crossing_k": null
+          },
+          "return_fixed@10pct": {
+            "sign_at_first_step": "saves",
+            "first_step_k": 0.5,
+            "total_pct_at_first_step": -0.47837711956743023,
+            "total_pct_at_last_step": 5.367978404254825,
+            "last_step_k": 3.3,
+            "crossing_k": 2.388078142064429
+          },
+          "coils_hold@12pct": {
+            "sign_at_first_step": "saves",
+            "first_step_k": 0.5,
+            "total_pct_at_first_step": -0.801949000217872,
+            "total_pct_at_last_step": -5.4984661566239375,
+            "last_step_k": 3.3,
+            "crossing_k": null
+          },
+          "return_fixed@12pct": {
+            "sign_at_first_step": "saves",
+            "first_step_k": 0.5,
+            "total_pct_at_first_step": -0.41241324628739084,
+            "total_pct_at_last_step": 7.527246424873013,
+            "last_step_k": 3.3,
+            "crossing_k": 2.0898643722300223
+          }
+        }
+      }
+    }
+  ]
+}

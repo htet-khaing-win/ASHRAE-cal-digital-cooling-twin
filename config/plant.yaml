@@ -1,0 +1,106 @@
+# Plant configuration (M8).
+#
+# READ THIS BEFORE QUOTING ANY NUMBER PRODUCED FROM IT.
+#
+# Everything in this file is a STATED ASSUMPTION, not a calibrated
+# value. BDG2 records one thermal meter (`chilledwater`, kW of cooling
+# delivered) and one whole-building `electricity` meter that mixes
+# lighting, plug load, fans and the chiller together. Nothing in the
+# dataset isolates chiller electric power, so the plant model below is
+# UNCALIBRATED and cannot be validated against this building. The M6
+# gate says the twin reproduces the building's COOLING LOAD; it says
+# nothing at all about the kWh numbers this file converts that load
+# into.
+#
+# Consequence, and it must travel with every M8 result: a counterfactual
+# produced through this file is a statement about a DOCUMENTED GENERIC
+# PLANT serving this building's calibrated load, never a statement about
+# the plant that is actually installed. Every constant is traceable to
+# 03_DOMAIN_REFERENCE.md SS1; none is traceable to Fox_education_Claude.
+
+chiller:
+  # The L5.1/L5.2 curve set, moved out of chiller.py's __main__ demo so
+  # that one set of coefficients serves the demo, the tests and M8 --
+  # two copies would drift, and the copy in the report would stop
+  # matching the copy in the code.
+  #
+  # Illustrative, NOT a manufacturer's certified data sheet. Derived so
+  # they reproduce 03_DOMAIN_REFERENCE.md SS1 exactly: rated at
+  # CHW 6.7 degC / CW 29.4 degC, cop_ref 6.0 (midpoint of the 5.5-7.0
+  # centrifugal band), EIRFT slopes at the conservative 2%/K end of both
+  # documented rules of thumb, EIRFPLR solved from the "peak at PLR
+  # 60-80%" and "PLR<25% -> COP 2.0-3.5" statements.
+  cap_ft: [1.1935, 0.015, 0.0, -0.010, 0.0, 0.0]
+  eir_ft: [0.546, -0.02, 0.0, 0.02, 0.0, 0.0]
+  eir_fplr: [3.05, -6.05, 4.00]
+  cop_ref: 6.0
+  # Rating-point temperatures the curves were normalised at. Used only
+  # to size the plant at design conditions; the hourly run uses the
+  # actual weather-driven condenser temperature.
+  t_chw_supply_ref_c: 6.7
+  t_cond_water_ref_c: 29.4
+  # CURVE VALIDITY LIMITS. The curve inputs are clamped to this box
+  # before evaluation -- DOE-2 and EnergyPlus both do this (every curve
+  # object carries minimum/maximum_value_of_x and _of_y) and for exactly
+  # the reason it matters here: a polynomial fitted near a rating point
+  # is a fit, not a law, and it keeps sloping the same way forever
+  # outside the data it was fitted to.
+  #
+  # MEASURED CONSEQUENCE, not a precaution. These curves were derived
+  # from two rules of thumb anchored at CW 29.4 degC. Tempe's winter wet
+  # bulb puts the tower outlet near 5 degC, 24 K below that anchor,
+  # where the linear EIRFT term claims a ~50% efficiency gain and the
+  # implied COP passes 17 -- straight through INV-1's ceiling of 10.
+  # Clamping stops the curve being asked a question it cannot answer;
+  # `plant_electric_kw()` still checks INV-1 afterwards and caps any
+  # hour that survives clamping and remains above the ceiling.
+  t_chw_supply_limits_c: [4.0, 12.0]
+  t_cond_water_limits_c: [20.0, 40.0]
+
+sizing:
+  # The plant is SIZED FROM THE METER, not typed in: capacity is the
+  # largest hourly load the building actually drew, plus a margin, split
+  # across identical units. Hardcoding a nameplate would make every
+  # part-load ratio in M8 a statement about the number that was typed.
+  #
+  # 1.15 is a design margin, not a physical fact. Below ~1.10 the plant
+  # cannot serve its own measured peak once INV-4's 1.1x ceiling is
+  # applied per unit; far above it the plant spends the year at a low
+  # PLR for no reason but the assumption.
+  capacity_margin: 1.15
+  # Four equal units with ideal sequencing (L1.5): run the fewest units
+  # that can carry the load, share it equally between them. One large
+  # chiller would sit below PLR 0.25 for much of the year and the COP
+  # collapse there would be an artifact of this choice rather than of
+  # the building. Real plants stage; a real plant's actual sequencing
+  # logic is not recorded in BDG2, so ideal staging is the assumption
+  # that is easiest to state and hardest to accidentally flatter.
+  n_chillers: 4
+
+water_loop:
+  # 03_DOMAIN_REFERENCE.md SS1: CHW supply 6.7 degC typical, design
+  # delta-T 5-7 K. 6.0 K is the midpoint of the documented band.
+  t_chw_supply_c: 6.7
+  design_delta_t_k: 6.0
+  # SS1: condenser water = wet bulb + 2.5-4 K. 3.5 K is inside that
+  # band; INV-3 holds structurally for any positive value.
+  tower_approach_k: 3.5
+
+pump:
+  # The CHW pump is sized RELATIVE to the chiller at design conditions,
+  # using 03_DOMAIN_REFERENCE.md SS1's HVAC energy split: chiller
+  # 50-60%, CHW pump 8-12%. Midpoints give a pump drawing 10/55 of the
+  # chiller's design power.
+  #
+  # This is the weakest assumption in the file and it is the one the
+  # chiller-versus-pump trade-off is most sensitive to: the split is an
+  # ANNUAL ENERGY share, and using it as a DESIGN POWER ratio assumes
+  # both run with the same load factor over the year, which they do not.
+  # reports/08_counterfactual.md re-runs the trade-off across the full
+  # 8-12% band rather than hiding behind the midpoint.
+  share_of_hvac_pct: 10.0
+  chiller_share_of_hvac_pct: 55.0
+  # Variable-speed. With a fixed-speed pump the affinity law does not
+  # apply and every flow-side result in M8 collapses to "no change" --
+  # which is itself the point of L5.3 and is available by flipping this.
+  variable_speed: true

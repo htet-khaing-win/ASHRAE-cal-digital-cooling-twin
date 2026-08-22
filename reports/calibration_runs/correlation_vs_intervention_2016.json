@@ -1,0 +1,50 @@
+{
+  "year": 2016,
+  "note": "Training year only (ADR-002). Physics parameters read frozen. The interventional column is the twin re-solved with one driver moved; it is not a regression on the twin's output.",
+  "humidity_step_g_per_kg": 1.0,
+  "setpoint_step_k": 1.0,
+  "synthetic": {
+    "true_humidity_coeff_kw_per_g_per_kg": 120.0,
+    "true_temperature_coeff_kw_per_k": 300.0,
+    "confounded_slope_kw_per_g_per_kg": 699.9131387649994,
+    "adjusted_slope_kw_per_g_per_kg": 118.73358253188975,
+    "adjusted_temperature_slope_kw_per_k": 300.1285237950664,
+    "confounded_overstatement_x": 5.832609489708329,
+    "predicted_bias_kw_per_g_per_kg": 580.8612285660257,
+    "corr_temperature_humidity": 0.9335417527627838,
+    "n_hours": 8760,
+    "seed": 42
+  },
+  "buildings": [
+    {
+      "building_id": "Fox_education_Claude",
+      "role": "primary",
+      "year": 2016,
+      "n_hours": 8782,
+      "calibration_artifact": "calibration_20260812T200947+0000_seed42.json",
+      "observational_slope_kw_per_g_per_kg": 507.5969966658987,
+      "adjusted_slope_kw_per_g_per_kg": 239.23213593844926,
+      "adjusted_temperature_slope_kw_per_k": 254.45154477753476,
+      "interventional_kw_per_g_per_kg": 83.01272555541503,
+      "interventional_kw_per_k_setpoint": -231.64146760729383,
+      "corr_temperature_humidity": 0.3773545503891517,
+      "setpoint_variance_in_data": 0.0,
+      "mean_measured_kw": 6882.5806570257355
+    },
+    {
+      "building_id": "Bull_education_Luke",
+      "role": "generalisation",
+      "year": 2016,
+      "n_hours": 8572,
+      "calibration_artifact": "calibration_20260812T201111+0000_seed42.json",
+      "observational_slope_kw_per_g_per_kg": 187.10751677720071,
+      "adjusted_slope_kw_per_g_per_kg": 128.96763986795952,
+      "adjusted_temperature_slope_kw_per_k": 47.779680231183576,
+      "interventional_kw_per_g_per_kg": 94.48604566968362,
+      "interventional_kw_per_k_setpoint": -71.51668917344597,
+      "corr_temperature_humidity": 0.7885977625015026,
+      "setpoint_variance_in_data": 0.0,
+      "mean_measured_kw": 2641.881280214652
+    }
+  ]
+}
