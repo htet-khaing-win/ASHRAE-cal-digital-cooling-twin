@@ -1261,3 +1261,39 @@ def test_the_split_rejects_impossible_arguments() -> None:
         matched_band_split(
             residual, temperature[:-1], probe, control="t", probe="p"
         )
+
+
+def test_matched_split_to_frame_round_trips_the_numbers() -> None:
+    """The table a report prints must be the split's own numbers."""
+    residual, temperature, probe = _confounded(probe_effect=1.5)
+
+    split = matched_band_split(
+        residual, temperature, probe, control="t", probe="p", control_width=2.5
+    )
+    frame = split.to_frame()
+
+    assert list(frame.index) == list(split.centres)
+    assert frame["difference kW"].to_numpy() == pytest.approx(split.differences)
+    assert int(frame[["hours low", "hours high"]].to_numpy().sum()) == int(
+        split.counts_low.sum() + split.counts_high.sum()
+    )
+
+
+def test_matched_split_drops_bins_that_cannot_be_halved() -> None:
+    """A bin with too few hours is skipped, not halved into noise."""
+    rng = set_seed()
+    n = 4000
+    # A dense body plus a sparse tail: the tail bin holds fewer than
+    # 2 * MIN_BIN_COUNT hours and must not reach the result.
+    temperature = np.concatenate(
+        [rng.uniform(0.0, 10.0, n), rng.uniform(40.0, 42.0, 25)]
+    )
+    probe = rng.normal(0.0, 1.0, temperature.size)
+    residual = rng.normal(0.0, 10.0, temperature.size)
+
+    split = matched_band_split(
+        residual, temperature, probe, control="t", probe="p", control_width=2.5
+    )
+
+    assert split.centres.max() < 15.0
+    assert np.all(split.counts_low >= MIN_BIN_COUNT)
