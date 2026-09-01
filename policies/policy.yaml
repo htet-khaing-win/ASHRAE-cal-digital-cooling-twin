@@ -1,0 +1,113 @@
+# Capability-tier authorization policy for the MCP cooling gateway.
+#
+# THIS FILE IS THE AUTHORIZATION LOGIC. No role, tool name, zone, tier or
+# temperature bound may be hardcoded in Python (services/CLAUDE.md rule 3).
+# A reviewer must be able to answer "what may an operator do?" by reading
+# this file alone, without opening a single .py.
+#
+# DENY BY DEFAULT. A tool with no rule here is denied. A rule with no
+# `tier` is denied. A failed evaluation is denied. An exception during
+# evaluation is denied. There is no fail-open path and no override flag.
+#
+# Mounted as a Kubernetes ConfigMap in M8 and hot-reloadable, which is
+# why it is data and not code: changing who may actuate a building must
+# not require a rebuild, a redeploy, or a Python review.
+
+version: 2
+default: deny
+
+tiers:
+  read:
+    description: Data access only, no side effects.
+  simulate:
+    description: Sandboxed modelling, no physical effect.
+  apply:
+    description: >
+      Changes the twin's control state. Receipt required. NOTE: in this
+      repository the actuator is SIMULATED -- no BMS is connected (see
+      docs/ARCHITECTURE.md). The authorization design is unchanged if a
+      real actuator replaces it, which is the point of the tier.
+
+safety:
+  # Enforced at the GATEWAY, not only at the twin (ADR-0006). The twin
+  # may be replaced by one that does not check; the gateway is the
+  # control point, so the bound lives where the control point is.
+  setpoint_c:
+    min: 18.0
+    max: 27.0
+  # Rate limiting on physical change, not on request count. Enforcing it
+  # requires per-zone state (last applied setpoint + timestamp) that
+  # outlives a single request -- see ADR-0005, which is why Redis lands
+  # in M2 rather than M8.
+  max_ramp_c_per_hour: 2.0
+  receipt_ttl_seconds: 900
+  # Floating point makes exact equality the wrong comparison, but a
+  # tolerance is an attack surface: simulate 22.0, apply 22.1, repeat
+  # with a fresh receipt each time and the setpoint walks. The ramp
+  # limit above is what actually bounds that, not this number.
+  setpoint_match_tolerance_c: 0.1
+
+rules:
+  - id: R-101
+    tool: twin.get_zones
+    tier: read
+    allow_roles: [viewer, operator, engineer]
+    inject_from_principal:
+      site_id: site_id
+
+  - id: R-102
+    tool: twin.get_sensor_history
+    tier: read
+    allow_roles: [viewer, operator, engineer]
+    constraints:
+      # 10080 minutes = 7 days. A wider window is a context-flooding
+      # vector (T-12) before it is a privacy one.
+      window_minutes: { type: integer, max: 10080 }
+    inject_from_principal:
+      site_id: site_id
+
+  - id: R-103
+    tool: twin.start_simulation
+    tier: simulate
+    allow_roles: [operator, engineer]
+    constraints:
+      setpoint_c: { type: number, min: 18.0, max: 27.0 }
+      horizon_hours: { type: integer, max: 72 }
+    limits:
+      # T-14: an agent loop can start simulations faster than any human
+      # would. The cap is per principal, not global, so one noisy agent
+      # cannot deny service to every other caller.
+      max_concurrent_per_principal: 3
+    inject_from_principal:
+      site_id: site_id
+
+  - id: R-104
+    tool: twin.get_simulation_result
+    tier: simulate
+    allow_roles: [operator, engineer]
+    constraints:
+      detail: { type: string, enum: [summary, slice] }
+      max_points: { type: integer, max: 50 }
+
+  - id: R-105
+    tool: twin.apply_setpoint
+    tier: apply
+    # OPERATOR CAN SIMULATE BUT NOT APPLY. This split is the reason the
+    # tier system is not decorative: the interesting denial is not "an
+    # unknown caller was blocked", it is "a known, authenticated caller
+    # with a legitimate role was blocked from one specific tier".
+    allow_roles: [engineer]
+    constraints:
+      setpoint_c: { type: number, min: 18.0, max: 27.0 }
+    require_receipt:
+      # site_id IS PART OF THE BINDING. The scope document's original
+      # draft bound only [subject, zone_id, setpoint_c] while injecting
+      # site_id on both R-103 and R-105 -- but zone ids may collide
+      # across sites, and a principal with access to two sites could
+      # then present a receipt minted for site A on an apply against
+      # site B. That is exactly T-10, so the tenant is bound too.
+      bind: [subject, site_id, zone_id, setpoint_c]
+      single_use: true
+      max_age_seconds: 900
+    inject_from_principal:
+      site_id: site_id

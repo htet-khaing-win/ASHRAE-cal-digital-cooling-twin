@@ -1,21 +1,41 @@
-.PHONY: all lint test quality-report calibrate crossval equifinality \
-        residuals hybrid explain humidity counterfactual reproduce \
-        dashboard clean data
+.PHONY: all lint test gateway-lint gateway-test quality-report calibrate \
+        crossval equifinality residuals hybrid explain humidity \
+        counterfactual reproduce dashboard clean data
 
-# `all` is the fast, CI-safe path -- the same two steps ci.yml runs on
-# every push. It is deliberately NOT the full research pipeline: lint +
-# test finish in under a minute and a green run is a precondition for
-# trusting anything `reproduce` below would produce. `reproduce` is the
-# separate, slow target L9.1 actually verifies against -- see its own
-# comment for why the two are not merged into one `all`.
-all: lint test
+# `all` is the fast, CI-safe path -- the same four steps ci.yml runs on
+# every push, across its `twin` and `gateway` jobs. It is deliberately
+# NOT the full research pipeline: everything below finishes in about a
+# minute and a green run is a precondition for trusting anything
+# `reproduce` would produce. `reproduce` is the separate, slow target
+# L9.1 verifies against -- see its own comment for why the two are not
+# merged into one `all`.
+#
+# Keep this list and ci.yml in step. They silently diverged once before
+# (CI linted only `src/` while this target already linted `dashboard/`),
+# and the divergence is invisible until something breaks in exactly one
+# of the two places.
+all: lint test gateway-lint gateway-test
 
 lint:
 	ruff check src tests dashboard
 	mypy src dashboard
 
+# `--cov=dashboard` is load-bearing, not tidiness. The dashboard shipped
+# with no tests and was outside the gate, so one wrong predicate reached
+# a live panel and reported a structural interval 77x too wide. See
+# tests/test_dashboard.py's module docstring.
 test:
-	pytest --cov=cooling_twin --cov-report=term-missing --cov-fail-under=80
+	pytest tests --cov=cooling_twin --cov=dashboard --cov-report=term-missing --cov-fail-under=80
+
+# The gateway is held to 90%, not the twin's 80%: receipt validation and
+# policy evaluation are the security surface, and an unreached line in
+# receipts.py is a bypass nobody has looked for. See services/CLAUDE.md.
+gateway-lint:
+	ruff check services
+	mypy services/gateway/gateway services/twin_mcp/twin_mcp
+
+gateway-test:
+	pytest services --cov=gateway --cov=twin_mcp --cov-report=term-missing --cov-fail-under=90
 
 # BDG2 is ~1.6 GB and distributed over git-lfs, not something a Makefile
 # target should silently fetch on every clean-clone run -- see

@@ -26,6 +26,16 @@ dependencies:
       - pyyaml==6.0.3
       - scikit-learn==1.9.0
       - -e .[dev,dashboard]
+      # The M9-extension gateway (services/). Two separate editable
+      # installs, not extras of the twin, because the twin's own
+      # distribution must stay free of a web stack -- pyproject.toml's
+      # comments already state that rule for optuna/streamlit and it
+      # applies with more force to mcp/httpx/redis. `twin_mcp` may
+      # import cooling_twin; `gateway` must never, and
+      # services/gateway/tests/test_boundary.py fails the build if it
+      # does (ADR-0007).
+      - -e ./services/twin_mcp
+      - -e ./services/gateway[dev]
 
 # `-e .[dev,dashboard]` pulls pytest/pytest-cov/mypy/ruff/SALib/optuna/
 # mlflow/types-PyYAML and streamlit/altair straight from

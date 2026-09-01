@@ -1,0 +1,59 @@
+[project]
+name = "cooling-gateway"
+version = "0.1.0"
+description = "MCP policy gateway: capability tiers and simulation receipts over a building cooling twin."
+requires-python = ">=3.11,<3.12"
+
+# THE DEPENDENCY LIST IS THE ARCHITECTURE. `cooling-twin` is deliberately
+# ABSENT and must stay absent. The project's central claim -- "the twin
+# may be replaced; the gateway is the control point" -- is only true if
+# the gateway cannot reach the twin except over MCP, and this list plus
+# tests/test_boundary.py are what make that checkable rather than
+# aspirational. Adding `cooling-twin` here is a design change requiring
+# an ADR, not a convenience.
+dependencies = [
+    "mcp",
+    "pydantic",
+    "pyjwt[crypto]",
+    "httpx",
+    "redis",
+    "pyyaml",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest",
+    "pytest-asyncio",
+    "pytest-cov",
+    "mypy",
+    "ruff",
+    "types-PyYAML",
+]
+
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["gateway*"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "N", "UP", "B", "SIM"]
+
+[tool.mypy]
+python_version = "3.11"
+disallow_untyped_defs = true
+warn_return_any = true
+
+# Same policy as the twin's pyproject: third-party packages without a
+# py.typed marker are silenced by name so mypy still checks every line
+# WE wrote. `mcp` and `redis` ship partial typing that varies by release;
+# pin the silence to the module rather than loosening the global config.
+[[tool.mypy.overrides]]
+module = ["mcp.*", "redis.*"]
+ignore_missing_imports = true

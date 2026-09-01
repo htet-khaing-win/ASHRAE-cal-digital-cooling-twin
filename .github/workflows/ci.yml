@@ -6,7 +6,10 @@ on:
     branches: [main]
 
 jobs:
-  test:
+  # The twin and its presentation layer. `--cov=dashboard` is not
+  # decorative: the dashboard shipped with zero tests and a wrong
+  # predicate reached a live panel because nothing measured it.
+  twin:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -26,4 +29,56 @@ jobs:
         run: mypy src dashboard
 
       - name: Test + coverage gate
-        run: pytest --cov=cooling_twin --cov-report=term-missing --cov-fail-under=80
+        run: pytest tests --cov=cooling_twin --cov=dashboard --cov-report=term-missing --cov-fail-under=80
+
+  # The gateway is held to a HIGHER bar than the twin: 90%, not 80%.
+  # Receipt validation and policy evaluation are the security surface,
+  # and an unreached line in receipts.py is a bypass nobody looked for.
+  #
+  # This job never installs `cooling-twin`. That is deliberate and is
+  # itself a test: if the gateway suite ever needs the twin to pass,
+  # the boundary in ADR-0007 has been broken.
+  gateway:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: "pip"
+
+      - name: Install gateway and adapter (twin NOT installed)
+        run: |
+          pip install -e "./services/gateway[dev]"
+          pip install -e "./services/twin_mcp" --no-deps
+
+      - name: Lint (ruff)
+        run: ruff check services
+
+      - name: Type check (mypy)
+        run: mypy services/gateway/gateway services/twin_mcp/twin_mcp
+
+      - name: Test + coverage gate
+        run: pytest services --cov=gateway --cov=twin_mcp --cov-report=term-missing --cov-fail-under=90
+
+  # The README documents `conda env create -f environment.yml`, but the
+  # job above installs with pip -- so the path users actually follow was
+  # never exercised. It is not hypothetical: the suite fails in a bare
+  # base environment and passes only inside `cooling-twin`.
+  twin-conda:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        shell: bash -el {0}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: conda-incubator/setup-miniconda@v3
+        with:
+          environment-file: environment.yml
+          activate-environment: cooling-twin
+          auto-activate-base: false
+
+      - name: Test (no coverage gate -- the twin job owns that)
+        run: pytest tests -q

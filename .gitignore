@@ -6,15 +6,22 @@
 
 # instructor/course context files — teaching scaffolding, not shipped
 # project docs. README.md is the only .md meant for a real audience.
-01_LEARNING_PATH.md
-02_CURRICULUM.md
-03_DOMAIN_REFERENCE.md
-04_DATA_CONTRACT.md
-05_ENGINEERING_STANDARDS.md
-06_ASSESSMENT.md
-07_PROGRESS.md
-ADVANCED-UPGRADES.md
-CLAUDE.md
+#
+# ANCHORED TO REPO ROOT, for the same reason /data/ above is: an
+# unanchored `CLAUDE.md` matches at EVERY level, so it silently
+# swallowed services/CLAUDE.md -- the gateway's own rules file, which is
+# shipped project documentation and must be committed. Anchoring these
+# keeps the root teaching files ignored without hiding a directory-scoped
+# CLAUDE.md anywhere else in the tree.
+/01_LEARNING_PATH.md
+/02_CURRICULUM.md
+/03_DOMAIN_REFERENCE.md
+/04_DATA_CONTRACT.md
+/05_ENGINEERING_STANDARDS.md
+/06_ASSESSMENT.md
+/07_PROGRESS.md
+/ADVANCED-UPGRADES.md
+/CLAUDE.md
 
 # exploratory notebooks — exploration only, no project logic lives here
 # (05_ENGINEERING_STANDARDS.md notebook discipline); real implementations
@@ -61,3 +68,7 @@ Thumbs.db
 mlflow.db
 mlartifacts/
 mlruns/
+
+# Windows NTFS alternate-data-stream artifacts, created when a file is
+# copied into WSL from the Windows side (e.g. SCOPE-UPDATE.md:Zone.Identifier).
+*:Zone.Identifier
