@@ -58,14 +58,10 @@ counterfactuals and conformal prediction intervals.
 
 Real BDG2 meters carry stuck sensors, dropouts, spikes, and level shifts.
 Every building runs through nine automated cleaning rules before anything
-touches the model, and every removal is logged, not silently dropped:
-
-![Data cleaning before/after](reports/figures/quality_before_after.png)
-
-**Finding:** total data removed stays under 1.5% on the two buildings the
-model is ultimately calibrated against (5.4% on a third, rejected
-candidate). The cleaning pipeline is conservative by design: it flags
-faults rather than aggressively interpolating over them.
+touches the model — flagging faults rather than aggressively interpolating
+over them — and every removal is logged. Total data removed stays under
+1.3% on all four buildings used in this project. Full breakdown:
+`reports/01_data_quality.md`.
 
 ---
 
@@ -74,32 +70,39 @@ faults rather than aggressively interpolating over them.
 ### Physics alone misses by an order of magnitude
 
 An uncalibrated model (physically reasonable parameters, never fit to a
-meter) is the honest starting point every "digital twin" claim has to be
-measured against:
-
-![Uncalibrated model vs measured load](reports/figures/l6_1_uncalibrated_gap.png)
-
-**Finding:** the correlation between predicted and measured load is already
-0.5 with zero fitting. The physics gets the *shape* of the year right
-(hot months load more), but the *size* is off by ~90%. Calibration is
-solving a scale problem, not a shape problem, and that distinction is what
-makes a 5-parameter model tractable at all.
+meter) is off by 91% and correlates with the real load at only r = 0.49 —
+the honest floor every "digital twin" claim has to be measured against.
+Shown on `Fox_education_Theodore`, a building screened out *before*
+calibration ever touched it (`reports/00_building_selection.md`), so this
+is a real uncalibrated result, not a hypothetical snapshot of a building
+the project goes on to fit. Calibration is solving a scale problem, not a
+shape problem — the same physics structure is what
+`Fox_education_Claude`, `Bull_education_Luke`, and `Hog_education_Cathleen`
+are calibrated from below.
 
 ### After calibration, two of three buildings pass the industry gate
 
 | Building | Train-year CV(RMSE) | **Test-year CV(RMSE)** | G14 (±10% NMBE / 30% CV) |
 |---|---|---|---|
-| `Fox_education_Claude` (primary) | 11.72% | **11.58%** | ✅ **PASS** |
-| `Bull_education_Luke` | 14.13% | **11.14%** | ✅ **PASS** |
-| `Hog_education_Cathleen` | 28.66% | **31.65%** | ❌ FAIL |
+| `Fox_education_Claude` (primary) | 11.72% | **11.58%** | **PASS** |
+| `Bull_education_Luke` | 14.13% | **11.14%** | **PASS** |
+| `Hog_education_Cathleen` | 28.66% | **31.65%** | FAIL |
 
 **Finding:** both passing buildings score *better* on the year they'd never
 seen than on the year they were fit to (11.72→11.58%, 14.13→11.14%). That
-is the signature of a model that learned the building, not the year:
+is the signature of a model that learned the building, not the year. Below
+is that check for `Fox_education_Claude`: four expanding-window folds, each
+validated on hours the fold never trained on (mean train/validate gap
++0.33 pp), alongside the five calibrated parameters holding stable across
+folds rather than drifting to fit each block separately:
 
-![Cross-validated fold residuals](reports/figures/l6_9_crossval.png)
+![Cross-validated fold residuals — Fox_education_Claude](reports/figures/l6_9_crossval.png)
 
-Cathleen's failure is not overfitting: it's structural. Below −15°C the
+(`Bull_education_Luke` shows the same pattern; no separate figure is
+included for it here.)
+
+Cathleen's failure is a different, structural one — no cross-validation
+figure is shown for her, since the problem isn't fold instability. Below −15°C the
 model's inverse solve predicts exactly zero (a physical floor: cooling load
 can't go negative) against a measured, steady 444 kW base load the RC
 network has no term for. A 3-parameter change-point curve with *no
@@ -109,16 +112,17 @@ specific to one building's load shape, not a flaw in the method.
 
 ### The calibration isn't a lucky single fit
 
-Forty restarts from different starting points, and 40 more from a tight
-cluster around the best-known fit, both converge to a family of parameter
-sets that all score the meter about equally well:
-
-![Parameter equifinality across restarts](reports/figures/l6_8_equifinality.png)
-
-**Finding:** several equally-accurate parameter sets exist for the same
-building. That is a fault line: every "the calibrated value is X" claim
-has to carry an uncertainty range. That range is what feeds the
-equifinality-interval band used later in the counterfactual scenarios.
+Two independent 41-restart studies confirm the reported fit isn't a
+fluke. Restarts drawn from the full width of every parameter's bounds
+almost never land on an equally good answer — 38 of 41 end up in a
+different basin entirely, proof no distant rival fit exists. Restarts
+drawn from a tight neighborhood around the best-known fit find a real,
+local family instead: 7 of 41 within 5% of the best objective, with
+`t_setpoint_c` the one parameter the data can't pin down at all (51.6% of
+its own bound width is behaviourally indistinguishable). Every "the
+calibrated value is X" claim has to carry that range, which is what feeds
+the equifinality-interval band used later in the counterfactual scenarios.
+Full breakdown: `reports/02_calibration.md`.
 
 ---
 
@@ -140,51 +144,28 @@ than accepting the gap as noise.
 ### A learned correction recovers 1–3% more variance, out-of-fold
 
 A gradient-boosted model fitted to the physics residual, scored strictly
-on data it never trained on:
+out-of-fold, recovers a further **+3.3%** of Claude's variance (90.6% →
+93.9%; CV(RMSE) 11.29%→9.09%, a real seasonal effect concentrated in
+summer) and **+1.1%** of Luke's (86.7% → 87.8%) — reported as measured,
+not rounded up to one "the hybrid works" headline: 3 of Luke's 5
+cross-validation folds are actually *harmed* by the correction, so a 1%
+gain on 3-of-5-harmed folds is a materially weaker claim than Claude's 3%
+gain that helps every fold.
 
-![Physics + learned-residual decomposition](reports/figures/l7_3_hybrid_decomposition.png)
+### Also checked
 
-| Building | Physics variance explained | + learned correction | Unexplained |
-|---|---|---|---|
-| Claude | 90.6% | **+3.3%** | 6.1% |
-| Luke | 86.7% | +1.1% (qualified — see below) | 12.2% |
+- **Agreement isn't proof:** exact Shapley attribution and held-out
+  permutation importance rank features identically (Spearman ρ = 1.00),
+  but a shuffled-target control still produces 15–20% of the real
+  attribution's magnitude — two methods agreeing doesn't by itself mean
+  an attribution is real.
+- **One threshold, three climates:** the same calibrated humidity-response
+  term fires 16.8% of the year on the driest building and 66.0% on the
+  most humid — identical code, radically different behavior once climate
+  decides how often it triggers.
 
-**Finding:** Claude's correction is a real, seasonal effect: CV(RMSE)
-11.29%→9.09%, concentrated almost entirely in the summer fold, flattening
-a hockey-stick error above ~16°C outdoor temperature. Luke's gain is
-smaller, and 3 of its 5 cross-validation folds are actually *harmed* by the
-correction. Both are reported as measured, not rounded up to one "the
-hybrid works" headline. A 1% out-of-fold gain on 3-of-5-harmed folds is a
-materially weaker claim than a 3% gain that helps every fold, even though
-both are technically "positive."
-
-### The two importance methods that agree can still be misleading
-
-Exact Shapley attribution and held-out permutation importance rank
-features identically on one building (Spearman ρ = 1.00). But a shuffled
-control, with the *same* learner and features, still produces 15–20% of
-the real attribution's magnitude, with a confident top feature that means
-nothing:
-
-![Explanation-method comparison](reports/figures/l7_4_explanation_comparison.png)
-
-**Finding:** two methods agreeing is not, by itself, evidence an
-attribution is real. You need a shuffled-target control to know how much
-of an explanation is the method finding structure that isn't there.
-
-### One assumption, three different climates
-
-The same calibrated humidity-response term is active 16.8% of the year on
-the driest building and 66.0% of the year on the most humid: identical
-code, identical threshold, radically different behavior once climate
-decides how often it fires.
-
-![Humid vs. dry site comparison](reports/figures/l7_5_humid_vs_dry.png)
-
-**Finding:** a single fixed threshold silently becomes a different model
-depending on the site it's deployed to. That kind of assumption looks
-harmless in code review and only shows up once you plot two climates side
-by side.
+Full breakdown of both: `reports/07_explainability.md`,
+`reports/03_residual_analysis.md`.
 
 ---
 
@@ -211,34 +192,18 @@ instead of running a regression on the raw meter data. A regression
 cannot separate "humidity causes load" from "humidity and load both rise
 with temperature," and the gap here is 6×, not a rounding error.
 
-### Setpoint, chiller, and humidity-trigger scenarios
+### What-if scenarios, honestly bounded
 
-Every scenario the twin is asked gets three independent uncertainty
-estimates (conformal, block-bootstrap, and parameter-equifinality), and
-the widest of the three is reported, not the smallest:
-
-![Scenario sweep](reports/figures/l8_2_scenarios.png)
-
-**Finding:** the equifinality band (built from the parameter sets shown
-above) is consistently the widest of the three, and on one scenario it
-reaches 4× the point estimate and contains zero. That means "this change
-saves energy" is not a claim that scenario can support, even though the
-point estimate alone would suggest it.
-
-### The chiller and the pump can be made to disagree
-
-Sweeping chilled-water supply temperature against a fixed condenser return
-shows the chiller's efficiency and the pump's flow penalty moving in
-opposite directions, with the plant-level break-even landing on the
-documented 8–12% pump-share band the design literature predicts:
-
-![Chiller vs. pump trade-off](reports/figures/l8_2_chiller_pump_tradeoff.png)
-
-**Finding:** whether raising CHW supply temperature saves energy overall
-depends entirely on which side of the break-even the pump's share of
-plant load sits. A single-lever "raise the setpoint" recommendation is
-wrong without this trade-off, and the break-even moves 8–12% depending on
-which of the three example buildings it's computed on.
+Every setpoint, chiller, and humidity-trigger scenario the twin is asked
+gets three independent uncertainty estimates (conformal, block-bootstrap,
+parameter-equifinality), and the widest is always the one reported — on
+one scenario the equifinality band alone reaches 4× the point estimate and
+contains zero, meaning "this saves energy" isn't a claim that scenario can
+support. Raising chilled-water supply temperature can cut either way too:
+the chiller's efficiency gain and the pump's flow penalty move in
+opposite directions, and which one wins depends on the pump's share of
+plant load, with a break-even that shifts 8–12% across the three example
+buildings. Full breakdown: `reports/08_counterfactual.md`.
 
 ### The prediction intervals actually cover what they claim to
 
@@ -317,7 +282,7 @@ Read the reports in order for the full narrative: `00_building_selection` →
 ## Setup
 
 ```bash
-git clone <this repo> && cd data-center-cooling-digital-twin
+git clone <https://github.com/htet-khaing-win/ASHRAE-cal-digital-cooling-twin.git> && cd data-center-cooling-digital-twin
 conda env create -f environment.yml
 conda activate cooling-twin
 
