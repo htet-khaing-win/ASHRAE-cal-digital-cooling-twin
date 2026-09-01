@@ -86,6 +86,7 @@ module = [
     # every script into strict mode.
     "open_test_set",
     "run_calibration",
+    "run_counterfactual",
     "sklearn.*",
     "optuna.*",
     "mlflow.*",

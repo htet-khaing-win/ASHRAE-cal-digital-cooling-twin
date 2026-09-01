@@ -185,6 +185,48 @@ def scenario_intervals(
     }
 
 
+def behavioural_parameter_sets(
+    artifacts: Path, building_id: str
+) -> tuple[list[dict[str, float]], str | None]:
+    """L6.8's BEHAVIOURAL parameter sets for one building, and their source file.
+
+    The `behavioural` filter is the whole point and not a detail. An
+    equifinality study writes EVERY restart it evaluated, behavioural and
+    rejected alike, because `EquifinalityStudy.rethreshold()` needs the
+    rejected ones to answer "what if the 5% tolerance had been 10%".
+    `spread100` on `Fox_education_Claude` holds 41 candidates of which 3
+    are behavioural -- so a loader that takes every candidate carrying a
+    `parameters` key builds its ensemble mostly out of fits the study
+    explicitly REJECTED as sitting in different basins, and reports a
+    structural interval 77x too wide under a label claiming the opposite.
+    That is not a hypothetical: it is what `dashboard/data.py` did until
+    this function replaced its private copy of this loop.
+
+    Lives here, in the script that first needed it, rather than in
+    `src/cooling_twin/`: it is artifact-directory plumbing, not physics,
+    and `src/` may not depend on `reports/` having a particular layout.
+
+    Args:
+        artifacts: Directory holding `equifinality_*.json`.
+        building_id: BDG2 identifier to match on.
+
+    Returns:
+        `(parameter_sets, source_filename)`. Both are empty/`None` when
+        the building has no equifinality study on disk -- the honest
+        answer, since an UNMEASURED structural interval is not a zero one.
+    """
+    for path in sorted(artifacts.glob("equifinality_*.json"), reverse=True):
+        record = json.loads(path.read_text(encoding="utf-8"))
+        if record.get("building_id") != building_id:
+            continue
+        return [
+            candidate["parameters"]
+            for candidate in record.get("candidates", [])
+            if candidate.get("behavioural")
+        ], path.name
+    return [], None
+
+
 def parameter_ensemble(
     bundle: TwinBundle,
     scenarios: tuple[Scenario, ...],
@@ -209,17 +251,7 @@ def parameter_ensemble(
         `{scenario_name: {...}}` plus the parameter sets used, or None
         when the building has no equifinality study.
     """
-    candidates: list[dict[str, float]] = []
-    source = None
-    for path in sorted(artifacts.glob("equifinality_*.json"), reverse=True):
-        record = json.loads(path.read_text(encoding="utf-8"))
-        if record.get("building_id") != bundle.building_id:
-            continue
-        source = path.name
-        for candidate in record.get("candidates", []):
-            if candidate.get("behavioural"):
-                candidates.append(candidate["parameters"])
-        break
+    candidates, source = behavioural_parameter_sets(artifacts, bundle.building_id)
 
     if not candidates:
         logger.info(

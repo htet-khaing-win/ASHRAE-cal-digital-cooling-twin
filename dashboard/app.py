@@ -220,9 +220,18 @@ def render_hybrid_decomposition(roster: list[dict[str, str]], selected_building:
     st.subheader("Error decomposition: physics vs. ML residual vs. unexplained")
     hybrid = data.load_artifact("hybrid_2016.json")
     rows = []
+    missing: list[str] = []
     for entry in roster:
         record = data.artifact_building_record(hybrid, entry["building_id"])
         if record is None:
+            # A building with no hybrid run must be NAMED, never just
+            # dropped: the caption below promises the non-selected
+            # buildings are dimmed rather than hidden, and an absent bar
+            # for the CURRENTLY SELECTED building is the exact silent
+            # empty-panel failure L7.5 was caught by (07_PROGRESS.md,
+            # Session 025). Absent from the artifact is a fact about the
+            # project, so it is reported as one.
+            missing.append(entry["building_id"])
             continue
         out_of_fold = record["out_of_fold"]
         for component, value in (
@@ -238,6 +247,18 @@ def render_hybrid_decomposition(roster: list[dict[str, str]], selected_building:
                     "selected": entry["building_id"] == selected_building,
                 }
             )
+    if missing:
+        st.info(
+            f"**No bar for {', '.join(missing)}** -- "
+            "reports/calibration_runs/hybrid_2016.json has no record for "
+            f"{'this building' if len(missing) == 1 else 'these buildings'}, so there is no "
+            "measured physics/ML split to draw. Shown as absent rather than as a zero bar: "
+            "an unmeasured decomposition is not a decomposition of zero.",
+            icon="\U0001f4ed",
+        )
+    if not rows:
+        return
+
     frame = pd.DataFrame(rows)
 
     chart = (
@@ -263,7 +284,9 @@ def render_hybrid_decomposition(roster: list[dict[str, str]], selected_building:
     st.caption(
         "2016, out-of-fold (5-fold, 168 h embargo) -- the ML share is measured on hours the "
         "residual model was not fitted on. Source: reports/calibration_runs/hybrid_2016.json. "
-        "Bars for buildings other than the current selection are dimmed, not hidden."
+        "Every building the artifact covers is drawn; those other than the current selection "
+        "are dimmed, not hidden. Any building the artifact does not cover is named above "
+        "rather than silently omitted."
     )
 
 

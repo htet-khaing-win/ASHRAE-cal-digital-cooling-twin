@@ -65,6 +65,7 @@ if str(SCRIPTS_DIR) not in sys.path:
 
 from open_test_set import TEST_YEAR, frozen_parameters, load_with_spin_up  # noqa: E402
 from run_calibration import load_config, load_training_data  # noqa: E402
+from run_counterfactual import behavioural_parameter_sets  # noqa: E402
 
 from cooling_twin.models.plant import (  # noqa: E402
     PlantParams,
@@ -191,21 +192,26 @@ def artifact_building_record(artifact: dict[str, Any], building_id: str) -> dict
 def equifinality_candidates(building_id: str) -> list[dict[str, float]]:
     """Behavioural parameter sets from L6.8's equifinality study, if any.
 
-    Only `Fox_education_Claude` has one on disk (it is the only building
-    L6.8 was run for). Returning an empty list for every other building
-    is the honest answer, not a placeholder -- `run_counterfactual.py`
-    does the same and logs why (see its `parameter_ensemble_summary`).
+    Delegates to `run_counterfactual.behavioural_parameter_sets` rather
+    than re-reading the artifact here. This function used to carry its
+    own copy of that loop and the copy had drifted: it kept every
+    candidate with a `parameters` key instead of only the BEHAVIOURAL
+    ones, so the what-if panel's structural interval was built from 41
+    parameter sets when 3 are behavioural -- 38 of them fits the study
+    had explicitly rejected -- and came out 77x too wide. Importing the
+    one implementation is what stops that from happening a second time;
+    `tests/test_dashboard.py` asserts the two agree exactly.
+
+    Only `Fox_education_Claude` has a study on disk (it is the only
+    building L6.8 was run for). Returning an empty list for every other
+    building is the honest answer, not a placeholder: an UNMEASURED
+    structural interval is not a zero one.
     """
-    candidates: list[dict[str, float]] = []
-    for path in sorted(ARTIFACTS_DIR.glob("equifinality_*.json"), reverse=True):
-        record = json.loads(path.read_text(encoding="utf-8"))
-        if record.get("building_id") != building_id:
-            continue
-        for candidate in record.get("candidates", []):
-            if "parameters" in candidate:
-                candidates.append(candidate["parameters"])
-        if candidates:
-            break
+    # Annotated explicitly: `run_counterfactual` is in mypy's
+    # ignore_missing_imports list (it is a CLI script, not typed library
+    # code), so the call returns Any and the declared return type would
+    # otherwise be unenforced here.
+    candidates: list[dict[str, float]] = behavioural_parameter_sets(ARTIFACTS_DIR, building_id)[0]
     return candidates
 
 
@@ -366,9 +372,10 @@ class SetpointWhatIf:
     n_parameter_sets: int
 
 
+@st.cache_data(show_spinner=False)
 def compute_setpoint_what_if(
     building_id: str,
-    year_series: YearSeries,
+    _year_series: YearSeries,
     delta_c: float,
     alpha: float = DEFAULT_ALPHA,
 ) -> SetpointWhatIf:
@@ -384,7 +391,7 @@ def compute_setpoint_what_if(
 
     Args:
         building_id: BDG2 identifier, for the equifinality lookup.
-        year_series: The building's training-year twin and plant (2016 --
+        _year_series: The building's training-year twin and plant (2016 --
             callers must pass the 2016 `YearSeries` even when the
             dashboard is displaying 2017, per ADR-002).
         delta_c: Zone setpoint change to simulate, K. 0.0 is the
@@ -399,16 +406,16 @@ def compute_setpoint_what_if(
         description=f"Zone setpoint {delta_c:+.1f} K",
         zone_setpoint_delta_c=delta_c,
     )
-    result = simulate_setpoint_change(year_series.twin, scenario, year_series.plant)
+    result = simulate_setpoint_change(_year_series.twin, scenario, _year_series.plant)
 
     calibration, _scored = time_ordered_split(
-        year_series.measured_kw.size, CALIBRATION_FRACTION, embargo_hours=DEFAULT_BLOCK_HOURS
+        _year_series.measured_kw.size, CALIBRATION_FRACTION, embargo_hours=DEFAULT_BLOCK_HOURS
     )
-    physics_residual = year_series.measured_kw - result.baseline_load_kw
+    physics_residual = _year_series.measured_kw - result.baseline_load_kw
     scale_calibration = normalising_scale(result.baseline_load_kw[calibration])
     quantile = conformal_quantile(physics_residual[calibration], alpha, scale=scale_calibration)
     scale_full = normalising_scale(result.scenario_load_kw)
-    n_calibration = len(range(*calibration.indices(year_series.measured_kw.size)))
+    n_calibration = len(range(*calibration.indices(_year_series.measured_kw.size)))
     interval = conformal_interval(
         result.scenario_load_kw,
         quantile,
@@ -430,19 +437,19 @@ def compute_setpoint_what_if(
         ensemble_pct = []
         for params in candidates:
             twin_variant = CalibratedTwin(
-                t_seconds=year_series.twin.t_seconds,
-                t_ambient_c=year_series.twin.t_ambient_c,
-                humidity_ratio=year_series.twin.humidity_ratio,
-                wet_bulb_c=year_series.twin.wet_bulb_c,
-                floor_area_m2=year_series.twin.floor_area_m2,
+                t_seconds=_year_series.twin.t_seconds,
+                t_ambient_c=_year_series.twin.t_ambient_c,
+                humidity_ratio=_year_series.twin.humidity_ratio,
+                wet_bulb_c=_year_series.twin.wet_bulb_c,
+                floor_area_m2=_year_series.twin.floor_area_m2,
                 parameters=params,
-                envelope_capacity_ratio=year_series.twin.envelope_capacity_ratio,
-                ceiling_height_m=year_series.twin.ceiling_height_m,
-                supply_humidity_ratio=year_series.twin.supply_humidity_ratio,
+                envelope_capacity_ratio=_year_series.twin.envelope_capacity_ratio,
+                ceiling_height_m=_year_series.twin.ceiling_height_m,
+                supply_humidity_ratio=_year_series.twin.supply_humidity_ratio,
                 building_id=building_id,
-                year=year_series.twin.year,
+                year=_year_series.twin.year,
             )
-            variant_result = simulate_setpoint_change(twin_variant, scenario, year_series.plant)
+            variant_result = simulate_setpoint_change(twin_variant, scenario, _year_series.plant)
             ensemble_pct.append(variant_result.total_change_pct)
 
     return SetpointWhatIf(
